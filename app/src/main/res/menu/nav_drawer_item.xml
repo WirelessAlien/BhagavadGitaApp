@@ -1,0 +1,10 @@
+<!-- layout_nav_drawer.xml -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/about_gita"
+        android:title="@string/about_gita_menu" />
+    <item
+        android:id="@+id/nav_item2"
+        android:title="Menu Item 2" />
+    <!-- Add more items as needed -->
+</menu>

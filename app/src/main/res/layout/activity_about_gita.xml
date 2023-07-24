@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="15dp">
+
+    <TextView
+        android:id="@+id/textViewaboutGita"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textAllCaps="true"
+        android:textSize="20sp"
+        android:paddingTop="20dp"
+        android:text="@string/about_bhagavad_gita"/>
+    <TextView
+        android:id="@+id/textViewaboutGita1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:paddingTop="10dp"
+        android:layout_below="@+id/textViewaboutGita"
+        android:text="@string/about_gita"
+        />
+
+    <TextView
+        android:id="@+id/textViewaboutGita2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:textAllCaps="true"
+        android:paddingTop="10dp"
+        android:layout_below="@+id/textViewaboutGita1"
+        android:text="@string/gita_relevent"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:textSize="18sp"
+        android:paddingTop="10dp"
+        android:layout_below="@+id/textViewaboutGita2"
+        android:text="@string/gita_relevent_full"/>
+
+
+
+</RelativeLayout>
