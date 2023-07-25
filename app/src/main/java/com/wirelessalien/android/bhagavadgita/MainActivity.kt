@@ -1,6 +1,8 @@
 package com.wirelessalien.android.bhagavadgita
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -10,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.navigation.NavigationView
 import com.wirelessalien.android.bhagavadgita.activity.AboutGitaActivity
+import com.wirelessalien.android.bhagavadgita.activity.HanumanChalisaActivity
 import com.wirelessalien.android.bhagavadgita.adapter.ChapterAdapter
 import com.wirelessalien.android.bhagavadgita.data.Chapter
 import org.json.JSONArray
@@ -44,6 +47,8 @@ class MainActivity : AppCompatActivity() {
         // Setup the navigation drawer
         val drawerLayout: DrawerLayout = findViewById(R.id.drawerLayout)
         val navView: NavigationView = findViewById(R.id.navView)
+        val btnHanumanChalisa: Button = findViewById(R.id.hanumanChalisaText)
+        val btnAboutGita: Button = findViewById(R.id.btn_about_gita)
 
         // Create a toggle for the navigation drawer icon
         val toggle = ActionBarDrawerToggle(
@@ -56,21 +61,30 @@ class MainActivity : AppCompatActivity() {
         navView.setNavigationItemSelectedListener { menuItem ->
 
             when (menuItem.itemId) {
-                R.id.about_gita -> {
+                R.id.nav_about_gita -> {
                     intent.setClass(this, AboutGitaActivity::class.java)
                     startActivity(intent)
 
                 }
-                R.id.nav_item2 -> {
-                    // Handle Nav Item 2 click
-                    // For example, you can launch a new activity or perform some action
-                    // related to Nav Item 2.
+                R.id.nav_hanuman_chalisa -> {
+                    intent.setClass(this, HanumanChalisaActivity::class.java)
+                    startActivity(intent)
                 }
             }
 
             // Close the drawer after handling the item click
             drawerLayout.closeDrawer(GravityCompat.START)
             true
+        }
+        btnHanumanChalisa.setOnClickListener {
+            // Open the new activity when the button is clicked
+            val intent = Intent(this, HanumanChalisaActivity::class.java)
+            startActivity(intent)
+        }
+        btnAboutGita.setOnClickListener {
+            // Open the new activity when the button is clicked
+            val intent = Intent(this, AboutGitaActivity::class.java)
+            startActivity(intent)
         }
     }
 
