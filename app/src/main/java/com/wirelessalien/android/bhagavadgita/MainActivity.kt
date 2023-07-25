@@ -2,6 +2,8 @@ package com.wirelessalien.android.bhagavadgita
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.Button
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -10,23 +12,40 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.navigation.NavigationView
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.wirelessalien.android.bhagavadgita.activity.AboutGitaActivity
 import com.wirelessalien.android.bhagavadgita.activity.HanumanChalisaActivity
 import com.wirelessalien.android.bhagavadgita.adapter.ChapterAdapter
+import com.wirelessalien.android.bhagavadgita.adapter.SliderVerseAdapter
 import com.wirelessalien.android.bhagavadgita.data.Chapter
+import com.wirelessalien.android.bhagavadgita.data.Verse
 import org.json.JSONArray
+import java.io.IOException
+import java.nio.charset.Charset
+import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var chapterList: List<Chapter>
     private lateinit var recyclerView: RecyclerView
 
+    private lateinit var viewPager: ViewPager2
+    private lateinit var verseList: List<Verse>
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         recyclerView = findViewById(R.id.recyclerView)
+        viewPager = findViewById(R.id.viewPager)
+        verseList = loadVersesFromJson()
+
+        verseList = verseList.shuffled(Random(System.currentTimeMillis()))
+
 
         // Load JSON data from assets
         val jsonString = applicationContext.assets.open("chapters.json").bufferedReader().use {
@@ -56,6 +75,21 @@ class MainActivity : AppCompatActivity() {
         )
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
+
+        val adapter = SliderVerseAdapter(verseList)
+        viewPager.adapter = adapter
+
+        // Auto slide after every 10 seconds
+        val handler = Handler(Looper.getMainLooper())
+        val runnable = object : Runnable {
+            override fun run() {
+                viewPager.currentItem = (viewPager.currentItem + 1) % verseList.size
+                handler.postDelayed(this, 10000)
+            }
+        }
+
+        handler.postDelayed(runnable, 10000)
+
 
         // Handle navigation item clicks
         navView.setNavigationItemSelectedListener { menuItem ->
@@ -87,6 +121,25 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
     }
+
+    private fun loadVersesFromJson(): List<Verse> {
+        val json: String?
+        try {
+            val inputStream = assets.open("verse.json")
+            val size = inputStream.available()
+            val buffer = ByteArray(size)
+            inputStream.read(buffer)
+            inputStream.close()
+            json = String(buffer, Charset.defaultCharset())
+        } catch (e: IOException) {
+            e.printStackTrace()
+            return emptyList()
+        }
+
+        val listType = object : TypeToken<List<Verse>>() {}.type
+        return Gson().fromJson(json, listType)
+    }
+
 
 
     private fun parseJson(jsonString: String): List<Chapter> {
