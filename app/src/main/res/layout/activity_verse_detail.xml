@@ -30,7 +30,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardCornerRadius="10dp"
-        android:layout_margin="5dp">
+        android:layout_margin="5dp"
+        app:cardBackgroundColor="@color/md_theme_dark_secondary">
     <TextView
         android:id="@+id/verseTransliterationF"
         android:layout_width="wrap_content"
@@ -55,7 +56,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardCornerRadius="10dp"
-        android:layout_margin="5dp">
+        android:layout_margin="5dp"
+        app:cardBackgroundColor="@color/md_theme_dark_secondary">
     <TextView
         android:id="@+id/verseWordMeaningsF"
         android:layout_width="wrap_content"
