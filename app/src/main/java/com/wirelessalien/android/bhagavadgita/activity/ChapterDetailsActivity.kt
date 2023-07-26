@@ -56,17 +56,16 @@ class ChapterDetailActivity : AppCompatActivity() {
             }
         }
 
-
-                // Show only two lines of the English version of the chapter summary initially
+        // Show only two lines of the English version of the chapter summary initially
         binding.chapterSummaryTextView.text = getEllipsizedText(chapterSummary ?: "", 2, 40)
         binding.seeMoreTextView.setOnClickListener {
             isSummaryExpanded = !isSummaryExpanded
             if (isSummaryExpanded) {
                 binding.chapterSummaryTextView.text = chapterSummary
-                binding.seeMoreTextView.text
+                binding.seeMoreTextView.text = "See Less"
             } else {
                 binding.chapterSummaryTextView.text = getEllipsizedText(chapterSummary ?: "", 2, 40)
-                binding.seeMoreTextView.text
+                binding.seeMoreTextView.text = "See More"
             }
         }
 
@@ -76,10 +75,10 @@ class ChapterDetailActivity : AppCompatActivity() {
             isSummaryHindiExpanded = !isSummaryHindiExpanded
             if (isSummaryHindiExpanded) {
                 binding.chapterSummaryHindiTextView.text = chapterSummaryHindi
-                binding.seeMoreHindiTextView.text
+                binding.seeMoreHindiTextView.text = "छोटा करें"
             } else {
                 binding.chapterSummaryHindiTextView.text = getEllipsizedText(chapterSummaryHindi ?: "", 2, 40)
-                binding.seeMoreHindiTextView.text
+                binding.seeMoreHindiTextView.text = "और देखें"
             }
         }
 
