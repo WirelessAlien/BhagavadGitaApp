@@ -4,16 +4,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Button
-import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.GravityCompat
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.navigation.NavigationView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.wirelessalien.android.bhagavadgita.activity.AboutGitaActivity
@@ -63,18 +61,9 @@ class MainActivity : AppCompatActivity() {
         val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
-        // Setup the navigation drawer
-        val drawerLayout: DrawerLayout = findViewById(R.id.drawerLayout)
-        val navView: NavigationView = findViewById(R.id.navView)
         val btnHanumanChalisa: Button = findViewById(R.id.hanumanChalisaText)
         val btnAboutGita: Button = findViewById(R.id.btn_about_gita)
 
-        // Create a toggle for the navigation drawer icon
-        val toggle = ActionBarDrawerToggle(
-            this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
-        )
-        drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
 
         val adapter = SliderVerseAdapter(verseList)
         viewPager.adapter = adapter
@@ -90,26 +79,6 @@ class MainActivity : AppCompatActivity() {
 
         handler.postDelayed(runnable, 10000)
 
-
-        // Handle navigation item clicks
-        navView.setNavigationItemSelectedListener { menuItem ->
-
-            when (menuItem.itemId) {
-                R.id.nav_about_gita -> {
-                    intent.setClass(this, AboutGitaActivity::class.java)
-                    startActivity(intent)
-
-                }
-                R.id.nav_hanuman_chalisa -> {
-                    intent.setClass(this, HanumanChalisaActivity::class.java)
-                    startActivity(intent)
-                }
-            }
-
-            // Close the drawer after handling the item click
-            drawerLayout.closeDrawer(GravityCompat.START)
-            true
-        }
         btnHanumanChalisa.setOnClickListener {
             // Open the new activity when the button is clicked
             val intent = Intent(this, HanumanChalisaActivity::class.java)
@@ -121,6 +90,25 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
     }
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.nav_about_gita -> {
+                intent.setClass(this, AboutGitaActivity::class.java)
+                startActivity(intent)
+            }
+            R.id.nav_hanuman_chalisa -> {
+                intent.setClass(this, HanumanChalisaActivity::class.java)
+                startActivity(intent)
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
 
     private fun loadVersesFromJson(): List<Verse> {
         val json: String?
