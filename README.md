@@ -31,12 +31,12 @@ Features:
 
 ## Screenshots
 
-<img src="https://github.com/WirelessAlien/BhagavadGitaApp/assets/121420261/996617e7-b5ad-4385-a23c-4c9729128ad4" width="140" height="290" />
-<img src="https://github.com/WirelessAlien/BhagavadGitaApp/assets/121420261/a7cf90ec-63f4-49ca-8c24-33ee11e6023d" width="140" height="290" />
-<img src="https://github.com/WirelessAlien/BhagavadGitaApp/assets/121420261/ba950de7-423c-4c2d-a354-454368be7c36" width="140" height="290" />
-<img src="https://github.com/WirelessAlien/BhagavadGitaApp/assets/121420261/f3eafe1d-3d52-432b-a6dc-984fd0d936ed" width="140" height="290" />
-<img src="https://github.com/WirelessAlien/BhagavadGitaApp/assets/121420261/8adeb650-6927-4e07-8519-958fe5fb3e00" width="140" height="290" />
-<img src="https://github.com/WirelessAlien/BhagavadGitaApp/assets/121420261/42c0501c-0561-45bc-a96c-b12822f78dc8" width="140" height="290" />
+<img src="https://github.com/WirelessAlien/BhagavadGitaApp/assets/121420261/996617e7-b5ad-4385-a23c-4c9729128ad4" width="130" height="280" />
+<img src="https://github.com/WirelessAlien/BhagavadGitaApp/assets/121420261/a7cf90ec-63f4-49ca-8c24-33ee11e6023d" width="130" height="280" />
+<img src="https://github.com/WirelessAlien/BhagavadGitaApp/assets/121420261/ba950de7-423c-4c2d-a354-454368be7c36" width="130" height="280" />
+<img src="https://github.com/WirelessAlien/BhagavadGitaApp/assets/121420261/f3eafe1d-3d52-432b-a6dc-984fd0d936ed" width="130" height="280" />
+<img src="https://github.com/WirelessAlien/BhagavadGitaApp/assets/121420261/8adeb650-6927-4e07-8519-958fe5fb3e00" width="130" height="280" />
+<img src="https://github.com/WirelessAlien/BhagavadGitaApp/assets/121420261/42c0501c-0561-45bc-a96c-b12822f78dc8" width="130" height="280" />
 
 ## Contributing
 
