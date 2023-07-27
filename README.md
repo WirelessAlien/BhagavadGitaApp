@@ -58,7 +58,7 @@ Contributions are what make the open source community such an amazing place to b
 
 Distributed under the GPL v3.0 License. See [LICENSE](https://github.com/WirelessAlien/BhagavadGitaApp/blob/master/LICENSE) for more information.
 
-## Acknowledgements
+## Credit
 
 * All the data (Chapters, Verse, Tranlation) are from [Gita](https://github.com/gita/gita) repository by
 Ved Vyas Foundation 
