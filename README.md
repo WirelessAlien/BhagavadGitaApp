@@ -39,7 +39,7 @@ Features:
 <img src="https://github.com/WirelessAlien/BhagavadGitaApp/assets/121420261/e112da5b-2825-4cdf-a1ec-87a33d7f0890" width="130" height="280" />
 <img src="https://github.com/WirelessAlien/BhagavadGitaApp/assets/121420261/09e949ca-4045-4176-9277-27b784a6ee2e" width="130" height="280" />
 
-## Contributing
+## Contribution
 
 Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 * If you have suggestions for adding or removing projects, feel free to [open an issue](https://github.com/WirelessAlien/BhagavadGitaApp/issues/new) to discuss it, or directly create a pull request after you edit the *README.md* file with necessary changes.
