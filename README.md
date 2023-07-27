@@ -7,10 +7,10 @@
   <h3 align="center">Bhagavad Gita App</h3>
 
   <p align="center">
-    An Simple Android App for Bhagavad Gita
+    A Simple Android App for Bhagavad Gita
     <br/>
     <br/>
-    <a href="https://github.com/WirelessAlien/BhagavadGitaApp">View Demo</a>
+    <a href="https://github.com/WirelessAlien/BhagavadGitaApp/releases">Releases</a>
     .
     <a href="https://github.com/WirelessAlien/BhagavadGitaApp/issues">Report Bug</a>
     .
@@ -20,11 +20,12 @@
 
 ## About The Project
 
-This Android app provides the chapter and verse translation of the Bhagavad Gita. It is for anyone who is interested in learning more about this amazing ancient text.
+This Android app provides the chapter and verse of the Bhagavad Gita. It is for anyone who is interested in learning about this amazing ancient text.
 
 Features:
 
-* Provides the chapter and verse translation of the Bhagavad Gita
+* Provides the chapter and verse (with translation) of the Bhagavad Gita
+* Hanuman Chalisa
 * Language available - Hindi, English
 * Offline support
 
