@@ -115,11 +115,11 @@ class VerseDetailActivity : AppCompatActivity() {
 
         binding.viewTranslationButton.setOnClickListener {
             // Get the current verse number
-            val currentVerseNumber = currentVerseIndex
+            val currentVerseNumber = verses[currentVerseIndex].verse_number
 
             // Create an intent to open the new activity
             val intent = Intent(this, VerseTranslationActivity::class.java)
-            intent.putExtra("verseNumber", currentVerseNumber)
+            intent.putExtra("verse_number", currentVerseNumber)
             startActivity(intent)
         }
     }

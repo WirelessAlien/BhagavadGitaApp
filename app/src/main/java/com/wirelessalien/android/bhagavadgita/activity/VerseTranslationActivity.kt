@@ -17,7 +17,7 @@ class VerseTranslationActivity : AppCompatActivity() {
         setContentView(R.layout.activity_verse_translation)
 
         // Retrieve the selected verse number from the intent
-        val verseNumber = intent.getIntExtra("verseNumber", -1)
+        val verseNumber = intent.getIntExtra("verse_number", 0)
 
 
         // Find the translations for the given verseNumber
@@ -38,7 +38,7 @@ class VerseTranslationActivity : AppCompatActivity() {
         val translations: List<Translation> = gson.fromJson(jsonString, listTranslationType)
 
         // Filter the list of translations to get the translations for the given verse number
-        return translations.filter { it.verseNumber == verseNumber }
+        return translations.filter { it.verse_number == verseNumber }
     }
 
     private fun getJsonDataFromAsset(fileName: String): String? {

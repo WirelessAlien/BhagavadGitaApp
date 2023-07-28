@@ -21,7 +21,7 @@ class TranslationAdapter(private val Translation: List<Translation>, private val
             if (isClickActionEnabled) {
                 binding.root.setOnClickListener {
                     val intent = Intent(binding.root.context, VerseTranslationActivity::class.java)
-                    intent.putExtra("verse_number", translation.verseNumber)
+                    intent.putExtra("verse_number", translation.verse_number)
                     intent.putExtra("description", translation.description)
                     binding.root.context.startActivity(intent)
                 }

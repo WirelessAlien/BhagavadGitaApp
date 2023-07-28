@@ -5,6 +5,6 @@ data class Translation(
     val description: String,
     val id: Int,
     val lang: String,
-    val verseNumber: Int,
+    val verse_number: Int,
     val verse_id: Int
 )
