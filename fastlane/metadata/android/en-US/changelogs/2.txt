@@ -1,0 +1,1 @@
+Bug Fix: Showing wrong translation for respective verses.
