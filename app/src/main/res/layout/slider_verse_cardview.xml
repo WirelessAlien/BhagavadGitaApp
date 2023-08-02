@@ -27,5 +27,4 @@
             tools:targetApi="o" />
     </androidx.cardview.widget.CardView>
 
-
 </LinearLayout>

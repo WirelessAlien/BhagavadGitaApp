@@ -1,9 +1,11 @@
 <!-- activity_verse_detail.xml -->
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+<LinearLayout android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical">
 
     <!-- Verse Title -->
@@ -79,36 +81,44 @@
         android:padding="10dp"/>
     </androidx.cardview.widget.CardView>
 
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <SeekBar
+            android:id="@+id/seekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="15dp"
+            android:layout_toEndOf="@id/playPauseButton"
+            android:max="100"
+            android:progress="0" />
+
+        <ImageButton
+            android:id="@+id/playPauseButton"
+            style="?attr/materialIconButtonStyle"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:contentDescription="@string/play"
+            android:layout_alignParentStart="true"
+            android:src="@drawable/ic_play"/>
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:visibility="gone" />
+
+    </RelativeLayout>
+
     <Button
         android:id="@+id/viewTranslationButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:text="@string/translation" />
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp">
-
-    <Button
-        android:id="@+id/previousVerseButton"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
-        android:layout_marginStart="5dp"
-        style="@style/Widget.MaterialComponents.Button.IconOnly"
-        android:layout_alignParentStart="true"
-        app:icon="@drawable/ic_back"/>
-
-    <Button
-        android:id="@+id/nextVerseButton"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
-        android:layout_marginEnd="5dp"
-        style="@style/Widget.MaterialComponents.Button.IconOnly"
-        app:icon="@drawable/ic_next"
-        android:layout_alignParentEnd="true"/>
-    </RelativeLayout>
 
     <Button
         android:id="@+id/nextChapterButton"
@@ -118,6 +128,6 @@
         android:text="@string/next_chapter"
         android:visibility="gone" />
 
-
-
 </LinearLayout>
+
+</ScrollView>
