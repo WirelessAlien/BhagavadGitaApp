@@ -5,7 +5,6 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
@@ -162,6 +161,7 @@ class VerseDetailActivity : AppCompatActivity() {
 
     private fun onSwipeRight() {
         if (currentVerseIndex > 0) {
+            pauseAudio()
             currentVerseIndex--
             val prevVerse = verses[currentVerseIndex]
             updateVerseDetails(binding, prevVerse)
@@ -171,6 +171,7 @@ class VerseDetailActivity : AppCompatActivity() {
 
     private fun onSwipeLeft() {
         if (currentVerseIndex < verses.size - 1) {
+            pauseAudio()
             currentVerseIndex++
             val nextVerse = verses[currentVerseIndex]
             updateVerseDetails(binding, nextVerse)
@@ -217,23 +218,18 @@ class VerseDetailActivity : AppCompatActivity() {
     private fun playAudio(audioUrl: String, progressBar: ProgressBar) {
         GlobalScope.launch(Dispatchers.IO) {
             val fileName = audioUrl.substringAfterLast("/")
-            Log.d("VerseDetailActivity", fileName)
             val cacheDir = applicationContext.cacheDir
             val subDirName = "audio_cache"
             val chapterNumber = verses[currentVerseIndex].chapter_number
             val subDir = File(cacheDir, "$subDirName/chapter_$chapterNumber")
-            Log.d("VerseDetailActivity", subDir.absolutePath)
+
             if (!subDir.exists()) {
                 subDir.mkdirs()
             }
 
             val file = File(subDir, fileName)
-            withContext(Dispatchers.Main) {
-                progressBar.visibility = View.VISIBLE
-                progressBar.progress = 0 // Reset progress to 0 before download
-            }
 
-            if (!file.exists()) {
+            try {
                 val urlConnection = URL(audioUrl).openConnection()
                 val contentLength = urlConnection.contentLength
                 val inputStream = urlConnection.getInputStream()
@@ -251,23 +247,35 @@ class VerseDetailActivity : AppCompatActivity() {
                 }
                 inputStream.close()
                 outputStream.close()
-            }
 
-            withContext(Dispatchers.Main) {
-                if (::mediaPlayer.isInitialized) {
-                    mediaPlayer.release()
+                withContext(Dispatchers.Main) {
+                    if (::mediaPlayer.isInitialized) {
+                        mediaPlayer.release()
+                    }
+                    mediaPlayer = MediaPlayer()
+                    mediaPlayer.setDataSource(file.absolutePath)
+                    mediaPlayer.prepare()
+                    mediaPlayer.start()
+                    isPlaying = true
+                    progressBar.visibility = View.GONE
+                    updatePlayPauseButton()
+                    startSeekBarUpdate()
                 }
-                mediaPlayer = MediaPlayer()
-                mediaPlayer.setDataSource(file.absolutePath)
-                mediaPlayer.prepare()
-                mediaPlayer.start()
-                isPlaying = true
-                progressBar.visibility = View.GONE
-                updatePlayPauseButton()
-                startSeekBarUpdate()
+            } catch (e: IOException) {
+                // Handle the error when the audioUrl is invalid or the internet connection is not available.
+                withContext(Dispatchers.Main) {
+                    progressBar.visibility = View.GONE
+                    // Show a Toast
+                    Toast.makeText(
+                        applicationContext,
+                        "Unable to play the audio. Please check your internet connection.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
     }
+
 
     private fun pauseAudio() {
         mediaPlayer.pause()

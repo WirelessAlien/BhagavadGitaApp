@@ -1,5 +1,5 @@
 <!-- activity_verse_detail.xml -->
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto">
@@ -130,4 +130,4 @@
 
 </LinearLayout>
 
-</ScrollView>
+</RelativeLayout>
