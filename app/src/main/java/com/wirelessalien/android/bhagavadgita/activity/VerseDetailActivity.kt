@@ -19,14 +19,17 @@ import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.data.Chapter
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityVerseDetailBinding
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.net.URL
 import kotlin.math.abs
 
-@OptIn(DelicateCoroutinesApi::class)
 class VerseDetailActivity : AppCompatActivity() {
     private var currentVerseIndex = 0
     private lateinit var verses: List<Verse>
@@ -216,7 +219,7 @@ class VerseDetailActivity : AppCompatActivity() {
     }
 
     private fun playAudio(audioUrl: String, progressBar: ProgressBar) {
-        GlobalScope.launch(Dispatchers.IO) {
+        CoroutineScope(Dispatchers.IO).launch {
             val fileName = audioUrl.substringAfterLast("/")
             val cacheDir = applicationContext.cacheDir
             val subDirName = "audio_cache"
@@ -228,44 +231,48 @@ class VerseDetailActivity : AppCompatActivity() {
             }
 
             val file = File(subDir, fileName)
+            withContext(Dispatchers.Main) {
+                progressBar.visibility = View.VISIBLE
+                progressBar.progress = 0
+            }
 
             try {
-                val urlConnection = URL(audioUrl).openConnection()
-                val contentLength = urlConnection.contentLength
-                val inputStream = urlConnection.getInputStream()
-                val outputStream = FileOutputStream(file)
-                val buffer = ByteArray(1024)
-                var totalBytesRead = 0
-                var bytesRead: Int
-                while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-                    outputStream.write(buffer, 0, bytesRead)
-                    totalBytesRead += bytesRead
-                    val progress = (totalBytesRead * 100 / contentLength)
-                    withContext(Dispatchers.Main) {
-                        progressBar.progress = progress
+                withContext(Dispatchers.IO) {
+                    if (!file.exists()) {
+                        val urlConnection = URL(audioUrl).openConnection()
+                        val contentLength = urlConnection.contentLength
+                        val inputStream = urlConnection.getInputStream()
+                        val outputStream = FileOutputStream(file)
+                        val buffer = ByteArray(1024)
+                        var totalBytesRead = 0
+                        var bytesRead: Int
+                        while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                            outputStream.write(buffer, 0, bytesRead)
+                            totalBytesRead += bytesRead
+                            val progress = (totalBytesRead * 100 / contentLength)
+                            withContext(Dispatchers.Main) {
+                                progressBar.progress = progress
+                            }
+                        }
+                        inputStream.close()
+                        outputStream.close()
                     }
                 }
-                inputStream.close()
-                outputStream.close()
-
                 withContext(Dispatchers.Main) {
-                    if (::mediaPlayer.isInitialized) {
-                        mediaPlayer.release()
+                    mediaPlayer.release()
+                    mediaPlayer = MediaPlayer().apply {
+                        setDataSource(file.absolutePath)
+                        prepare()
+                        start()
                     }
-                    mediaPlayer = MediaPlayer()
-                    mediaPlayer.setDataSource(file.absolutePath)
-                    mediaPlayer.prepare()
-                    mediaPlayer.start()
                     isPlaying = true
                     progressBar.visibility = View.GONE
                     updatePlayPauseButton()
                     startSeekBarUpdate()
                 }
             } catch (e: IOException) {
-                // Handle the error when the audioUrl is invalid or the internet connection is not available.
                 withContext(Dispatchers.Main) {
                     progressBar.visibility = View.GONE
-                    // Show a Toast
                     Toast.makeText(
                         applicationContext,
                         "Unable to play the audio. Please check your internet connection.",
@@ -275,7 +282,6 @@ class VerseDetailActivity : AppCompatActivity() {
             }
         }
     }
-
 
     private fun pauseAudio() {
         mediaPlayer.pause()
