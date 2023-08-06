@@ -1,3 +1,41 @@
+<!--
+  ~  This file is part of BhagavadGitaApp. @WirelessAlien
+  ~
+  ~  BhagavadGitaApp is free software: you can redistribute it and/or modify
+  ~  it under the terms of the GNU General Public License as published by
+  ~  the Free Software Foundation, either version 3 of the License, or
+  ~  (at your option) any later version.
+  ~
+  ~  BhagavadGitaApp is distributed in the hope that it will be useful,
+  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~  GNU General Public License for more details.
+  ~
+  ~   You should have received a copy of the GNU General Public License
+  ~   along with BhagavadGitaApp. If not, see <https://www.gnu.org/licenses/>.
+  ~
+  ~
+  -->
+
+<!--
+  ~  This file is part of BhagavadGitaApp. @WirelessAlien
+  ~
+  ~  BhagavadGitaApp is free software: you can redistribute it and/or modify
+  ~  it under the terms of the GNU General Public License as published by
+  ~  the Free Software Foundation, either version 3 of the License, or
+  ~  (at your option) any later version.
+  ~
+  ~  BhagavadGitaApp is distributed in the hope that it will be useful,
+  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~  GNU General Public License for more details.
+  ~
+  ~   You should have received a copy of the GNU General Public License
+  ~   along with BhagavadGitaApp. If not, see <https://www.gnu.org/licenses/>.
+  ~
+  ~
+  -->
+
 <vector android:height="96dp" android:viewportHeight="32"
     android:viewportWidth="32" android:width="96dp" xmlns:android="http://schemas.android.com/apk/res/android">
     <path android:fillColor="#FF000000" android:pathData="M29,19.121C29,21.207 28.156,26.574 23.59,26.574C19.238,26.574 17.652,22.73 17.953,21.34C18.203,21.766 18.996,23.957 23.277,23.957C27.668,23.957 27.715,19.078 27.715,19.078C27.715,19.078 27.641,15.617 24.965,15.617C21.699,15.617 21.59,20.809 18.309,20.809C16.664,20.809 16.113,19.938 15.781,19.699C16.488,21.895 15.652,27 10.277,27C2.605,27 3.004,18.723 3.004,18.723C3.004,18.723 4.289,23.824 10.145,23.824C13.715,23.824 14.184,21.785 14.184,20.852C14.184,19.922 13.473,18.281 10.277,18.281L9.578,14.965C9.578,14.965 10.523,15.273 11.691,15.273C13.23,15.273 13.582,14.246 13.582,13.402C13.582,12.563 12.758,11.711 11.25,11.711C8.914,11.711 7.039,14.109 7.039,14.109L5.223,10.738C5.223,10.738 6.91,8.563 10.328,8.563C13.742,8.563 15.293,11.359 15.293,13C15.293,14.641 14.527,16 13.074,16.77C15.035,17.691 14.441,18.367 15.691,18.367C17.762,18.367 18.043,16.676 19.016,15.141C19.914,13.73 21.191,12.469 23.453,12.469C27.98,12.469 29,17.039 29,19.121ZM20.172,11.98C22.473,11.98 24.254,10.648 24.254,10.648L22.344,7.277C22.344,7.277 21.016,9.141 18.441,9.141C15.867,9.141 13.738,6.789 13.738,6.789C13.738,6.789 14.715,11.98 20.172,11.98ZM20.527,6.613L18.617,4.57L16.488,6.434L18.398,8.609Z"/>
