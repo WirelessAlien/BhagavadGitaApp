@@ -25,6 +25,7 @@ This Android app provides the chapter and verse of the Bhagavad Gita. It is for 
 Features:
 
 * Provides the chapter and verse (with translation) of the Bhagavad Gita
+* Audio suport for verses
 * Hanuman Chalisa
 * Language available - Hindi, English
 * Offline support
