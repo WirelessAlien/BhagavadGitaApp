@@ -18,6 +18,8 @@
   </p>
 </p>
 
+<p align="center"><a href="https://f-droid.org/en/packages/com.wirelessalien.android.bhagavadgita/"><img src="https://fdroid.gitlab.io/artwork/badge/get-it-on-en.svg" alt="Get it on F-Droid" height=80/></a></p>
+
 ## About The Project
 
 This Android app provides the chapter and verse of the Bhagavad Gita. It is for anyone who is interested in learning about this amazing ancient text.
