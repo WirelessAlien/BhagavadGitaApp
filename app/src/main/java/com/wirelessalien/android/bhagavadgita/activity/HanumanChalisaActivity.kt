@@ -39,6 +39,7 @@
 
 package com.wirelessalien.android.bhagavadgita.activity
 
+import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -46,6 +47,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityHanumanChalisaBinding
 import com.wirelessalien.android.bhagavadgita.fragment.HanumanChalisaE
 import com.wirelessalien.android.bhagavadgita.fragment.HanumanChalisaH
@@ -58,6 +60,13 @@ class HanumanChalisaActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val sharedPreferences = getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
+
+        when (sharedPreferences.getString("chosenTheme", "default")) {
+            "black" -> setTheme(R.style.AppTheme_Black)
+            else -> setTheme(R.style.AppTheme)
+        }
 
         binding = ActivityHanumanChalisaBinding.inflate(layoutInflater)
         setContentView(binding.root)

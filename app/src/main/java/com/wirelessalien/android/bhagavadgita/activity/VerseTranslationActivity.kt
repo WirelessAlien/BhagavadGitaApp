@@ -39,6 +39,7 @@
 
 package com.wirelessalien.android.bhagavadgita.activity
 
+import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -53,10 +54,17 @@ import java.io.IOException
 class VerseTranslationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val sharedPreferences = getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
+
+        when (sharedPreferences.getString("chosenTheme", "default")) {
+            "black" -> setTheme(R.style.AppTheme_Black)
+            else -> setTheme(R.style.AppTheme)
+        }
         setContentView(R.layout.activity_verse_translation)
 
         // Retrieve the selected verse number from the intent
-        val verseNumber = intent.getIntExtra("verse_number", 0)
+        val verseNumber = intent.getIntExtra("verse_id", 0)
 
 
         // Find the translations for the given verseNumber
@@ -77,7 +85,7 @@ class VerseTranslationActivity : AppCompatActivity() {
         val translations: List<Translation> = gson.fromJson(jsonString, listTranslationType)
 
         // Filter the list of translations to get the translations for the given verse number
-        return translations.filter { it.verse_number == verseNumber }
+        return translations.filter { it.verse_id == verseNumber }
     }
 
     private fun getJsonDataFromAsset(fileName: String): String? {

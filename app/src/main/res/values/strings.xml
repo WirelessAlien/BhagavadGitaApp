@@ -1,4 +1,3 @@
-
 <!--
   ~  This file is part of BhagavadGitaApp. @WirelessAlien
   ~
@@ -57,4 +56,5 @@
     <string name="author">Author:</string>
     <string name="translation_cvi">Translation:</string>
     <string name="chapter">Chapter</string>
+    <string name="title_activity_settings">SettingsActivity</string>
 </resources>

@@ -39,6 +39,7 @@
 
 package com.wirelessalien.android.bhagavadgita.activity
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.ProgressBar
@@ -46,6 +47,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.adapter.VerseAdapter
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityChapterDetailBinding
@@ -63,6 +65,12 @@ class ChapterDetailActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val sharedPreferences = getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
+
+        when (sharedPreferences.getString("chosenTheme", "default")) {
+            "black" -> setTheme(R.style.AppTheme_Black)
+            else -> setTheme(R.style.AppTheme)
+        }
         val binding = ActivityChapterDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

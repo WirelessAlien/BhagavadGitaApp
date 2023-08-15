@@ -47,7 +47,7 @@ data class Verse(
     val text: String,
     val title: String,
     val verse_number: Int,
-    val verse_order: Int,
+    val verse_id: Int,
     val transliteration: String,
     val word_meanings: String
 )

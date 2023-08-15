@@ -39,6 +39,7 @@
 
 package com.wirelessalien.android.bhagavadgita.activity
 
+import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.wirelessalien.android.bhagavadgita.R
@@ -47,6 +48,12 @@ class AboutGitaActivity: AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val sharedPreferences = getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
+
+        when (sharedPreferences.getString("chosenTheme", "default")) {
+            "black" -> setTheme(R.style.AppTheme_Black)
+            else -> setTheme(R.style.AppTheme)
+        }
         setContentView(R.layout.activity_about_gita)
     }
 }

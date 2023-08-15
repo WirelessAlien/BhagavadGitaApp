@@ -39,6 +39,7 @@
 
 package com.wirelessalien.android.bhagavadgita.activity
 
+import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -58,11 +59,7 @@ import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.data.Chapter
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityVerseDetailBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Runnable
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -78,9 +75,16 @@ class VerseDetailActivity : AppCompatActivity() {
     private lateinit var gestureDetector: GestureDetectorCompat
 
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val sharedPreferences = getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
+
+        when (sharedPreferences.getString("chosenTheme", "default")) {
+            "black" -> setTheme(R.style.AppTheme_Black)
+            else -> setTheme(R.style.AppTheme)
+        }
         binding = ActivityVerseDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -131,9 +135,9 @@ class VerseDetailActivity : AppCompatActivity() {
         }
 
         binding.viewTranslationButton.setOnClickListener {
-            val currentVerseNumber = verses[currentVerseIndex].verse_number
+            val currentVerseNumber = verses[currentVerseIndex].verse_id
             val intent = Intent(this, VerseTranslationActivity::class.java)
-            intent.putExtra("verse_number", currentVerseNumber)
+            intent.putExtra("verse_id", currentVerseNumber)
             startActivity(intent)
         }
 
