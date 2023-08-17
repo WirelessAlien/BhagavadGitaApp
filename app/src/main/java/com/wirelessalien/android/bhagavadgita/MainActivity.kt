@@ -22,15 +22,12 @@ package com.wirelessalien.android.bhagavadgita
 
 import android.content.Context
 import android.content.Intent
-import android.content.res.TypedArray
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.color.DynamicColors
@@ -43,7 +40,7 @@ import com.wirelessalien.android.bhagavadgita.adapter.SliderVerseAdapter
 import com.wirelessalien.android.bhagavadgita.data.Chapter
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityMainBinding
-import com.wirelessalien.android.bhagavadgita.fragment.SettingsFragment
+import com.wirelessalien.android.bhagavadgita.fragment.ThemeFragment
 import org.json.JSONArray
 import java.io.IOException
 import java.nio.charset.Charset
@@ -58,10 +55,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewPager: ViewPager2
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
-        DynamicColors.applyToActivityIfAvailable(this)
-        DynamicColors.applyToActivitiesIfAvailable(this.application)
-        window.statusBarColor = getThemeColor(this, com.google.android.material.R.attr.colorPrimary)
 
         super.onCreate(savedInstanceState)
 
@@ -71,8 +64,6 @@ class MainActivity : AppCompatActivity() {
             "black" -> setTheme(R.style.AppTheme_Black)
             else -> setTheme(R.style.AppTheme)
         }
-
-
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
@@ -124,14 +115,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun getThemeColor(context: Context, colorResId: Int): Int {
-        val typedValue = TypedValue()
-        val typedArray: TypedArray = context.obtainStyledAttributes(typedValue.data, intArrayOf(colorResId))
-        val color = typedArray.getColor(0, 0)
-        typedArray.recycle()
-        return color
-    }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
         return super.onCreateOptionsMenu(menu)
@@ -148,7 +131,7 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
             }
             R.id.nav_theme -> {
-                val themeDialog = SettingsFragment()
+                val themeDialog = ThemeFragment()
                 themeDialog.show(supportFragmentManager, "theme_dialog")
                 return true
             }

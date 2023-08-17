@@ -30,14 +30,13 @@ import androidx.fragment.app.DialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.wirelessalien.android.bhagavadgita.R
 
-class SettingsFragment : DialogFragment() {
+class ThemeFragment : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.activity_settings, null)
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.fragment_theme, null)
         val radioGroup = dialogView.findViewById<RadioGroup>(R.id.themeRadioGroup)
         val lightButton = dialogView.findViewById<RadioButton>(R.id.lightThemeButton)
         val darkButton = dialogView.findViewById<RadioButton>(R.id.darkThemeButton)
-        dialogView.findViewById<RadioButton>(R.id.systemThemeButton)
         dialogView.findViewById<RadioButton>(R.id.blackThemeButton)
 
         val sharedPreferences = requireContext().getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
@@ -62,10 +61,6 @@ class SettingsFragment : DialogFragment() {
                     sharedPrefEditor.putBoolean("darkMode", true)
                     sharedPrefEditor.putString("chosenTheme", "dark")
                 }
-                R.id.systemThemeButton -> {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-                    sharedPrefEditor.putBoolean("darkMode", false)
-                }
                 R.id.blackThemeButton -> {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
                     sharedPrefEditor.putBoolean("darkMode", true)
@@ -83,5 +78,4 @@ class SettingsFragment : DialogFragment() {
             .create()
     }
 }
-
 

@@ -49,5 +49,11 @@
         <item name="iconGravity">textStart</item>
     </style>
 
+    <style name="RoundImageView">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerRadius">100dp</item>
+    </style>
+
+
 
 </resources>

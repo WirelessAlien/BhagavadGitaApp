@@ -80,13 +80,5 @@
 
     </style>
 
-    <style name="AppTheme.Starting" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/cardview_dark_background</item>
-
-        <item name="windowSplashScreenAnimatedIcon">@drawable/launcher_icon_light</item>
-        <item name="windowSplashScreenAnimationDuration">200</item>
-
-        <item name="postSplashScreenTheme">@style/AppTheme</item>
-    </style>NoActionBar
 
 </resources>
