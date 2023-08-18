@@ -31,7 +31,7 @@ import com.wirelessalien.android.bhagavadgita.R
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
 
-    private val splashTimeOut: Long = 3000 // 3 seconds
+    private val splashTimeOut: Long = 2000 // 3 seconds
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
