@@ -18,26 +18,7 @@
   ~
   -->
 
-<!--
-  ~  This file is part of BhagavadGitaApp. @WirelessAlien
-  ~
-  ~  BhagavadGitaApp is free software: you can redistribute it and/or modify
-  ~  it under the terms of the GNU General Public License as published by
-  ~  the Free Software Foundation, either version 3 of the License, or
-  ~  (at your option) any later version.
-  ~
-  ~  BhagavadGitaApp is distributed in the hope that it will be useful,
-  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  ~  GNU General Public License for more details.
-  ~
-  ~   You should have received a copy of the GNU General Public License
-  ~   along with BhagavadGitaApp. If not, see <https://www.gnu.org/licenses/>.
-  ~
-  ~
-  -->
-
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <style name="AppTheme" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/md_theme_light_primary</item>
         <item name="colorOnPrimary">@color/md_theme_light_onPrimary</item>
@@ -67,7 +48,7 @@
         <item name="colorPrimaryInverse">@color/md_theme_light_inversePrimary</item>
     </style>
 
-    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+    <style name="AppTheme.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/cardview_light_background</item>
 
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
@@ -75,4 +56,5 @@
 
         <item name="postSplashScreenTheme">@style/AppTheme</item>
     </style>
+    
 </resources>

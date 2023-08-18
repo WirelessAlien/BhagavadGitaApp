@@ -1,4 +1,3 @@
-
 /*
  *  This file is part of BhagavadGitaApp. @WirelessAlien
  *
@@ -20,21 +19,29 @@
 
 package com.wirelessalien.android.bhagavadgita.activity
 
-import android.content.Context
+import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
+import com.wirelessalien.android.bhagavadgita.MainActivity
 import com.wirelessalien.android.bhagavadgita.R
 
-class AboutGitaActivity: AppCompatActivity() {
+@SuppressLint("CustomSplashScreen")
+class SplashActivity : AppCompatActivity() {
+
+    private val splashTimeOut: Long = 2000 // 3 seconds
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val sharedPreferences = getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
+        setContentView(R.layout.activity_splash)
 
-        when (sharedPreferences.getString("chosenTheme", "default")) {
-            "black" -> setTheme(R.style.AppTheme_Black)
-            else -> setTheme(R.style.AppTheme)
-        }
-        setContentView(R.layout.activity_about_gita)
+        Handler(Looper.getMainLooper()).postDelayed({
+            // This method will be executed once the timer is over
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish()
+        }, splashTimeOut)
     }
 }

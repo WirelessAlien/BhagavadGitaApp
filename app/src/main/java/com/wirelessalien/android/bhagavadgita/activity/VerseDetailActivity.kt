@@ -1,21 +1,3 @@
-/*
- *  This file is part of BhagavadGitaApp. @WirelessAlien
- *
- *  BhagavadGitaApp is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  BhagavadGitaApp is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with BhagavadGitaApp. If not, see <https://www.gnu.org/licenses/>.
- *
- *
- */
 
 /*
  *  This file is part of BhagavadGitaApp. @WirelessAlien
@@ -38,6 +20,7 @@
 
 package com.wirelessalien.android.bhagavadgita.activity
 
+import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -57,11 +40,7 @@ import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.data.Chapter
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityVerseDetailBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Runnable
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -77,9 +56,16 @@ class VerseDetailActivity : AppCompatActivity() {
     private lateinit var gestureDetector: GestureDetectorCompat
 
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val sharedPreferences = getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
+
+        when (sharedPreferences.getString("chosenTheme", "default")) {
+            "black" -> setTheme(R.style.AppTheme_Black)
+            else -> setTheme(R.style.AppTheme)
+        }
         binding = ActivityVerseDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -130,9 +116,9 @@ class VerseDetailActivity : AppCompatActivity() {
         }
 
         binding.viewTranslationButton.setOnClickListener {
-            val currentVerseNumber = verses[currentVerseIndex].verse_number
+            val currentVerseNumber = verses[currentVerseIndex].verse_id
             val intent = Intent(this, VerseTranslationActivity::class.java)
-            intent.putExtra("verse_number", currentVerseNumber)
+            intent.putExtra("verse_id", currentVerseNumber)
             startActivity(intent)
         }
 

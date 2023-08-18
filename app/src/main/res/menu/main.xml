@@ -17,27 +17,9 @@
   ~
   -->
 
-<!--
-  ~  This file is part of BhagavadGitaApp. @WirelessAlien
-  ~
-  ~  BhagavadGitaApp is free software: you can redistribute it and/or modify
-  ~  it under the terms of the GNU General Public License as published by
-  ~  the Free Software Foundation, either version 3 of the License, or
-  ~  (at your option) any later version.
-  ~
-  ~  BhagavadGitaApp is distributed in the hope that it will be useful,
-  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  ~  GNU General Public License for more details.
-  ~
-  ~   You should have received a copy of the GNU General Public License
-  ~   along with BhagavadGitaApp. If not, see <https://www.gnu.org/licenses/>.
-  ~
-  ~
-  -->
-
 <!-- layout_nav_drawer.xml -->
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/nav_about_gita"
         android:title="@string/about_gita_menu"
@@ -46,4 +28,10 @@
         android:id="@+id/nav_hanuman_chalisa"
         android:title="@string/hanuman_chalisa"
         android:icon="@drawable/om_icon"/>
+    <item
+        android:id="@+id/nav_theme"
+        android:title="Theme"
+        android:icon="@drawable/ic_dark_mode"
+        android:visible="true"
+        app:showAsAction="always"/>
 </menu>

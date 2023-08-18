@@ -1,4 +1,3 @@
-
 /*
  *  This file is part of BhagavadGitaApp. @WirelessAlien
  *
@@ -18,17 +17,16 @@
  *
  */
 
-package com.wirelessalien.android.bhagavadgita.data
+package com.wirelessalien.android.bhagavadgita
 
-data class Chapter(
-    val chapter_number: Int,
-    val chapter_summary: String,
-    val chapter_summary_hindi: String,
-    val id: Int,
-    val image_name: String,
-    val name: String,
-    val name_meaning: String,
-    val name_translation: String,
-    val name_transliterated: String,
-    val verses_count: Int
-)
+import android.app.Application
+import com.google.android.material.color.DynamicColors
+
+class ApplicationClass : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        // Apply dynamic color
+        DynamicColors.applyToActivitiesIfAvailable(this)
+
+    }
+}

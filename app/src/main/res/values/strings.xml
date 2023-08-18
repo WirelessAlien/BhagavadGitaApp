@@ -1,21 +1,3 @@
-<!--
-  ~  This file is part of BhagavadGitaApp. @WirelessAlien
-  ~
-  ~  BhagavadGitaApp is free software: you can redistribute it and/or modify
-  ~  it under the terms of the GNU General Public License as published by
-  ~  the Free Software Foundation, either version 3 of the License, or
-  ~  (at your option) any later version.
-  ~
-  ~  BhagavadGitaApp is distributed in the hope that it will be useful,
-  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  ~  GNU General Public License for more details.
-  ~
-  ~   You should have received a copy of the GNU General Public License
-  ~   along with BhagavadGitaApp. If not, see <https://www.gnu.org/licenses/>.
-  ~
-  ~
-  -->
 
 <!--
   ~  This file is part of BhagavadGitaApp. @WirelessAlien
@@ -56,4 +38,12 @@
     <string name="author">Author:</string>
     <string name="translation_cvi">Translation:</string>
     <string name="chapter">Chapter</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="pref_key_night">night_mode_preference</string>
+    <string name="pref_title_night_mode">Night Mode</string>
+    <string name="pref_summary_night_mode">Choose your preferred night mode</string>
+    <string name="pref_night_light">Light Mode</string>
+    <string name="pref_night_dark">Dark Mode</string>
+    <string name="pref_night_special">Special Black Mode</string>
+    <string name="pref_night_auto">System Default</string>
 </resources>
