@@ -69,6 +69,7 @@ class VerseDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         val sharedPreferences = getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
+        val sharedPref = getSharedPreferences("author_prefs", Context.MODE_PRIVATE)
 
         when (sharedPreferences.getString("chosenTheme", "default")) {
             "black" -> setTheme(R.style.AppTheme_Black)
@@ -105,9 +106,17 @@ class VerseDetailActivity : AppCompatActivity() {
         authorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         authorSpinner.adapter = authorAdapter
 
+        val savedAuthor = sharedPref.getString("selectedAuthor", "")
+        val savedAuthorPosition = allAuthors.indexOf(savedAuthor)
+
+        if (savedAuthorPosition != -1) {
+            authorSpinner.setSelection(savedAuthorPosition)
+        }
+
         authorSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 selectedAuthor = allAuthors[position]
+                sharedPref.edit().putString("selectedAuthor", selectedAuthor).apply()
 
                 updateTranslationList()
             }
