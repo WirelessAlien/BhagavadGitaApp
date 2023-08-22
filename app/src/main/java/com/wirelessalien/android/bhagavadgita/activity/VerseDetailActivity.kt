@@ -29,15 +29,17 @@ import android.os.Looper
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
-import android.widget.ProgressBar
-import android.widget.SeekBar
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GestureDetectorCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.wirelessalien.android.bhagavadgita.R
+import com.wirelessalien.android.bhagavadgita.adapter.TranslationAdapter
 import com.wirelessalien.android.bhagavadgita.data.Chapter
+import com.wirelessalien.android.bhagavadgita.data.Translation
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityVerseDetailBinding
 import kotlinx.coroutines.CoroutineScope
@@ -58,6 +60,8 @@ class VerseDetailActivity : AppCompatActivity() {
     private var isPlaying = false
     private lateinit var binding: ActivityVerseDetailBinding
     private lateinit var gestureDetector: GestureDetectorCompat
+    private lateinit var translations: List<Translation>
+    private lateinit var selectedAuthor: String
 
 
 
@@ -74,9 +78,10 @@ class VerseDetailActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         gestureDetector = GestureDetectorCompat(this, MyGestureListener())
+        binding.root.setOnTouchListener { _, event -> gestureDetector.onTouchEvent(event) }
 
         mediaPlayer = MediaPlayer()
-
+        verses = emptyList()
 
         // Retrieve verse details and chapter number from intent extras
         val chapterNumber = intent.getIntExtra("chapter_number", 0)
@@ -85,13 +90,37 @@ class VerseDetailActivity : AppCompatActivity() {
         val verseTransliteration = intent.getStringExtra("verse_transliteration")
         val verseWordMeanings = intent.getStringExtra("verse_word_meanings")
 
+        // Retrieve the list of translations from the JSON file
+        val jsonString = getJsonDataFromAsset("translation.json")
+        val gson = Gson()
+        val listTranslationType = object : TypeToken<List<Translation>>() {}.type
+        translations = gson.fromJson(jsonString, listTranslationType)
+
+        // Find all available authors from the translations
+        val allAuthors = translations.map { it.authorName }.distinct()
+
+        // Set up a spinner/dropdown for author selection use binding
+        val authorSpinner = binding.authorSpinner
+        val authorAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, allAuthors)
+        authorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        authorSpinner.adapter = authorAdapter
+
+        authorSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                selectedAuthor = allAuthors[position]
+
+                updateTranslationList()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
         // Update the layout with the verse details
         binding.verseTitleTextView.text = verseTitle
         binding.verseContentTextView.text = verseText
         binding.verseTransliterationTextView.text = verseTransliteration
         binding.verseWordMeaningsTextView.text = verseWordMeanings
 
-        // Retrieve the list of verses for the given chapter
         verses = getVerses(chapterNumber)
 
         // Find the index of the selected verse in the list of verses
@@ -196,6 +225,7 @@ class VerseDetailActivity : AppCompatActivity() {
             currentVerseIndex--
             val prevVerse = verses[currentVerseIndex]
             updateVerseDetails(binding, prevVerse)
+            updateTranslationList()
 
         }
     }
@@ -206,6 +236,7 @@ class VerseDetailActivity : AppCompatActivity() {
             currentVerseIndex++
             val nextVerse = verses[currentVerseIndex]
             updateVerseDetails(binding, nextVerse)
+            updateTranslationList()
             if (currentVerseIndex == verses.size - 1) {
                 binding.nextChapterButton.visibility = View.VISIBLE
             }
@@ -214,6 +245,29 @@ class VerseDetailActivity : AppCompatActivity() {
         }
     }
 
+    private fun updateTranslationList() {
+
+        // Filter the list of translations based on the selected author and verse number
+        val filteredTranslations = translations.filter {
+            it.authorName == selectedAuthor && it.verse_id == verses[currentVerseIndex].verse_id
+        }
+
+        val recyclerView = findViewById<RecyclerView>(R.id.translationRecyclerView)
+        val adapter = TranslationAdapter(filteredTranslations)
+        recyclerView.adapter = adapter
+        recyclerView.layoutManager = LinearLayoutManager(this)
+    }
+
+    private fun getJsonDataFromAsset(fileName: String): String? {
+        return try {
+            applicationContext.assets.open(fileName).bufferedReader().use {
+                it.readText()
+            }
+        } catch (ioException: IOException) {
+            ioException.printStackTrace()
+            null
+        }
+    }
     private fun updateVerseDetails(binding: ActivityVerseDetailBinding, verse: Verse) {
         binding.verseTitleTextView.text = verse.title
         binding.verseContentTextView.text = verse.text
@@ -343,7 +397,6 @@ class VerseDetailActivity : AppCompatActivity() {
         }, 0)
     }
 
-    //onStop() is called when the activity is no longer visible to the user
     override fun onStop() {
         super.onStop()
         if (::mediaPlayer.isInitialized) {
@@ -352,7 +405,6 @@ class VerseDetailActivity : AppCompatActivity() {
             updatePlayPauseButton()
         }
     }
-
 
     override fun onDestroy() {
         super.onDestroy()

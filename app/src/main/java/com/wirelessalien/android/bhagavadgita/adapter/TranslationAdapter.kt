@@ -20,52 +20,40 @@
 
 package com.wirelessalien.android.bhagavadgita.adapter
 
-import android.content.Intent
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.wirelessalien.android.bhagavadgita.activity.VerseTranslationActivity
+import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.data.Translation
-import com.wirelessalien.android.bhagavadgita.databinding.TranslationCardviewItemBinding
 
-class TranslationAdapter(private val Translation: List<Translation>, private val isClickActionEnabled: Boolean = false)  :
+class TranslationAdapter(private val translations: List<Translation>) :
     RecyclerView.Adapter<TranslationAdapter.TranslationViewHolder>() {
 
-    inner class TranslationViewHolder(private val binding: TranslationCardviewItemBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-
-        fun bind(translation: Translation) {
-            binding.authorNameTextView.text = translation.authorName
-            binding.tversedescriptionTextView.text = translation.description
-
-            if (isClickActionEnabled) {
-                binding.root.setOnClickListener {
-                    val intent = Intent(binding.root.context, VerseTranslationActivity::class.java)
-                    intent.putExtra("verse_number", translation.verse_number)
-                    intent.putExtra("description", translation.description)
-                    binding.root.context.startActivity(intent)
-                }
-            } else {
-                binding.root.setOnClickListener(null)
-            }
-        }
+    class TranslationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val authorNameTextView: TextView = itemView.findViewById(R.id.authorNameTextView)
+        val translationTextView: TextView = itemView.findViewById(R.id.tversedescriptionTextView)
     }
 
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TranslationViewHolder {
-        val binding = TranslationCardviewItemBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
-        return TranslationViewHolder(binding)
+        Log.d("TranslationAdapter", "Creating view holder")
+
+        val itemView = LayoutInflater.from(parent.context)
+            .inflate(R.layout.translation_cardview_item, parent, false) // Replace with your layout XML
+        return TranslationViewHolder(itemView)
     }
 
     override fun onBindViewHolder(holder: TranslationViewHolder, position: Int) {
-        holder.bind(Translation[position])
+        val translation = translations[position]
+        Log.d("TranslationAdapter", "Binding view holder with translation: $translation")
+
+        holder.authorNameTextView.text = translation.authorName
+        holder.translationTextView.text = translation.description
     }
 
     override fun getItemCount(): Int {
-        return Translation.size
+        return translations.size
     }
 }
