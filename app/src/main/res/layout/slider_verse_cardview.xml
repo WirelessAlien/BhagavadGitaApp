@@ -25,11 +25,15 @@
     android:layout_height="match_parent">
 
     <!-- Customize this layout as per your design preference -->
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="150dp"
         android:layout_margin="15dp"
-        app:cardCornerRadius="10dp">
+        style="@style/Widget.Material3.CardView.Outlined"
+        app:cardElevation="5dp"
+        app:strokeColor="@color/md_theme_light_primary"
+        app:strokeWidth="2dp"
+        app:cardCornerRadius="5dp">
 
         <TextView
             android:id="@+id/verseTextView"
@@ -43,6 +47,6 @@
             android:padding="5dp"
             android:textSize="14sp"
             tools:targetApi="o" />
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>

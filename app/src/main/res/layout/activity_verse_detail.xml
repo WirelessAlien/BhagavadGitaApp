@@ -54,10 +54,12 @@
         android:layout_width="match_parent"
         android:layout_height="15dp"/>
     <!-- Verse Transliteration -->
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardCornerRadius="5dp"
+        style="@style/Widget.Material3.CardView.Outlined"
+        app:cardElevation="5dp"
         android:layout_margin="10dp">
     <TextView
         android:id="@+id/verseTransliterationF"
@@ -74,15 +76,17 @@
         android:textSize="16sp"
         android:padding="12dp"
         android:layout_marginTop="22dp"/>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
     <Space
         android:layout_width="match_parent"
         android:layout_height="15dp"/>
     <!-- Verse Word Meanings -->
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardCornerRadius="5dp"
+        style="@style/Widget.Material3.CardView.Outlined"
+        app:cardElevation="5dp"
         android:layout_margin="10dp">
 
         <TextView
@@ -100,7 +104,7 @@
         android:layout_marginTop="22dp"
         android:textSize="16sp"
         android:padding="10dp"/>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.card.MaterialCardView
     android:layout_width="match_parent"
