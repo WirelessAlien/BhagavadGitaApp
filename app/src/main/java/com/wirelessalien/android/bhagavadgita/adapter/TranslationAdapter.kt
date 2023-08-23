@@ -20,7 +20,6 @@
 
 package com.wirelessalien.android.bhagavadgita.adapter
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -38,7 +37,6 @@ class TranslationAdapter(private val translations: List<Translation>) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TranslationViewHolder {
-        Log.d("TranslationAdapter", "Creating view holder")
 
         val itemView = LayoutInflater.from(parent.context)
             .inflate(R.layout.translation_cardview_item, parent, false) // Replace with your layout XML
@@ -47,7 +45,7 @@ class TranslationAdapter(private val translations: List<Translation>) :
 
     override fun onBindViewHolder(holder: TranslationViewHolder, position: Int) {
         val translation = translations[position]
-        Log.d("TranslationAdapter", "Binding view holder with translation: $translation")
+
 
         holder.authorNameTextView.text = translation.authorName
         holder.translationTextView.text = translation.description

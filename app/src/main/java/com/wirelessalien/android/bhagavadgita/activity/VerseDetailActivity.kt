@@ -37,8 +37,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.wirelessalien.android.bhagavadgita.R
+import com.wirelessalien.android.bhagavadgita.adapter.CommentaryAdapter
 import com.wirelessalien.android.bhagavadgita.adapter.TranslationAdapter
 import com.wirelessalien.android.bhagavadgita.data.Chapter
+import com.wirelessalien.android.bhagavadgita.data.Commentary
 import com.wirelessalien.android.bhagavadgita.data.Translation
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityVerseDetailBinding
@@ -62,8 +64,8 @@ class VerseDetailActivity : AppCompatActivity() {
     private lateinit var gestureDetector: GestureDetectorCompat
     private lateinit var translations: List<Translation>
     private lateinit var selectedAuthor: String
-
-
+    private lateinit var commentary: List<Commentary>
+    private lateinit var selectedLanguageC: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,6 +85,8 @@ class VerseDetailActivity : AppCompatActivity() {
 
         mediaPlayer = MediaPlayer()
         verses = emptyList()
+        commentary = emptyList()
+        translations = emptyList()
 
         // Retrieve verse details and chapter number from intent extras
         val chapterNumber = intent.getIntExtra("chapter_number", 0)
@@ -91,16 +95,10 @@ class VerseDetailActivity : AppCompatActivity() {
         val verseTransliteration = intent.getStringExtra("verse_transliteration")
         val verseWordMeanings = intent.getStringExtra("verse_word_meanings")
 
-        // Retrieve the list of translations from the JSON file
-        val jsonString = getJsonDataFromAsset("translation.json")
-        val gson = Gson()
-        val listTranslationType = object : TypeToken<List<Translation>>() {}.type
-        translations = gson.fromJson(jsonString, listTranslationType)
+        translations = getTranslationsFromJson("translation.json")
 
         // Find all available authors from the translations
         val allAuthors = translations.map { it.authorName }.distinct()
-
-        // Set up a spinner/dropdown for author selection use binding
         val authorSpinner = binding.authorSpinner
         val authorAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, allAuthors)
         authorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -119,6 +117,30 @@ class VerseDetailActivity : AppCompatActivity() {
                 sharedPref.edit().putString("selectedAuthor", selectedAuthor).apply()
 
                 updateTranslationList()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        commentary = getCommentaryFromJson("commentary.json")
+        val allLanguage = commentary.map { it.lang }.distinct()
+        val languageSpinner = binding.cAuthorSpinner
+        val commentaryAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, allLanguage)
+        commentaryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        languageSpinner.adapter = commentaryAdapter
+
+        val savedLang = sharedPref.getString("selectedLang", "")
+        val savedLangPosition = allLanguage.indexOf(savedLang)
+
+        if (savedLangPosition != -1) {
+            languageSpinner.setSelection(savedLangPosition)
+        }
+
+        languageSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                selectedLanguageC = allLanguage[position]
+                sharedPref.edit().putString("selectedLang", selectedLanguageC).apply()
+                updateCommentaryList()
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
@@ -193,6 +215,19 @@ class VerseDetailActivity : AppCompatActivity() {
         })
     }
 
+    private fun getTranslationsFromJson(fileName: String): List<Translation> {
+        val jsonString = getJsonDataFromAsset(fileName)
+        val listTranslationType = object : TypeToken<List<Translation>>() {}.type
+        return Gson().fromJson(jsonString, listTranslationType)
+    }
+
+
+    private fun getCommentaryFromJson(fileName: String): List<Commentary> {
+        val jsonString = getJsonDataFromAsset(fileName)
+        val listCommentaryType = object : TypeToken<List<Commentary>>() {}.type
+        return Gson().fromJson(jsonString, listCommentaryType)
+    }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         return gestureDetector.onTouchEvent(event) || super.onTouchEvent(event)
     }
@@ -235,6 +270,7 @@ class VerseDetailActivity : AppCompatActivity() {
             val prevVerse = verses[currentVerseIndex]
             updateVerseDetails(binding, prevVerse)
             updateTranslationList()
+            updateCommentaryList()
 
         }
     }
@@ -246,6 +282,7 @@ class VerseDetailActivity : AppCompatActivity() {
             val nextVerse = verses[currentVerseIndex]
             updateVerseDetails(binding, nextVerse)
             updateTranslationList()
+            updateCommentaryList()
             if (currentVerseIndex == verses.size - 1) {
                 binding.nextChapterButton.visibility = View.VISIBLE
             }
@@ -263,6 +300,18 @@ class VerseDetailActivity : AppCompatActivity() {
 
         val recyclerView = findViewById<RecyclerView>(R.id.translationRecyclerView)
         val adapter = TranslationAdapter(filteredTranslations)
+        recyclerView.adapter = adapter
+        recyclerView.layoutManager = LinearLayoutManager(this)
+    }
+    private fun updateCommentaryList() {
+
+        val filteredCommentary = commentary.filter {
+            it.lang == selectedLanguageC && it.verse_id == verses[currentVerseIndex].verse_id
+        }
+
+        // Set up the RecyclerView to display the filtered translations
+        val recyclerView = findViewById<RecyclerView>(R.id.commentaryRecyclerView)
+        val adapter = CommentaryAdapter(filteredCommentary)
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(this)
     }

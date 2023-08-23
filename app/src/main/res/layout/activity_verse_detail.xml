@@ -174,6 +174,31 @@
         android:clipToPadding="false"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
 
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        style="@style/Widget.Material3.CardView.Outlined"
+        app:cardCornerRadius="5dp">
+
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/cAuthorSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+    </com.google.android.material.card.MaterialCardView>
+
+
+    <!-- RecyclerView to display the list of translations -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/commentaryRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:clipToPadding="false"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
     <Button
         android:id="@+id/nextChapterButton"
         android:layout_width="wrap_content"
