@@ -28,6 +28,7 @@ Features:
 
 * Provides the chapter and verse (with translation) of the Bhagavad Gita
 * Audio support for verses
+* Commentary support for verses (Hindi & English)
 * Hanuman Chalisa
 * Language available - Hindi, English
 * Offline support
