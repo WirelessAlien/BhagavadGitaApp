@@ -18,7 +18,6 @@
   -->
 
 <resources>
-    <color name="seed">#bd5740</color>
     <color name="md_theme_light_primary">#9F412B</color>
     <color name="md_theme_light_onPrimary">#FFFFFF</color>
     <color name="md_theme_light_primaryContainer">#FFDAD2</color>
@@ -45,10 +44,6 @@
     <color name="md_theme_light_inverseOnSurface">#FBEEEB</color>
     <color name="md_theme_light_inverseSurface">#362F2D</color>
     <color name="md_theme_light_inversePrimary">#FFB4A3</color>
-    <color name="md_theme_light_shadow">#000000</color>
-    <color name="md_theme_light_surfaceTint">#9F412B</color>
-    <color name="md_theme_light_outlineVariant">#D8C2BD</color>
-    <color name="md_theme_light_scrim">#000000</color>
     <color name="md_theme_dark_primary">#FFB4A3</color>
     <color name="md_theme_dark_onPrimary">#601303</color>
     <color name="md_theme_dark_primaryContainer">#7F2A17</color>
@@ -75,13 +70,5 @@
     <color name="md_theme_dark_inverseOnSurface">#201A19</color>
     <color name="md_theme_dark_inverseSurface">#EDE0DD</color>
     <color name="md_theme_dark_inversePrimary">#9F412B</color>
-    <color name="md_theme_dark_shadow">#000000</color>
-    <color name="md_theme_dark_surfaceTint">#FFB4A3</color>
-    <color name="md_theme_dark_outlineVariant">#534340</color>
-    <color name="md_theme_dark_scrim">#000000</color>
     <color name="black">#000000</color>
-    <color name="white">#FFFFFF</color>
-    <color name="transparent">#00000000</color>
-    <color name="blue">#2196F3</color>
-    <color name="gray">#717171</color>
 </resources>

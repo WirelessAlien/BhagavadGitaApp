@@ -19,10 +19,12 @@
   -->
 
 <!-- activity_verse_detail.xml -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView android:id="@+id/scrollView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
 <LinearLayout android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -52,11 +54,13 @@
         android:layout_width="match_parent"
         android:layout_height="15dp"/>
     <!-- Verse Transliteration -->
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="10dp"
-        android:layout_margin="5dp">
+        app:cardCornerRadius="5dp"
+        style="@style/Widget.Material3.CardView.Outlined"
+        app:cardElevation="5dp"
+        android:layout_margin="10dp">
     <TextView
         android:id="@+id/verseTransliterationF"
         android:layout_width="wrap_content"
@@ -72,16 +76,18 @@
         android:textSize="16sp"
         android:padding="12dp"
         android:layout_marginTop="22dp"/>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
     <Space
         android:layout_width="match_parent"
-        android:layout_height="20dp"/>
+        android:layout_height="15dp"/>
     <!-- Verse Word Meanings -->
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="10dp"
-        android:layout_margin="5dp">
+        app:cardCornerRadius="5dp"
+        style="@style/Widget.Material3.CardView.Outlined"
+        app:cardElevation="5dp"
+        android:layout_margin="10dp">
 
         <TextView
         android:id="@+id/verseWordMeaningsF"
@@ -98,9 +104,14 @@
         android:layout_marginTop="22dp"
         android:textSize="16sp"
         android:padding="10dp"/>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
-
+    <com.google.android.material.card.MaterialCardView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp"
+    style="@style/Widget.Material3.CardView.Outlined"
+    app:cardCornerRadius="5dp">
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -110,9 +121,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_marginStart="0dp"
             android:layout_marginTop="15dp"
             android:layout_toEndOf="@id/playPauseButton"
+            android:layout_toStartOf="@id/viewTranslationButton"
             android:max="100"
             android:progress="0" />
 
@@ -124,20 +135,73 @@
             android:contentDescription="@string/play"
             android:layout_alignParentStart="true"
             android:src="@drawable/ic_play"/>
+
+        <ImageButton
+            android:id="@+id/viewTranslationButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_translate"
+            android:layout_alignParentEnd="true"
+            style="?attr/materialIconButtonStyle"
+            android:contentDescription="@string/translation" />
+
         <ProgressBar
             android:id="@+id/progressBar"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:visibility="gone" />
-
     </RelativeLayout>
+</com.google.android.material.card.MaterialCardView>
 
-    <Button
-        android:id="@+id/viewTranslationButton"
-        android:layout_width="wrap_content"
+    <com.google.android.material.card.MaterialCardView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp"
+    style="@style/Widget.Material3.CardView.Outlined"
+    app:cardCornerRadius="5dp">
+
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/authorSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+    </com.google.android.material.card.MaterialCardView>
+
+
+    <!-- RecyclerView to display the list of translations -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/translationRecyclerView"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="@string/translation" />
+        android:padding="5dp"
+        android:clipToPadding="false"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        style="@style/Widget.Material3.CardView.Outlined"
+        app:cardCornerRadius="5dp">
+
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/cAuthorSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+    </com.google.android.material.card.MaterialCardView>
+
+
+    <!-- RecyclerView to display the list of translations -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/commentaryRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:clipToPadding="false"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
 
     <Button
         android:id="@+id/nextChapterButton"
@@ -148,5 +212,4 @@
         android:visibility="gone" />
 
 </LinearLayout>
-
-</RelativeLayout>
+</androidx.core.widget.NestedScrollView>

@@ -38,12 +38,5 @@
     <string name="author">Author:</string>
     <string name="translation_cvi">Translation:</string>
     <string name="chapter">Chapter</string>
-    <string name="title_activity_settings">SettingsActivity</string>
-    <string name="pref_key_night">night_mode_preference</string>
-    <string name="pref_title_night_mode">Night Mode</string>
-    <string name="pref_summary_night_mode">Choose your preferred night mode</string>
-    <string name="pref_night_light">Light Mode</string>
-    <string name="pref_night_dark">Dark Mode</string>
-    <string name="pref_night_special">Special Black Mode</string>
-    <string name="pref_night_auto">System Default</string>
+    <string name="commentary">Commentary:</string>
 </resources>

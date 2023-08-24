@@ -31,18 +31,18 @@
         android:padding="15dp"
         android:orientation="vertical">
 
-        <RadioButton
+        <com.google.android.material.radiobutton.MaterialRadioButton
             android:id="@+id/lightThemeButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Light Theme" />
 
-        <RadioButton
+        <com.google.android.material.radiobutton.MaterialRadioButton
             android:id="@+id/darkThemeButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Dark Theme" />
-        <RadioButton
+        <com.google.android.material.radiobutton.MaterialRadioButton
             android:id="@+id/blackThemeButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
