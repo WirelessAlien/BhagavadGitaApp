@@ -21,6 +21,7 @@
 
 package com.wirelessalien.android.bhagavadgita.adapter
 
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,27 +33,53 @@ import com.wirelessalien.android.bhagavadgita.data.Commentary
 class CommentaryAdapter(private val commentary: List<Commentary>) :
     RecyclerView.Adapter<CommentaryAdapter.CommentaryViewHolder>() {
 
-    class CommentaryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    private var authorNameTextSize: Float = 16F // Default text size for author names in SP
+    private var commentaryTextSize: Float = 16F // Default text size for commentaries in SP
+
+    inner class CommentaryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val authorNameTextView: TextView = itemView.findViewById(R.id.authorNameTextView)
-        val translationTextView: TextView = itemView.findViewById(R.id.tversedescriptionTextView)
+        val commentaryTextView: TextView = itemView.findViewById(R.id.tversedescriptionTextView)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommentaryViewHolder {
-
         val itemView = LayoutInflater.from(parent.context)
-            .inflate(R.layout.commentary_cardview_item, parent, false) // Replace with your layout XML
+            .inflate(R.layout.commentary_cardview_item, parent, false)
         return CommentaryViewHolder(itemView)
     }
 
     override fun onBindViewHolder(holder: CommentaryViewHolder, position: Int) {
-        val commentary = commentary[position]
+        val commentaryItem = commentary[position]
 
+        // Set the text sizes based on their respective variables
+        holder.authorNameTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, authorNameTextSize.toFloat())
+        holder.commentaryTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, commentaryTextSize.toFloat())
 
-        holder.authorNameTextView.text = commentary.authorName
-        holder.translationTextView.text = commentary.description
+        // Bind data to the views
+        holder.authorNameTextView.text = commentaryItem.authorName
+        holder.commentaryTextView.text = commentaryItem.description
     }
 
     override fun getItemCount(): Int {
         return commentary.size
     }
+
+    // Methods to set the text sizes dynamically
+    fun setAuthorNameTextSize(newTextSize: Float) {
+        this.authorNameTextSize = newTextSize
+        notifyDataSetChanged()
+    }
+
+    fun setCommentaryTextSize(newTextSize: Float) {
+        this.commentaryTextSize = newTextSize
+        notifyDataSetChanged()
+    }
+
+    fun getAllCommentaryText(): String {
+        var allCommentaryText = ""
+        for (commentaryItem in commentary) {
+            allCommentaryText += commentaryItem.description + "\n\n"
+        }
+        return allCommentaryText
+    }
 }
+

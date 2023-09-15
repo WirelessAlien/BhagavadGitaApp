@@ -33,7 +33,6 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GestureDetectorCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.wirelessalien.android.bhagavadgita.R
@@ -44,11 +43,7 @@ import com.wirelessalien.android.bhagavadgita.data.Commentary
 import com.wirelessalien.android.bhagavadgita.data.Translation
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityVerseDetailBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Runnable
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -122,6 +117,23 @@ class VerseDetailActivity : AppCompatActivity() {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
+        val textSizeSeekBar = binding.textSizeSeekBar
+        textSizeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                // Update the text size of all TextView elements
+                updateTextSize(progress)
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                // No action needed when tracking starts
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                // No action needed when tracking stops
+            }
+        })
+
+
         commentary = getCommentaryFromJson("commentary.json")
         val allLanguage = commentary.map { it.lang }.distinct()
         val languageSpinner = binding.cAuthorSpinner
@@ -177,6 +189,10 @@ class VerseDetailActivity : AppCompatActivity() {
                 Toast.makeText(this, "No more chapters available.", Toast.LENGTH_SHORT).show()
                 binding.nextChapterButton.isEnabled = false
             }
+        }
+
+        binding.shareButton.setOnClickListener {
+            shareText()
         }
 
         binding.viewTranslationButton.setOnClickListener {
@@ -298,10 +314,11 @@ class VerseDetailActivity : AppCompatActivity() {
             it.authorName == selectedAuthor && it.verse_id == verses[currentVerseIndex].verse_id
         }
 
-        val recyclerView = findViewById<RecyclerView>(R.id.translationRecyclerView)
-        val adapter = TranslationAdapter(filteredTranslations)
-        recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        val translationRecyclerView = binding.translationRecyclerView
+        val translationAdapter = TranslationAdapter(filteredTranslations)
+        translationRecyclerView.adapter = translationAdapter
+        translationRecyclerView.layoutManager = LinearLayoutManager(this)
+
     }
     private fun updateCommentaryList() {
 
@@ -310,10 +327,11 @@ class VerseDetailActivity : AppCompatActivity() {
         }
 
         // Set up the RecyclerView to display the filtered translations
-        val recyclerView = findViewById<RecyclerView>(R.id.commentaryRecyclerView)
-        val adapter = CommentaryAdapter(filteredCommentary)
-        recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        val commentaryRecyclerView = binding.commentaryRecyclerView
+        val commentaryAdapter = CommentaryAdapter(filteredCommentary)
+        commentaryRecyclerView.adapter = commentaryAdapter
+        commentaryRecyclerView.layoutManager = LinearLayoutManager(this)
+
     }
 
     private fun getJsonDataFromAsset(fileName: String): String? {
@@ -356,6 +374,71 @@ class VerseDetailActivity : AppCompatActivity() {
         val verseListType = object : TypeToken<List<Verse>>() {}.type
         val allVerses: List<Verse> = Gson().fromJson(jsonString, verseListType)
         return allVerses.filter { it.chapter_number == chapterNumber }
+    }
+
+    private fun updateTextSize(progress: Int) {
+        val newSize = progress.toFloat() / 50.0f // Scale the progress to your desired range
+        val newTextSize = newSize * resources.getDimension(R.dimen.default_text_size)
+
+        // Update the text size of direct TextView elements
+        binding.verseTitleTextView.textSize = newTextSize
+        binding.verseContentTextView.textSize = newTextSize
+        binding.verseTransliterationTextView.textSize = newTextSize
+        binding.verseWordMeaningsTextView.textSize = newTextSize
+
+        // Update the text size of TextView elements within RecyclerView
+        val translationRecyclerView = binding.translationRecyclerView
+        val adapter = translationRecyclerView.adapter as TranslationAdapter
+        adapter.setAuthorNameTextSize(newTextSize)
+        adapter.setTranslationTextSize(newTextSize)
+
+        val commentaryRecyclerView = binding.commentaryRecyclerView
+        val adapterC = commentaryRecyclerView.adapter as CommentaryAdapter
+        adapterC.setAuthorNameTextSize(newTextSize)
+        adapterC.setCommentaryTextSize(newTextSize)
+    }
+
+    private fun getAllTextContent(): String {
+        val verseTitle = binding.verseTitleTextView.text.toString()
+        val verseContent = binding.verseContentTextView.text.toString()
+        val verseTransliteration = binding.verseTransliterationTextView.text.toString()
+        val verseWordMeanings = binding.verseWordMeaningsTextView.text.toString()
+
+        val translationRecyclerView = binding.translationRecyclerView
+        val translationAdapter = translationRecyclerView.adapter as TranslationAdapter
+        val translationText = translationAdapter.getAllTranslationText()
+
+        val commentaryRecyclerView = binding.commentaryRecyclerView
+        val commentaryAdapter = commentaryRecyclerView.adapter as CommentaryAdapter
+        val commentaryText = commentaryAdapter.getAllCommentaryText()
+
+        // Combine all the text content into one string
+
+        return """
+        Verse Title: $verseTitle
+        Verse Content: $verseContent
+        Verse Transliteration: $verseTransliteration
+        Verse Word Meanings: $verseWordMeanings
+
+        Translations:
+        $translationText
+
+        Commentary:
+        $commentaryText
+         """.trimIndent()
+    }
+
+    fun shareText() {
+        val textToShare = getAllTextContent()
+
+        val sendIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, textToShare)
+        }
+
+        val shareIntent = Intent.createChooser(sendIntent, null)
+        startActivity(shareIntent)
     }
 
     private fun playAudio(audioUrl: String, progressBar: ProgressBar) {

@@ -20,6 +20,7 @@
 
 package com.wirelessalien.android.bhagavadgita.adapter
 
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,27 +32,52 @@ import com.wirelessalien.android.bhagavadgita.data.Translation
 class TranslationAdapter(private val translations: List<Translation>) :
     RecyclerView.Adapter<TranslationAdapter.TranslationViewHolder>() {
 
-    class TranslationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    private var authorNameTextSize: Float = 16F // Default text size for author names in SP
+    private var translationTextSize: Float = 16F // Default text size for translations in SP
+
+    inner class TranslationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val authorNameTextView: TextView = itemView.findViewById(R.id.authorNameTextView)
         val translationTextView: TextView = itemView.findViewById(R.id.tversedescriptionTextView)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TranslationViewHolder {
-
         val itemView = LayoutInflater.from(parent.context)
-            .inflate(R.layout.translation_cardview_item, parent, false) // Replace with your layout XML
+            .inflate(R.layout.translation_cardview_item, parent, false)
         return TranslationViewHolder(itemView)
     }
 
     override fun onBindViewHolder(holder: TranslationViewHolder, position: Int) {
         val translation = translations[position]
 
+        // Set the text sizes based on their respective variables
+        holder.authorNameTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, authorNameTextSize)
+        holder.translationTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, translationTextSize)
 
+        // Bind data to the views
         holder.authorNameTextView.text = translation.authorName
         holder.translationTextView.text = translation.description
     }
 
     override fun getItemCount(): Int {
         return translations.size
+    }
+
+    // Methods to set the text sizes dynamically
+    fun setAuthorNameTextSize(newTextSize: Float) {
+        this.authorNameTextSize = newTextSize
+        notifyDataSetChanged()
+    }
+
+    fun setTranslationTextSize(newTextSize: Float) {
+        this.translationTextSize = newTextSize
+        notifyDataSetChanged()
+    }
+
+    fun getAllTranslationText(): String {
+        var allTranslationText = ""
+        for (translation in translations) {
+            allTranslationText += translation.description + "\n\n"
+        }
+        return allTranslationText
     }
 }
