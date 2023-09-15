@@ -40,5 +40,7 @@
     <string name="commentary">Commentary:</string>
     <string name="change_text_size_description">Change text size</string>
     <string name="share">Share</string>
+    <string name="github_icon">GitHub Icon</string>
+    <string name="share_icon">Share Icon</string>
 
 </resources>

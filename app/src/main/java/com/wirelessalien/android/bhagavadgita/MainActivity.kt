@@ -33,6 +33,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.color.DynamicColors
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.wirelessalien.android.bhagavadgita.fragment.AboutAppFragment
 import com.wirelessalien.android.bhagavadgita.activity.AboutGitaActivity
 import com.wirelessalien.android.bhagavadgita.activity.HanumanChalisaActivity
 import com.wirelessalien.android.bhagavadgita.adapter.ChapterAdapter
@@ -134,6 +135,11 @@ class MainActivity : AppCompatActivity() {
                 val themeDialog = ThemeFragment()
                 themeDialog.show(supportFragmentManager, "theme_dialog")
                 return true
+            }
+            R.id.nav_about -> {
+                val aboutDialog = AboutAppFragment()
+                aboutDialog.show(supportFragmentManager, "AboutAppFragment")
+
             }
 
         }
