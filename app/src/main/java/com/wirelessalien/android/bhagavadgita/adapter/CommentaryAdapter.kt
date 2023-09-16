@@ -35,6 +35,7 @@ class CommentaryAdapter(private val commentary: List<Commentary>) :
 
     private var authorNameTextSize: Float = 16F // Default text size for author names in SP
     private var commentaryTextSize: Float = 16F // Default text size for commentaries in SP
+    private var textSize = 16
 
     inner class CommentaryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val authorNameTextView: TextView = itemView.findViewById(R.id.authorNameTextView)
@@ -50,13 +51,10 @@ class CommentaryAdapter(private val commentary: List<Commentary>) :
     override fun onBindViewHolder(holder: CommentaryViewHolder, position: Int) {
         val commentaryItem = commentary[position]
 
-        // Set the text sizes based on their respective variables
-        holder.authorNameTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, authorNameTextSize.toFloat())
-        holder.commentaryTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, commentaryTextSize.toFloat())
-
         // Bind data to the views
         holder.authorNameTextView.text = commentaryItem.authorName
         holder.commentaryTextView.text = commentaryItem.description
+        holder.commentaryTextView.textSize = textSize.toFloat()
     }
 
     override fun getItemCount(): Int {
@@ -64,14 +62,9 @@ class CommentaryAdapter(private val commentary: List<Commentary>) :
     }
 
     // Methods to set the text sizes dynamically
-    fun setAuthorNameTextSize(newTextSize: Float) {
-        this.authorNameTextSize = newTextSize
-        notifyDataSetChanged()
-    }
-
-    fun setCommentaryTextSize(newTextSize: Float) {
-        this.commentaryTextSize = newTextSize
-        notifyDataSetChanged()
+    fun updateTextSize(newSize: Int) {
+        textSize = newSize
+        notifyDataSetChanged() // Notify the adapter to refresh the views with the new text size
     }
 
     fun getAllCommentaryText(): String {

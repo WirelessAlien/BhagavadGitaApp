@@ -34,6 +34,7 @@ class TranslationAdapter(private val translations: List<Translation>) :
 
     private var authorNameTextSize: Float = 16F // Default text size for author names in SP
     private var translationTextSize: Float = 16F // Default text size for translations in SP
+    private var textSize = 16
 
     inner class TranslationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val authorNameTextView: TextView = itemView.findViewById(R.id.authorNameTextView)
@@ -49,29 +50,22 @@ class TranslationAdapter(private val translations: List<Translation>) :
     override fun onBindViewHolder(holder: TranslationViewHolder, position: Int) {
         val translation = translations[position]
 
-        // Set the text sizes based on their respective variables
-        holder.authorNameTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, authorNameTextSize)
-        holder.translationTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, translationTextSize)
-
-        // Bind data to the views
         holder.authorNameTextView.text = translation.authorName
         holder.translationTextView.text = translation.description
+        holder.translationTextView.textSize = textSize.toFloat() // Set the text size here
     }
+
 
     override fun getItemCount(): Int {
         return translations.size
     }
 
     // Methods to set the text sizes dynamically
-    fun setAuthorNameTextSize(newTextSize: Float) {
-        this.authorNameTextSize = newTextSize
-        notifyDataSetChanged()
+    fun updateTextSize(newSize: Int) {
+        textSize = newSize
+        notifyDataSetChanged() // Notify the adapter to refresh the views with the new text size
     }
 
-    fun setTranslationTextSize(newTextSize: Float) {
-        this.translationTextSize = newTextSize
-        notifyDataSetChanged()
-    }
 
     fun getAllTranslationText(): String {
         var allTranslationText = ""

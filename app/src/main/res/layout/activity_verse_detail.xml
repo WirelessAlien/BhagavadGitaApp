@@ -60,8 +60,8 @@
                 android:layout_height="wrap_content"
                 android:layout_toEndOf="@id/changeTextSize"
                 android:layout_toStartOf="@id/shareButton"
-                android:max="100"
-                android:progress="50"
+                android:max="4"
+                android:progress="1"
                 android:layout_centerVertical="true" />
 
             <com.google.android.material.button.MaterialButton

@@ -26,6 +26,7 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
@@ -61,19 +62,24 @@ class VerseDetailActivity : AppCompatActivity() {
     private lateinit var selectedAuthor: String
     private lateinit var commentary: List<Commentary>
     private lateinit var selectedLanguageC: String
+    private var currentTextSize: Int = 16 // Default text size
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val sharedPreferences = getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
-        val sharedPref = getSharedPreferences("author_prefs", Context.MODE_PRIVATE)
+        binding = ActivityVerseDetailBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
+        val sharedPreferences = getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
         when (sharedPreferences.getString("chosenTheme", "default")) {
             "black" -> setTheme(R.style.AppTheme_Black)
             else -> setTheme(R.style.AppTheme)
         }
-        binding = ActivityVerseDetailBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        val sharedPref = getSharedPreferences("author_prefs", Context.MODE_PRIVATE)
+
+        val sharedPrefTextSize = getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
+        currentTextSize = sharedPrefTextSize.getInt("text_size", 16) // Get the saved text size
 
         gestureDetector = GestureDetectorCompat(this, MyGestureListener())
         binding.root.setOnTouchListener { _, event -> gestureDetector.onTouchEvent(event) }
@@ -82,6 +88,9 @@ class VerseDetailActivity : AppCompatActivity() {
         verses = emptyList()
         commentary = emptyList()
         translations = emptyList()
+
+        updateTextSize(currentTextSize)
+        updateAdapterTextSize(currentTextSize)
 
         // Retrieve verse details and chapter number from intent extras
         val chapterNumber = intent.getIntExtra("chapter_number", 0)
@@ -117,21 +126,34 @@ class VerseDetailActivity : AppCompatActivity() {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
+        binding.textSizeSeekBar.progress = currentTextSize
+
+
         val textSizeSeekBar = binding.textSizeSeekBar
         textSizeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                // Update the text size of all TextView elements
-                updateTextSize(progress)
+                // Update the text size when the SeekBar progress changes
+                val newSize = when (progress) {
+                    0 -> 16 // Define your text size levels here
+                    1 -> 20
+                    2 -> 24
+                    3 -> 28
+                    4 -> 32
+                    else -> 16 // Default text size
+                }
+
+                // Update the text size for TextViews in your layout
+                updateTextSize(newSize)
+
+                // Update the text size for RecyclerView adapter TextViews
+                updateAdapterTextSize(newSize)
             }
 
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                // No action needed when tracking starts
-            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
 
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                // No action needed when tracking stops
-            }
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
+
 
 
         commentary = getCommentaryFromJson("commentary.json")
@@ -231,6 +253,39 @@ class VerseDetailActivity : AppCompatActivity() {
         })
     }
 
+    private fun updateTextSize(newSize: Int) {
+
+        Log.d("TextSize", "Current text size: $currentTextSize")
+        currentTextSize = newSize
+        val textViewList = listOf(
+            binding.verseTitleTextView,
+            binding.verseContentTextView,
+            binding.verseTransliterationTextView,
+            binding.verseWordMeaningsTextView
+            // Add other TextViews in your layout that you want to update
+        )
+
+        textViewList.forEach { textView ->
+            textView.textSize = newSize.toFloat()
+        }
+
+        val sharedPrefTextSize= getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
+        sharedPrefTextSize.edit().putInt("text_size", newSize).apply()
+        Log.d("TextSize", "Updated text size: $newSize")
+    }
+
+    private fun updateAdapterTextSize(newSize: Int) {
+        // Notify the RecyclerView adapter to update text size
+        val recyclerViewT = binding.translationRecyclerView
+        val adapterT = recyclerViewT.adapter as? TranslationAdapter
+        adapterT?.updateTextSize(newSize)
+
+        val recyclerViewC = binding.commentaryRecyclerView
+        val adapterC = recyclerViewC.adapter as? CommentaryAdapter
+        adapterC?.updateTextSize(newSize)
+    }
+
+
     private fun getTranslationsFromJson(fileName: String): List<Translation> {
         val jsonString = getJsonDataFromAsset(fileName)
         val listTranslationType = object : TypeToken<List<Translation>>() {}.type
@@ -287,6 +342,7 @@ class VerseDetailActivity : AppCompatActivity() {
             updateVerseDetails(binding, prevVerse)
             updateTranslationList()
             updateCommentaryList()
+            updateAdapterTextSize(currentTextSize)
 
         }
     }
@@ -299,6 +355,7 @@ class VerseDetailActivity : AppCompatActivity() {
             updateVerseDetails(binding, nextVerse)
             updateTranslationList()
             updateCommentaryList()
+            updateAdapterTextSize(currentTextSize)
             if (currentVerseIndex == verses.size - 1) {
                 binding.nextChapterButton.visibility = View.VISIBLE
             }
@@ -376,27 +433,6 @@ class VerseDetailActivity : AppCompatActivity() {
         return allVerses.filter { it.chapter_number == chapterNumber }
     }
 
-    private fun updateTextSize(progress: Int) {
-        val newSize = progress.toFloat() / 50.0f // Scale the progress to your desired range
-        val newTextSize = newSize * resources.getDimension(R.dimen.default_text_size)
-
-        // Update the text size of direct TextView elements
-        binding.verseTitleTextView.textSize = newTextSize
-        binding.verseContentTextView.textSize = newTextSize
-        binding.verseTransliterationTextView.textSize = newTextSize
-        binding.verseWordMeaningsTextView.textSize = newTextSize
-
-        // Update the text size of TextView elements within RecyclerView
-        val translationRecyclerView = binding.translationRecyclerView
-        val adapter = translationRecyclerView.adapter as TranslationAdapter
-        adapter.setAuthorNameTextSize(newTextSize)
-        adapter.setTranslationTextSize(newTextSize)
-
-        val commentaryRecyclerView = binding.commentaryRecyclerView
-        val adapterC = commentaryRecyclerView.adapter as CommentaryAdapter
-        adapterC.setAuthorNameTextSize(newTextSize)
-        adapterC.setCommentaryTextSize(newTextSize)
-    }
 
     private fun getAllTextContent(): String {
         val verseTitle = binding.verseTitleTextView.text.toString()
