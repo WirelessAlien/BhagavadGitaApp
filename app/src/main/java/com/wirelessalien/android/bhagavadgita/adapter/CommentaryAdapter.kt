@@ -30,12 +30,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.data.Commentary
 
-class CommentaryAdapter(private val commentary: List<Commentary>) :
+class CommentaryAdapter(private val commentary: List<Commentary>, private var textSize: Int) :
     RecyclerView.Adapter<CommentaryAdapter.CommentaryViewHolder>() {
-
-    private var authorNameTextSize: Float = 16F // Default text size for author names in SP
-    private var commentaryTextSize: Float = 16F // Default text size for commentaries in SP
-    private var textSize = 16
 
     inner class CommentaryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val authorNameTextView: TextView = itemView.findViewById(R.id.authorNameTextView)
@@ -61,10 +57,9 @@ class CommentaryAdapter(private val commentary: List<Commentary>) :
         return commentary.size
     }
 
-    // Methods to set the text sizes dynamically
     fun updateTextSize(newSize: Int) {
         textSize = newSize
-        notifyDataSetChanged() // Notify the adapter to refresh the views with the new text size
+        notifyDataSetChanged()
     }
 
     fun getAllCommentaryText(): String {

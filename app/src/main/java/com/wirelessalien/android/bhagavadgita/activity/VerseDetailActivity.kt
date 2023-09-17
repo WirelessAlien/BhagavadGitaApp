@@ -26,7 +26,6 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
@@ -38,6 +37,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.adapter.CommentaryAdapter
+import com.wirelessalien.android.bhagavadgita.adapter.CustomSpinnerAdapter
 import com.wirelessalien.android.bhagavadgita.adapter.TranslationAdapter
 import com.wirelessalien.android.bhagavadgita.data.Chapter
 import com.wirelessalien.android.bhagavadgita.data.Commentary
@@ -62,7 +62,7 @@ class VerseDetailActivity : AppCompatActivity() {
     private lateinit var selectedAuthor: String
     private lateinit var commentary: List<Commentary>
     private lateinit var selectedLanguageC: String
-    private var currentTextSize: Int = 16 // Default text size
+    private var currentTextSize: Int = 16
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,12 +101,17 @@ class VerseDetailActivity : AppCompatActivity() {
 
         translations = getTranslationsFromJson("translation.json")
 
+        val textSize = currentTextSize
         // Find all available authors from the translations
         val allAuthors = translations.map { it.authorName }.distinct()
         val authorSpinner = binding.authorSpinner
         val authorAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, allAuthors)
         authorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         authorSpinner.adapter = authorAdapter
+
+        val adapterA = CustomSpinnerAdapter(this, android.R.layout.simple_spinner_item, allAuthors, textSize)
+        adapterA.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        authorSpinner.adapter = adapterA
 
         val savedAuthor = sharedPref.getString("selectedAuthor", "")
         val savedAuthorPosition = allAuthors.indexOf(savedAuthor)
@@ -126,15 +131,23 @@ class VerseDetailActivity : AppCompatActivity() {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
-        binding.textSizeSeekBar.progress = currentTextSize
+        val progressValue = when (currentTextSize) {
+            16 -> 0
+            20 -> 1
+            24 -> 2
+            28 -> 3
+            32 -> 4
+            else -> 1 // Default text size
+        }
 
+        binding.textSizeSeekBar.progress = progressValue
 
         val textSizeSeekBar = binding.textSizeSeekBar
         textSizeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 // Update the text size when the SeekBar progress changes
                 val newSize = when (progress) {
-                    0 -> 16 // Define your text size levels here
+                    0 -> 16
                     1 -> 20
                     2 -> 24
                     3 -> 28
@@ -142,10 +155,8 @@ class VerseDetailActivity : AppCompatActivity() {
                     else -> 16 // Default text size
                 }
 
-                // Update the text size for TextViews in your layout
                 updateTextSize(newSize)
 
-                // Update the text size for RecyclerView adapter TextViews
                 updateAdapterTextSize(newSize)
             }
 
@@ -154,14 +165,16 @@ class VerseDetailActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
 
-
-
         commentary = getCommentaryFromJson("commentary.json")
         val allLanguage = commentary.map { it.lang }.distinct()
         val languageSpinner = binding.cAuthorSpinner
         val commentaryAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, allLanguage)
         commentaryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         languageSpinner.adapter = commentaryAdapter
+
+        val adapterL = CustomSpinnerAdapter(this, android.R.layout.simple_spinner_item, allLanguage, textSize)
+        adapterL.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        languageSpinner.adapter = adapterL
 
         val savedLang = sharedPref.getString("selectedLang", "")
         val savedLangPosition = allLanguage.indexOf(savedLang)
@@ -255,7 +268,6 @@ class VerseDetailActivity : AppCompatActivity() {
 
     private fun updateTextSize(newSize: Int) {
 
-        Log.d("TextSize", "Current text size: $currentTextSize")
         currentTextSize = newSize
         val textViewList = listOf(
             binding.verseTitleTextView,
@@ -271,7 +283,6 @@ class VerseDetailActivity : AppCompatActivity() {
 
         val sharedPrefTextSize= getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
         sharedPrefTextSize.edit().putInt("text_size", newSize).apply()
-        Log.d("TextSize", "Updated text size: $newSize")
     }
 
     private fun updateAdapterTextSize(newSize: Int) {
@@ -283,6 +294,16 @@ class VerseDetailActivity : AppCompatActivity() {
         val recyclerViewC = binding.commentaryRecyclerView
         val adapterC = recyclerViewC.adapter as? CommentaryAdapter
         adapterC?.updateTextSize(newSize)
+
+        val customAdapterC = binding.authorSpinner.adapter as? CustomSpinnerAdapter
+        customAdapterC?.textSize = newSize // Int value directly
+        customAdapterC?.notifyDataSetChanged()
+
+        val customAdapterT = binding.cAuthorSpinner.adapter as? CustomSpinnerAdapter
+        customAdapterT?.textSize = newSize // Int value directly
+        customAdapterT?.notifyDataSetChanged()
+
+
     }
 
 
@@ -372,7 +393,7 @@ class VerseDetailActivity : AppCompatActivity() {
         }
 
         val translationRecyclerView = binding.translationRecyclerView
-        val translationAdapter = TranslationAdapter(filteredTranslations)
+        val translationAdapter = TranslationAdapter(filteredTranslations, currentTextSize)
         translationRecyclerView.adapter = translationAdapter
         translationRecyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -385,7 +406,7 @@ class VerseDetailActivity : AppCompatActivity() {
 
         // Set up the RecyclerView to display the filtered translations
         val commentaryRecyclerView = binding.commentaryRecyclerView
-        val commentaryAdapter = CommentaryAdapter(filteredCommentary)
+        val commentaryAdapter = CommentaryAdapter(filteredCommentary, currentTextSize)
         commentaryRecyclerView.adapter = commentaryAdapter
         commentaryRecyclerView.layoutManager = LinearLayoutManager(this)
 

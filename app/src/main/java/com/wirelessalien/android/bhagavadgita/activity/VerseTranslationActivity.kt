@@ -24,17 +24,23 @@ import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.adapter.TranslationAdapter
 import com.wirelessalien.android.bhagavadgita.data.Translation
+import com.wirelessalien.android.bhagavadgita.databinding.ActivityVerseTranslationBinding
 import java.io.IOException
 
+
 class VerseTranslationActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityVerseTranslationBinding
+    private var currentTextSize: Int = 16
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityVerseTranslationBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val sharedPreferences = getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
 
@@ -42,23 +48,25 @@ class VerseTranslationActivity : AppCompatActivity() {
             "black" -> setTheme(R.style.AppTheme_Black)
             else -> setTheme(R.style.AppTheme)
         }
-        setContentView(R.layout.activity_verse_translation)
+
+        val sharedPrefTextSize = getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
+        currentTextSize = sharedPrefTextSize.getInt("text_size", 16) // Get the saved text size
 
         // Retrieve the selected verse number from the intent
         val verseNumber = intent.getIntExtra("verse_id", 0)
-
 
         // Find the translations for the given verseNumber
         val translations = getTranslationsForVerse(verseNumber)
 
         // Set up the RecyclerView to display the translations in CardViews
-        val recyclerView = findViewById<RecyclerView>(R.id.translationRecyclerView)
-        val adapter = TranslationAdapter(translations)
-        recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        val adapter = TranslationAdapter(translations, 16)
+        binding.translationRecyclerView.adapter = adapter
+        binding.translationRecyclerView.layoutManager = LinearLayoutManager(this)
+
+        updateAdapterTextSize(currentTextSize)
     }
 
-    private fun getTranslationsForVerse (verseNumber: Int): List<Translation> {
+    private fun getTranslationsForVerse(verseNumber: Int): List<Translation> {
         // Retrieve the list of translations from the JSON file
         val jsonString = getJsonDataFromAsset("translation.json")
         val gson = Gson()
@@ -78,5 +86,12 @@ class VerseTranslationActivity : AppCompatActivity() {
             ioException.printStackTrace()
             null
         }
+    }
+
+    private fun updateAdapterTextSize(newSize: Int) {
+        val recyclerViewT = binding.translationRecyclerView
+        val adapterT = recyclerViewT.adapter as? TranslationAdapter
+        adapterT?.updateTextSize(newSize)
+
     }
 }

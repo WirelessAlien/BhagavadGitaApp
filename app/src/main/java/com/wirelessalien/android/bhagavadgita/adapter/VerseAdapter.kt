@@ -28,7 +28,7 @@ import com.wirelessalien.android.bhagavadgita.activity.VerseDetailActivity
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.VerseCardviewItemBinding
 
-class VerseAdapter(private val verses: List<Verse>) :
+class VerseAdapter(private val verses: List<Verse>, private var textSize: Int) :
     RecyclerView.Adapter<VerseAdapter.VerseViewHolder>() {
 
     inner class VerseViewHolder(private val binding: VerseCardviewItemBinding) :
@@ -36,6 +36,7 @@ class VerseAdapter(private val verses: List<Verse>) :
 
         fun bind(verse: Verse) {
             binding.verseTitleTextView.text = verse.title
+            binding.verseTitleTextView.textSize = textSize.toFloat()
 
             binding.root.setOnClickListener {
                 val intent = Intent(binding.root.context, VerseDetailActivity::class.java)
@@ -65,5 +66,10 @@ class VerseAdapter(private val verses: List<Verse>) :
 
     override fun getItemCount(): Int {
         return verses.size
+    }
+
+    fun updateTextSize(newSize: Int) {
+        textSize = newSize
+        notifyDataSetChanged()
     }
 }

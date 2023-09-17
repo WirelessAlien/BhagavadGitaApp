@@ -20,7 +20,6 @@
 
 package com.wirelessalien.android.bhagavadgita.adapter
 
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,12 +28,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.data.Translation
 
-class TranslationAdapter(private val translations: List<Translation>) :
+class TranslationAdapter(private val translations: List<Translation>, private var textSize: Int) :
     RecyclerView.Adapter<TranslationAdapter.TranslationViewHolder>() {
-
-    private var authorNameTextSize: Float = 16F // Default text size for author names in SP
-    private var translationTextSize: Float = 16F // Default text size for translations in SP
-    private var textSize = 16
 
     inner class TranslationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val authorNameTextView: TextView = itemView.findViewById(R.id.authorNameTextView)
@@ -52,7 +47,7 @@ class TranslationAdapter(private val translations: List<Translation>) :
 
         holder.authorNameTextView.text = translation.authorName
         holder.translationTextView.text = translation.description
-        holder.translationTextView.textSize = textSize.toFloat() // Set the text size here
+        holder.translationTextView.textSize = textSize.toFloat()
     }
 
 
@@ -60,12 +55,10 @@ class TranslationAdapter(private val translations: List<Translation>) :
         return translations.size
     }
 
-    // Methods to set the text sizes dynamically
     fun updateTextSize(newSize: Int) {
         textSize = newSize
-        notifyDataSetChanged() // Notify the adapter to refresh the views with the new text size
+        notifyDataSetChanged()
     }
-
 
     fun getAllTranslationText(): String {
         var allTranslationText = ""
