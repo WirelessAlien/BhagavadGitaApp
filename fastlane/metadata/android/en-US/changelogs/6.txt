@@ -1,0 +1,1 @@
+Added font size increase and text copying capability
