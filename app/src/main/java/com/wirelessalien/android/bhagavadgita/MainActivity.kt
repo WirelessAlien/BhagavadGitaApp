@@ -27,6 +27,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
@@ -40,6 +41,7 @@ import com.wirelessalien.android.bhagavadgita.adapter.SliderVerseAdapter
 import com.wirelessalien.android.bhagavadgita.data.Chapter
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityMainBinding
+import com.wirelessalien.android.bhagavadgita.fragment.AboutAppFragment
 import com.wirelessalien.android.bhagavadgita.fragment.ThemeFragment
 import org.json.JSONArray
 import java.io.IOException
@@ -53,21 +55,24 @@ class MainActivity : AppCompatActivity() {
     private lateinit var chapterList: List<Chapter>
     private lateinit var verseList: List<Verse>
     private lateinit var viewPager: ViewPager2
+    private var currentTextSize: Int = 16 // Default text size
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
 
         val sharedPreferences = getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
-
         when (sharedPreferences.getString("chosenTheme", "default")) {
             "black" -> setTheme(R.style.AppTheme_Black)
             else -> setTheme(R.style.AppTheme)
         }
 
+        val sharedPrefTextSize = getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
+        currentTextSize = sharedPrefTextSize.getInt("text_size", 16) // Get the saved text size
+
         binding = ActivityMainBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+        setContentView(binding.root)
 
         DynamicColors.applyToActivityIfAvailable(this)
 
@@ -82,10 +87,13 @@ class MainActivity : AppCompatActivity() {
         // Parse JSON data
         chapterList = parseJson(jsonString)
 
-        // Setup RecyclerView
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
-        binding.recyclerView.adapter = ChapterAdapter(chapterList)
 
+
+        val adapterC = ChapterAdapter(chapterList, 16)
+        binding.recyclerView.adapter = adapterC
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+
+        updateAdapterTextSize(currentTextSize)
         // Setup the toolbar
         setSupportActionBar(binding.toolbar)
 
@@ -103,6 +111,39 @@ class MainActivity : AppCompatActivity() {
             }
         }
         handler.postDelayed(runnable, 10000)
+
+        val progressValue = when (currentTextSize) {
+            16 -> 0
+            20 -> 1
+            24 -> 2
+            28 -> 3
+            32 -> 4
+            else -> 1 // Default text size
+        }
+
+        binding.textSizeSeekBar.progress = progressValue
+
+        val textSizeSeekBar = binding.textSizeSeekBar
+        textSizeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                // Update the text size when the SeekBar progress changes
+                val newSize = when (progress) {
+                    0 -> 16
+                    1 -> 20
+                    2 -> 24
+                    3 -> 28
+                    4 -> 32
+                    else -> 16 // Default text size
+                }
+
+                updateAdapterTextSize(newSize)
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+
 
         binding.hanumanChalisaText.setOnClickListener {
             val intent = Intent(this, HanumanChalisaActivity::class.java)
@@ -135,12 +176,25 @@ class MainActivity : AppCompatActivity() {
                 themeDialog.show(supportFragmentManager, "theme_dialog")
                 return true
             }
+            R.id.nav_about -> {
+                val aboutDialog = AboutAppFragment()
+                aboutDialog.show(supportFragmentManager, "AboutAppFragment")
+
+            }
 
         }
         return super.onOptionsItemSelected(item)
     }
 
+    private fun updateAdapterTextSize(newSize: Int) {
 
+        val recyclerViewC = binding.recyclerView
+        val adapterC = recyclerViewC.adapter as? ChapterAdapter
+        adapterC?.updateTextSize(newSize)
+
+        val sharedPrefTextSize= getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
+        sharedPrefTextSize.edit().putInt("text_size", newSize).apply()
+    }
 
 
     private fun loadVersesFromJson(): List<Verse> {

@@ -37,10 +37,12 @@ import java.io.IOException
 
 class ChapterDetailActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityChapterDetailBinding
     private var verseList: List<Verse> = emptyList()
     private var isSummaryExpanded = false
     private var isSummaryHindiExpanded = false
     private lateinit var progressBar: ProgressBar
+    private var currentTextSize: Int = 16
 
     @DelicateCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,10 +54,16 @@ class ChapterDetailActivity : AppCompatActivity() {
             "black" -> setTheme(R.style.AppTheme_Black)
             else -> setTheme(R.style.AppTheme)
         }
-        val binding = ActivityChapterDetailBinding.inflate(layoutInflater)
+
+        binding = ActivityChapterDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val sharedPrefTextSize = getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
+        currentTextSize = sharedPrefTextSize.getInt("text_size", 16) // Get the saved text size
+
         progressBar = binding.progressBar
+        updateAdapterTextSize(currentTextSize)
+        updateTextSize(currentTextSize)
 
         // Retrieve the chapter details from the intent
         val chapterNumber = intent.getIntExtra("chapter_number", 0)
@@ -65,6 +73,11 @@ class ChapterDetailActivity : AppCompatActivity() {
         val chapterSummaryHindi = intent.getStringExtra("chapter_summary_hindi")
 
         progressBar.visibility = View.VISIBLE
+
+        val verse = loadVersesForChapter(chapterNumber)
+        val adapter = VerseAdapter(verse, currentTextSize)
+        binding.verseRecyclerView.adapter = adapter
+        binding.verseRecyclerView.layoutManager = LinearLayoutManager(this)
 
         // Load the verses asynchronously
         GlobalScope.launch(Dispatchers.IO) {
@@ -77,7 +90,7 @@ class ChapterDetailActivity : AppCompatActivity() {
                 binding.chapterNameTextView.text = chapterName
                 binding.chapterNameMeaningTextView.text = chapterNameMeaning
                 binding.verseRecyclerView.layoutManager = LinearLayoutManager(this@ChapterDetailActivity)
-                binding.verseRecyclerView.adapter = VerseAdapter(verseList)
+                binding.verseRecyclerView.adapter = VerseAdapter(verseList, currentTextSize)
 
                 // Hide the ProgressBar once the verses are loaded
                 progressBar.visibility = View.GONE
@@ -111,7 +124,7 @@ class ChapterDetailActivity : AppCompatActivity() {
         }
 
         binding.verseRecyclerView.layoutManager = LinearLayoutManager(this)
-        binding.verseRecyclerView.adapter = VerseAdapter(verseList)
+        binding.verseRecyclerView.adapter = VerseAdapter(verseList, 16)
     }
 
     private fun getEllipsizedText(text: String, maxLines: Int, maxCharactersPerLine: Int): String {
@@ -141,6 +154,32 @@ class ChapterDetailActivity : AppCompatActivity() {
         val allVerses: List<Verse> = Gson().fromJson(jsonString, verseListType)
 
         return allVerses.filter { it.chapter_number == chapterNumber }
+    }
+
+    private fun updateTextSize(newSize: Int) {
+
+        currentTextSize = newSize
+        val textViewList = listOf(
+            binding.chapterNumberTextView,
+            binding.chapterNameTextView,
+            binding.chapterNameMeaningTextView,
+            binding.chapterSummaryTextView,
+            binding.chapterSummaryHindiTextView,
+            binding.seeMoreTextView,
+            binding.seeMoreHindiTextView
+        )
+
+        textViewList.forEach { textView ->
+            textView.textSize = newSize.toFloat()
+        }
+    }
+
+    private fun updateAdapterTextSize(newSize: Int) {
+
+        val recyclerViewC = binding.verseRecyclerView
+        val adapterC = recyclerViewC.adapter as? VerseAdapter
+        adapterC?.updateTextSize(newSize)
+
     }
 }
 

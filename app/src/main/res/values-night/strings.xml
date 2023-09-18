@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+
 <!--
   ~  This file is part of BhagavadGitaApp. @WirelessAlien
   ~
@@ -19,6 +19,7 @@
   -->
 
 <resources>
+    <string name="app_name">Bhagavad Gita</string>
     <string name="transliteration">Transliteration:</string>
     <string name="word_meanings">Word Meanings:</string>
     <string name="about_bhagavad_gita">ABOUT BHAGAVAD GITA</string>
@@ -38,5 +39,9 @@
     <string name="translation_cvi">Translation:</string>
     <string name="chapter">Chapter</string>
     <string name="commentary">Commentary:</string>
-
+    <string name="change_text_size_description">Change text size</string>
+    <string name="share">Share</string>
+    <string name="github_icon">GitHub Icon</string>
+    <string name="share_icon">Share Icon</string>
+    <string name="version">Version</string>
 </resources>

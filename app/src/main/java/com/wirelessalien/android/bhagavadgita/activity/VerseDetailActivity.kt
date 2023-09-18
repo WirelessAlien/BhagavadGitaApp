@@ -20,6 +20,8 @@
 
 package com.wirelessalien.android.bhagavadgita.activity
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
@@ -33,22 +35,18 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GestureDetectorCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.adapter.CommentaryAdapter
+import com.wirelessalien.android.bhagavadgita.adapter.CustomSpinnerAdapter
 import com.wirelessalien.android.bhagavadgita.adapter.TranslationAdapter
 import com.wirelessalien.android.bhagavadgita.data.Chapter
 import com.wirelessalien.android.bhagavadgita.data.Commentary
 import com.wirelessalien.android.bhagavadgita.data.Translation
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityVerseDetailBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Runnable
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -66,19 +64,25 @@ class VerseDetailActivity : AppCompatActivity() {
     private lateinit var selectedAuthor: String
     private lateinit var commentary: List<Commentary>
     private lateinit var selectedLanguageC: String
+    private var currentTextSize: Int = 16
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val sharedPreferences = getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
-        val sharedPref = getSharedPreferences("author_prefs", Context.MODE_PRIVATE)
-
         when (sharedPreferences.getString("chosenTheme", "default")) {
             "black" -> setTheme(R.style.AppTheme_Black)
             else -> setTheme(R.style.AppTheme)
         }
+
         binding = ActivityVerseDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        val sharedPref = getSharedPreferences("author_prefs", Context.MODE_PRIVATE)
+
+        val sharedPrefTextSize = getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
+        currentTextSize = sharedPrefTextSize.getInt("text_size", 16) // Get the saved text size
 
         gestureDetector = GestureDetectorCompat(this, MyGestureListener())
         binding.root.setOnTouchListener { _, event -> gestureDetector.onTouchEvent(event) }
@@ -87,6 +91,9 @@ class VerseDetailActivity : AppCompatActivity() {
         verses = emptyList()
         commentary = emptyList()
         translations = emptyList()
+
+        updateTextSize(currentTextSize)
+        updateAdapterTextSize(currentTextSize)
 
         // Retrieve verse details and chapter number from intent extras
         val chapterNumber = intent.getIntExtra("chapter_number", 0)
@@ -97,12 +104,17 @@ class VerseDetailActivity : AppCompatActivity() {
 
         translations = getTranslationsFromJson("translation.json")
 
+        val textSize = currentTextSize
         // Find all available authors from the translations
         val allAuthors = translations.map { it.authorName }.distinct()
         val authorSpinner = binding.authorSpinner
         val authorAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, allAuthors)
         authorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         authorSpinner.adapter = authorAdapter
+
+        val adapterA = CustomSpinnerAdapter(this, android.R.layout.simple_spinner_item, allAuthors, textSize)
+        adapterA.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        authorSpinner.adapter = adapterA
 
         val savedAuthor = sharedPref.getString("selectedAuthor", "")
         val savedAuthorPosition = allAuthors.indexOf(savedAuthor)
@@ -122,12 +134,50 @@ class VerseDetailActivity : AppCompatActivity() {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
+        val progressValue = when (currentTextSize) {
+            16 -> 0
+            20 -> 1
+            24 -> 2
+            28 -> 3
+            32 -> 4
+            else -> 1 // Default text size
+        }
+
+        binding.textSizeSeekBar.progress = progressValue
+
+        val textSizeSeekBar = binding.textSizeSeekBar
+        textSizeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                // Update the text size when the SeekBar progress changes
+                val newSize = when (progress) {
+                    0 -> 16
+                    1 -> 20
+                    2 -> 24
+                    3 -> 28
+                    4 -> 32
+                    else -> 16 // Default text size
+                }
+
+                updateTextSize(newSize)
+
+                updateAdapterTextSize(newSize)
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+
         commentary = getCommentaryFromJson("commentary.json")
         val allLanguage = commentary.map { it.lang }.distinct()
         val languageSpinner = binding.cAuthorSpinner
         val commentaryAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, allLanguage)
         commentaryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         languageSpinner.adapter = commentaryAdapter
+
+        val adapterL = CustomSpinnerAdapter(this, android.R.layout.simple_spinner_item, allLanguage, textSize)
+        adapterL.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        languageSpinner.adapter = adapterL
 
         val savedLang = sharedPref.getString("selectedLang", "")
         val savedLangPosition = allLanguage.indexOf(savedLang)
@@ -179,6 +229,13 @@ class VerseDetailActivity : AppCompatActivity() {
             }
         }
 
+        binding.shareButton.setOnClickListener {
+            shareText()
+        }
+        binding.copyButton.setOnClickListener {
+            copyText()
+        }
+
         binding.viewTranslationButton.setOnClickListener {
             val currentVerseNumber = verses[currentVerseIndex].verse_id
             val intent = Intent(this, VerseTranslationActivity::class.java)
@@ -215,12 +272,51 @@ class VerseDetailActivity : AppCompatActivity() {
         })
     }
 
+    private fun updateTextSize(newSize: Int) {
+
+        currentTextSize = newSize
+        val textViewList = listOf(
+            binding.verseTitleTextView,
+            binding.verseContentTextView,
+            binding.verseTransliterationTextView,
+            binding.verseWordMeaningsTextView
+            // Add other TextViews in your layout that you want to update
+        )
+
+        textViewList.forEach { textView ->
+            textView.textSize = newSize.toFloat()
+        }
+
+        val sharedPrefTextSize= getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
+        sharedPrefTextSize.edit().putInt("text_size", newSize).apply()
+    }
+
+    private fun updateAdapterTextSize(newSize: Int) {
+        // Notify the RecyclerView adapter to update text size
+        val recyclerViewT = binding.translationRecyclerView
+        val adapterT = recyclerViewT.adapter as? TranslationAdapter
+        adapterT?.updateTextSize(newSize)
+
+        val recyclerViewC = binding.commentaryRecyclerView
+        val adapterC = recyclerViewC.adapter as? CommentaryAdapter
+        adapterC?.updateTextSize(newSize)
+
+        val customAdapterC = binding.authorSpinner.adapter as? CustomSpinnerAdapter
+        customAdapterC?.textSize = newSize // Int value directly
+        customAdapterC?.notifyDataSetChanged()
+
+        val customAdapterT = binding.cAuthorSpinner.adapter as? CustomSpinnerAdapter
+        customAdapterT?.textSize = newSize // Int value directly
+        customAdapterT?.notifyDataSetChanged()
+
+
+    }
+
     private fun getTranslationsFromJson(fileName: String): List<Translation> {
         val jsonString = getJsonDataFromAsset(fileName)
         val listTranslationType = object : TypeToken<List<Translation>>() {}.type
         return Gson().fromJson(jsonString, listTranslationType)
     }
-
 
     private fun getCommentaryFromJson(fileName: String): List<Commentary> {
         val jsonString = getJsonDataFromAsset(fileName)
@@ -271,6 +367,7 @@ class VerseDetailActivity : AppCompatActivity() {
             updateVerseDetails(binding, prevVerse)
             updateTranslationList()
             updateCommentaryList()
+            updateAdapterTextSize(currentTextSize)
 
         }
     }
@@ -283,6 +380,7 @@ class VerseDetailActivity : AppCompatActivity() {
             updateVerseDetails(binding, nextVerse)
             updateTranslationList()
             updateCommentaryList()
+            updateAdapterTextSize(currentTextSize)
             if (currentVerseIndex == verses.size - 1) {
                 binding.nextChapterButton.visibility = View.VISIBLE
             }
@@ -298,10 +396,11 @@ class VerseDetailActivity : AppCompatActivity() {
             it.authorName == selectedAuthor && it.verse_id == verses[currentVerseIndex].verse_id
         }
 
-        val recyclerView = findViewById<RecyclerView>(R.id.translationRecyclerView)
-        val adapter = TranslationAdapter(filteredTranslations)
-        recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        val translationRecyclerView = binding.translationRecyclerView
+        val translationAdapter = TranslationAdapter(filteredTranslations, currentTextSize)
+        translationRecyclerView.adapter = translationAdapter
+        translationRecyclerView.layoutManager = LinearLayoutManager(this)
+
     }
     private fun updateCommentaryList() {
 
@@ -310,10 +409,11 @@ class VerseDetailActivity : AppCompatActivity() {
         }
 
         // Set up the RecyclerView to display the filtered translations
-        val recyclerView = findViewById<RecyclerView>(R.id.commentaryRecyclerView)
-        val adapter = CommentaryAdapter(filteredCommentary)
-        recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        val commentaryRecyclerView = binding.commentaryRecyclerView
+        val commentaryAdapter = CommentaryAdapter(filteredCommentary, currentTextSize)
+        commentaryRecyclerView.adapter = commentaryAdapter
+        commentaryRecyclerView.layoutManager = LinearLayoutManager(this)
+
     }
 
     private fun getJsonDataFromAsset(fileName: String): String? {
@@ -357,6 +457,66 @@ class VerseDetailActivity : AppCompatActivity() {
         val allVerses: List<Verse> = Gson().fromJson(jsonString, verseListType)
         return allVerses.filter { it.chapter_number == chapterNumber }
     }
+
+    private fun getAllTextContent(): String {
+        val verseTitle = binding.verseTitleTextView.text.toString()
+        val verseContent = binding.verseContentTextView.text.toString()
+        val verseTransliteration = binding.verseTransliterationTextView.text.toString()
+        val verseWordMeanings = binding.verseWordMeaningsTextView.text.toString()
+
+        val translationRecyclerView = binding.translationRecyclerView
+        val translationAdapter = translationRecyclerView.adapter as TranslationAdapter
+        val translationText = translationAdapter.getAllTranslationText()
+
+        val commentaryRecyclerView = binding.commentaryRecyclerView
+        val commentaryAdapter = commentaryRecyclerView.adapter as CommentaryAdapter
+        val commentaryText = commentaryAdapter.getAllCommentaryText()
+
+        // Combine all the text content into one string
+        val textToShare = """
+        Verse Title: $verseTitle
+        Verse Content: $verseContent
+        Verse Transliteration: $verseTransliteration
+        Verse Word Meanings: $verseWordMeanings
+
+        Translations:
+        $translationText
+
+        Commentary:
+        $commentaryText
+    """.trimIndent()
+
+        // Add your desired line of text at the end
+        val additionalText = "Shared from - Bhagavad Gita App(https://github.com/WirelessAlien/BhagavadGitaApp)"
+
+        return "$textToShare\n$additionalText"
+    }
+
+    fun copyText() {
+        val textToCopy = getAllTextContent()
+
+        val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+
+        val clipData = ClipData.newPlainText("Text to Copy", textToCopy)
+        clipboardManager.setPrimaryClip(clipData)
+
+        Toast.makeText(this, "Text copied to clipboard", Toast.LENGTH_SHORT).show()
+    }
+
+
+    fun shareText() {
+        val textToShare = getAllTextContent()
+
+        val sendIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, textToShare)
+        }
+
+        val shareIntent = Intent.createChooser(sendIntent, null)
+        startActivity(shareIntent)
+    }
+
 
     private fun playAudio(audioUrl: String, progressBar: ProgressBar) {
         CoroutineScope(Dispatchers.IO).launch {

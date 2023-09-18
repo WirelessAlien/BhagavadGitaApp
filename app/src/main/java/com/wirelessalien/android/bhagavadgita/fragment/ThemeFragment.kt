@@ -23,21 +23,19 @@ import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.widget.RadioButton
-import android.widget.RadioGroup
+import android.view.View
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.wirelessalien.android.bhagavadgita.R
+import com.wirelessalien.android.bhagavadgita.databinding.FragmentThemeBinding
 
 class ThemeFragment : DialogFragment() {
+    private lateinit var binding: FragmentThemeBinding
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.fragment_theme, null)
-        val radioGroup = dialogView.findViewById<RadioGroup>(R.id.themeRadioGroup)
-        val lightButton = dialogView.findViewById<RadioButton>(R.id.lightThemeButton)
-        val darkButton = dialogView.findViewById<RadioButton>(R.id.darkThemeButton)
-        dialogView.findViewById<RadioButton>(R.id.blackThemeButton)
+        binding = FragmentThemeBinding.inflate(LayoutInflater.from(requireContext()))
+        val view = binding.root
 
         val sharedPreferences = requireContext().getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
         val sharedPrefEditor = sharedPreferences.edit()
@@ -45,12 +43,12 @@ class ThemeFragment : DialogFragment() {
         // Initialize the checked state based on shared preferences
         val isDarkMode = sharedPreferences.getBoolean("darkMode", false)
         if (isDarkMode) {
-            darkButton.isChecked = true
+            binding.darkThemeButton.isChecked = true
         } else {
-            lightButton.isChecked = true
+            binding.lightThemeButton.isChecked = true
         }
 
-        radioGroup.setOnCheckedChangeListener { _, checkedId ->
+        binding.themeRadioGroup.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
                 R.id.lightThemeButton -> {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
@@ -70,12 +68,15 @@ class ThemeFragment : DialogFragment() {
             sharedPrefEditor.apply()
         }
 
+        if (binding.themeRadioGroup.checkedRadioButtonId == View.NO_ID) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        }
+
         return MaterialAlertDialogBuilder(requireContext())
             .setTitle("Choose Theme")
-            .setView(dialogView)
+            .setView(view)
             .setPositiveButton("OK", null)
             .setNegativeButton("Cancel") { _, _ -> dismiss() }
             .create()
     }
 }
-

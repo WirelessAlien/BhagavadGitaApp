@@ -34,4 +34,9 @@
         android:icon="@drawable/ic_dark_mode"
         android:visible="true"
         app:showAsAction="always"/>
+    <item
+        android:id="@+id/nav_about"
+        android:title="About"
+        android:icon="@drawable/ic_info"
+        app:showAsAction="ifRoom"/>
 </menu>
