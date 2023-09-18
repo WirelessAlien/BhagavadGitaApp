@@ -21,7 +21,6 @@
 
 package com.wirelessalien.android.bhagavadgita.adapter
 
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -50,6 +49,7 @@ class CommentaryAdapter(private val commentary: List<Commentary>, private var te
         // Bind data to the views
         holder.authorNameTextView.text = commentaryItem.authorName
         holder.commentaryTextView.text = commentaryItem.description
+        holder.authorNameTextView.textSize = textSize.toFloat()
         holder.commentaryTextView.textSize = textSize.toFloat()
     }
 

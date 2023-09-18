@@ -20,6 +20,8 @@
 
 package com.wirelessalien.android.bhagavadgita.activity
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
@@ -68,14 +70,15 @@ class VerseDetailActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityVerseDetailBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
         val sharedPreferences = getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
         when (sharedPreferences.getString("chosenTheme", "default")) {
             "black" -> setTheme(R.style.AppTheme_Black)
             else -> setTheme(R.style.AppTheme)
         }
+
+        binding = ActivityVerseDetailBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         val sharedPref = getSharedPreferences("author_prefs", Context.MODE_PRIVATE)
 
         val sharedPrefTextSize = getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
@@ -229,6 +232,9 @@ class VerseDetailActivity : AppCompatActivity() {
         binding.shareButton.setOnClickListener {
             shareText()
         }
+        binding.copyButton.setOnClickListener {
+            copyText()
+        }
 
         binding.viewTranslationButton.setOnClickListener {
             val currentVerseNumber = verses[currentVerseIndex].verse_id
@@ -306,13 +312,11 @@ class VerseDetailActivity : AppCompatActivity() {
 
     }
 
-
     private fun getTranslationsFromJson(fileName: String): List<Translation> {
         val jsonString = getJsonDataFromAsset(fileName)
         val listTranslationType = object : TypeToken<List<Translation>>() {}.type
         return Gson().fromJson(jsonString, listTranslationType)
     }
-
 
     private fun getCommentaryFromJson(fileName: String): List<Commentary> {
         val jsonString = getJsonDataFromAsset(fileName)
@@ -454,7 +458,6 @@ class VerseDetailActivity : AppCompatActivity() {
         return allVerses.filter { it.chapter_number == chapterNumber }
     }
 
-
     private fun getAllTextContent(): String {
         val verseTitle = binding.verseTitleTextView.text.toString()
         val verseContent = binding.verseContentTextView.text.toString()
@@ -470,8 +473,7 @@ class VerseDetailActivity : AppCompatActivity() {
         val commentaryText = commentaryAdapter.getAllCommentaryText()
 
         // Combine all the text content into one string
-
-        return """
+        val textToShare = """
         Verse Title: $verseTitle
         Verse Content: $verseContent
         Verse Transliteration: $verseTransliteration
@@ -482,8 +484,25 @@ class VerseDetailActivity : AppCompatActivity() {
 
         Commentary:
         $commentaryText
-         """.trimIndent()
+    """.trimIndent()
+
+        // Add your desired line of text at the end
+        val additionalText = "Shared from - Bhagavad Gita App(https://github.com/WirelessAlien/BhagavadGitaApp)"
+
+        return "$textToShare\n$additionalText"
     }
+
+    fun copyText() {
+        val textToCopy = getAllTextContent()
+
+        val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+
+        val clipData = ClipData.newPlainText("Text to Copy", textToCopy)
+        clipboardManager.setPrimaryClip(clipData)
+
+        Toast.makeText(this, "Text copied to clipboard", Toast.LENGTH_SHORT).show()
+    }
+
 
     fun shareText() {
         val textToShare = getAllTextContent()
@@ -497,6 +516,7 @@ class VerseDetailActivity : AppCompatActivity() {
         val shareIntent = Intent.createChooser(sendIntent, null)
         startActivity(shareIntent)
     }
+
 
     private fun playAudio(audioUrl: String, progressBar: ProgressBar) {
         CoroutineScope(Dispatchers.IO).launch {

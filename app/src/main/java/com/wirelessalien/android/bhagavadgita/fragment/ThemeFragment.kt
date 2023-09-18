@@ -23,6 +23,7 @@ import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -65,6 +66,10 @@ class ThemeFragment : DialogFragment() {
                 }
             }
             sharedPrefEditor.apply()
+        }
+
+        if (binding.themeRadioGroup.checkedRadioButtonId == View.NO_ID) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         }
 
         return MaterialAlertDialogBuilder(requireContext())

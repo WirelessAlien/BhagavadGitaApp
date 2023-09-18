@@ -25,6 +25,7 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.wirelessalien.android.bhagavadgita.BuildConfig
 import com.wirelessalien.android.bhagavadgita.databinding.AboutAppFragmentBinding
 
 class AboutAppFragment : DialogFragment() {
@@ -32,6 +33,8 @@ class AboutAppFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val binding = AboutAppFragmentBinding.inflate(layoutInflater)
         val dialogView = binding.root
+
+        binding.versionNumberText.text = BuildConfig.VERSION_NAME
 
         binding.githubIcon.setOnClickListener {
             openUrl("https://github.com/WirelessAlien/BhagavadGitaApp")
@@ -42,7 +45,7 @@ class AboutAppFragment : DialogFragment() {
         }
 
         binding.licenseText.setOnClickListener {
-            openUrl("https://github.com/WirelessAlien/BhagavadGitaApp/blob/master/LICENSE")
+            openUrl("https://www.gnu.org/licenses/gpl-3.0.en.html")
         }
 
         binding.shareIcon.setOnClickListener {

@@ -33,13 +33,28 @@
         android:src="@drawable/ic_launcher_foreground"
         android:contentDescription="@string/app_name"/>
 
-    <TextView
-        android:id="@+id/versionNumberText"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Version 3.1"
-        android:textSize="18sp"
-        android:gravity="center"/>
+        android:gravity="center_horizontal">
+
+        <TextView
+            android:id="@+id/version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/version"
+            android:textSize="18sp"
+            android:gravity="center"/>
+        <TextView
+            android:id="@+id/versionNumberText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/version"
+            android:layout_marginStart="2dp"
+            android:text="Version 3.1"
+            android:textSize="18sp"
+            android:gravity="center"/>
+    </RelativeLayout>
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

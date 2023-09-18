@@ -47,8 +47,6 @@ class ChapterDetailActivity : AppCompatActivity() {
     @DelicateCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityChapterDetailBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
         val sharedPreferences = getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
 
@@ -56,6 +54,9 @@ class ChapterDetailActivity : AppCompatActivity() {
             "black" -> setTheme(R.style.AppTheme_Black)
             else -> setTheme(R.style.AppTheme)
         }
+
+        binding = ActivityChapterDetailBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val sharedPrefTextSize = getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
         currentTextSize = sharedPrefTextSize.getInt("text_size", 16) // Get the saved text size

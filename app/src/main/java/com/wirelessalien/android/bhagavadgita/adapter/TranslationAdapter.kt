@@ -47,6 +47,7 @@ class TranslationAdapter(private val translations: List<Translation>, private va
 
         holder.authorNameTextView.text = translation.authorName
         holder.translationTextView.text = translation.description
+        holder.authorNameTextView.textSize = textSize.toFloat()
         holder.translationTextView.textSize = textSize.toFloat()
     }
 
