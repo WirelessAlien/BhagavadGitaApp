@@ -46,6 +46,7 @@ import com.wirelessalien.android.bhagavadgita.data.Commentary
 import com.wirelessalien.android.bhagavadgita.data.Translation
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityVerseDetailBinding
+import com.wirelessalien.android.bhagavadgita.utils.Themes
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
@@ -70,11 +71,7 @@ class VerseDetailActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val sharedPreferences = getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
-        when (sharedPreferences.getString("chosenTheme", "default")) {
-            "black" -> setTheme(R.style.AppTheme_Black)
-            else -> setTheme(R.style.AppTheme)
-        }
+        Themes.loadTheme(this)
 
         binding = ActivityVerseDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)

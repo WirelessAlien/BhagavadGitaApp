@@ -25,6 +25,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityAboutGitaBinding
+import com.wirelessalien.android.bhagavadgita.utils.Themes
 
 class AboutGitaActivity: AppCompatActivity() {
 
@@ -33,12 +34,9 @@ class AboutGitaActivity: AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val sharedPreferences = getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
 
-        when (sharedPreferences.getString("chosenTheme", "default")) {
-            "black" -> setTheme(R.style.AppTheme_Black)
-            else -> setTheme(R.style.AppTheme)
-        }
+        Themes.loadTheme(this)
+
         binding = ActivityAboutGitaBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

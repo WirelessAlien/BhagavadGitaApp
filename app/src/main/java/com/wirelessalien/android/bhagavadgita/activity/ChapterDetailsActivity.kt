@@ -32,6 +32,7 @@ import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.adapter.VerseAdapter
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityChapterDetailBinding
+import com.wirelessalien.android.bhagavadgita.utils.Themes
 import kotlinx.coroutines.*
 import java.io.IOException
 
@@ -48,12 +49,7 @@ class ChapterDetailActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val sharedPreferences = getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
-
-        when (sharedPreferences.getString("chosenTheme", "default")) {
-            "black" -> setTheme(R.style.AppTheme_Black)
-            else -> setTheme(R.style.AppTheme)
-        }
+        Themes.loadTheme(this)
 
         binding = ActivityChapterDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)

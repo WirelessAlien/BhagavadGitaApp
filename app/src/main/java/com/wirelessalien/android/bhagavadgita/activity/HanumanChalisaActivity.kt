@@ -32,6 +32,7 @@ import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityHanumanChalisaBinding
 import com.wirelessalien.android.bhagavadgita.fragment.HanumanChalisaE
 import com.wirelessalien.android.bhagavadgita.fragment.HanumanChalisaH
+import com.wirelessalien.android.bhagavadgita.utils.Themes
 
 class HanumanChalisaActivity : AppCompatActivity() {
 
@@ -42,12 +43,7 @@ class HanumanChalisaActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val sharedPreferences = getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
-
-        when (sharedPreferences.getString("chosenTheme", "default")) {
-            "black" -> setTheme(R.style.AppTheme_Black)
-            else -> setTheme(R.style.AppTheme)
-        }
+        Themes.loadTheme(this)
 
         binding = ActivityHanumanChalisaBinding.inflate(layoutInflater)
         setContentView(binding.root)
