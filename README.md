@@ -1,7 +1,7 @@
 <br/>
 <p align="center">
   <a href="https://github.com/WirelessAlien/BhagavadGitaApp">
-    <img src="https://github.com/WirelessAlien/BhagavadGitaApp/blob/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png" alt="Logo" width="80" height="80">
+    <img src="https://github.com/WirelessAlien/BhagavadGitaApp/blob/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">Bhagavad Gita App</h3>
@@ -18,6 +18,8 @@
   </p>
 </p>
 
+<p align="center"><a href="https://f-droid.org/en/packages/com.wirelessalien.android.bhagavadgita/"><img src="https://fdroid.gitlab.io/artwork/badge/get-it-on-en.svg" alt="Get it on F-Droid" height=80/></a></p>
+
 ## About The Project
 
 This Android app provides the chapter and verse of the Bhagavad Gita. It is for anyone who is interested in learning about this amazing ancient text.
@@ -26,19 +28,17 @@ Features:
 
 * Provides the chapter and verse (with translation) of the Bhagavad Gita
 * Audio support for verses
+* Commentary support for verses (Hindi & English)
 * Hanuman Chalisa
 * Language available - Hindi, English
 * Offline support
 
 
 ## Screenshots
+<pre>
+<img src="https://github.com/WirelessAlien/BhagavadGitaApp/assets/121420261/0e1b638c-05cb-44a0-8c81-04f21d674078" width="130" height="280" />  <img src="https://github.com/WirelessAlien/BhagavadGitaApp/assets/121420261/9dd5177b-42b3-47f4-a060-b05d8277cb7c" width="130" height="280" />  <img src="https://github.com/WirelessAlien/BhagavadGitaApp/assets/121420261/226fa342-d993-4aa8-8374-0a77c15bed1c" width="130" height="280" />  <img src="https://github.com/WirelessAlien/BhagavadGitaApp/assets/121420261/d7c69288-6b6f-43e4-ac45-93221c5d3e64" width="130" height="280" />  <img src="https://github.com/WirelessAlien/BhagavadGitaApp/assets/121420261/1ca71686-a9fd-4b3e-8dbf-30d58a5c0fb7" width="130" height="280" />  <img src="https://github.com/WirelessAlien/BhagavadGitaApp/assets/121420261/e2427898-f82b-4839-a3c3-fc699c70857b" width="130" height="280" />  <img src="https://github.com/WirelessAlien/BhagavadGitaApp/assets/121420261/0b52cefd-057b-482c-861e-c781c84b100e" width="130" height="280" />
+</pre>
 
-<img src="https://github.com/WirelessAlien/BhagavadGitaApp/assets/121420261/c2a1a84d-7eba-4d9a-9b4b-03aac875e7d6" width="130" height="280" />
-<img src="https://github.com/WirelessAlien/BhagavadGitaApp/assets/121420261/4178f829-dc2d-4704-a9a1-2fa180e94bc2" width="130" height="280" />
-<img src="https://github.com/WirelessAlien/BhagavadGitaApp/assets/121420261/7b5811e4-2b59-46b7-8ad6-f13bab8f3275" width="130" height="280" />
-<img src="https://github.com/WirelessAlien/BhagavadGitaApp/assets/121420261/fee52ffa-7843-412a-9c8c-dd1db16656e5" width="130" height="280" />
-<img src="https://github.com/WirelessAlien/BhagavadGitaApp/assets/121420261/e112da5b-2825-4cdf-a1ec-87a33d7f0890" width="130" height="280" />
-<img src="https://github.com/WirelessAlien/BhagavadGitaApp/assets/121420261/09e949ca-4045-4176-9277-27b784a6ee2e" width="130" height="280" />
 
 ## Contribution
 

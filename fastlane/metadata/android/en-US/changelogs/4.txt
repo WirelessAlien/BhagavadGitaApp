@@ -1,0 +1,3 @@
+Bug fix: Corrected issue displaying incorrect verse translations.
+
+Added Material You (may not work on all the devices)

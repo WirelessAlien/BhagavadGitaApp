@@ -22,6 +22,7 @@ package com.wirelessalien.android.bhagavadgita.activity
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
@@ -30,6 +31,7 @@ import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.adapter.TranslationAdapter
 import com.wirelessalien.android.bhagavadgita.data.Translation
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityVerseTranslationBinding
+import com.wirelessalien.android.bhagavadgita.utils.Themes
 import java.io.IOException
 
 
@@ -40,12 +42,7 @@ class VerseTranslationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val sharedPreferences = getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
-
-        when (sharedPreferences.getString("chosenTheme", "default")) {
-            "black" -> setTheme(R.style.AppTheme_Black)
-            else -> setTheme(R.style.AppTheme)
-        }
+        Themes.loadTheme(this)
 
         binding = ActivityVerseTranslationBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -70,6 +67,7 @@ class VerseTranslationActivity : AppCompatActivity() {
     private fun getTranslationsForVerse(verseNumber: Int): List<Translation> {
         // Retrieve the list of translations from the JSON file
         val jsonString = getJsonDataFromAsset("translation.json")
+        Log.d("VerseTranslationActivity","verseNumber $verseNumber -> $jsonString")
         val gson = Gson()
         val listTranslationType = object : TypeToken<List<Translation>>() {}.type
         val translations: List<Translation> = gson.fromJson(jsonString, listTranslationType)
