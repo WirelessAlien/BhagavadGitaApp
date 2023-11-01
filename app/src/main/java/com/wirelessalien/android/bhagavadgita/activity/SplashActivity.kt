@@ -27,6 +27,7 @@ import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import com.wirelessalien.android.bhagavadgita.MainActivity
 import com.wirelessalien.android.bhagavadgita.R
+import com.wirelessalien.android.bhagavadgita.utils.Themes
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {
@@ -36,6 +37,8 @@ class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
+
+        Themes.loadTheme(this)
 
         Handler(Looper.getMainLooper()).postDelayed({
             // This method will be executed once the timer is over

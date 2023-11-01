@@ -13,7 +13,10 @@ class Themes {
             when (sharedPreferences.getInt("themeMode", 0)) {
                 0 -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
                 1 -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                2 -> context.setTheme(R.style.AppTheme_Black)
+                2 -> {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                    context.setTheme(R.style.AppTheme_Black)
+                }
             }
         }
     }
