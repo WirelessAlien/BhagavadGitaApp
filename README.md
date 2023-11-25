@@ -7,16 +7,16 @@
   <h3 align="center">Bhagavad Gita App</h3>
 
   <p align="center">
-    A Simple Android App for Bhagavad Gita
-    <br/>
-    <br/>
-    <a href="https://github.com/WirelessAlien/BhagavadGitaApp/releases">Releases</a>
-    .
-    <a href="https://github.com/WirelessAlien/BhagavadGitaApp/issues">Report Bug</a>
-    .
-    <a href="https://github.com/WirelessAlien/BhagavadGitaApp/issues">Request Feature</a>
+    A Simple Open-source Android App for Bhagavad Gita
   </p>
-</p>
+
+<div align="center">
+
+[![GitHub release](https://img.shields.io/github/v/release/WirelessAlien/BhagavadGitaApp)](https://github.com/WirelessAlien/BhagavadGitaApp/releases/latest)
+[![GitHub license](https://img.shields.io/github/license/WirelessAlien/BhagavadGitaApp)](https://img.shields.io/github/license/WirelessAlien/BhagavadGitaApp)
+[![GitHub issues](https://img.shields.io/github/issues/WirelessAlien/BhagavadGitaApp)](https://img.shields.io/github/issues/WirelessAlien/BhagavadGitaApp)
+[![F-Droid](https://img.shields.io/f-droid/v/com.wirelessalien.android.bhagavadgita?logo=F-Droid)](https://f-droid.org/packages/com.wirelessalien.android.bhagavadgita)
+</div>
 
 <p align="center"><a href="https://f-droid.org/en/packages/com.wirelessalien.android.bhagavadgita/"><img src="https://fdroid.gitlab.io/artwork/badge/get-it-on-en.svg" alt="Get it on F-Droid" height=80/></a></p>
 
@@ -58,6 +58,12 @@ Contributions are what make the open source community such an amazing place to b
 ## License
 
 Distributed under the GPL v3.0 License. See [LICENSE](https://github.com/WirelessAlien/BhagavadGitaApp/blob/master/LICENSE) for more information.
+
+## Donate 
+
+<noscript><a href="https://liberapay.com/WirelessAlien/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a></noscript>  
+
+<a href="https://www.buymeacoffee.com/wirelessalien" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-blue.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
 ## Credit
 
