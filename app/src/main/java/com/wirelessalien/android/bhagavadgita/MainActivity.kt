@@ -36,6 +36,7 @@ import com.google.android.material.color.DynamicColors
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.wirelessalien.android.bhagavadgita.activity.AboutGitaActivity
+import com.wirelessalien.android.bhagavadgita.activity.AllVerseActivity
 import com.wirelessalien.android.bhagavadgita.activity.HanumanChalisaActivity
 import com.wirelessalien.android.bhagavadgita.adapter.ChapterAdapter
 import com.wirelessalien.android.bhagavadgita.adapter.SliderVerseAdapter
@@ -148,10 +149,11 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        binding.btnAboutGita.setOnClickListener {
-            val intent = Intent(this, AboutGitaActivity::class.java)
+        binding.btnAllVerse.setOnClickListener {
+            val intent = Intent(this, AllVerseActivity::class.java)
             startActivity(intent)
         }
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

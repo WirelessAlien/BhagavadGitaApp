@@ -77,10 +77,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <Button
-                android:id="@+id/btn_about_gita"
+                android:id="@+id/btnAllVerse"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/about_gita_btn"
+                android:text="All Verses"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_alignParentStart="true" />
             <Button

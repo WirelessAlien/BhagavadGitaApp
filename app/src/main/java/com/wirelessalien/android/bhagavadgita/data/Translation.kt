@@ -26,5 +26,5 @@ data class Translation(
     val id: Int,
     val lang: String,
     val verse_number: Int,
-    val verse_id: Int
+    val verse_id: Int,
 )
