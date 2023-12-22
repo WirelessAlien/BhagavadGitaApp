@@ -26,14 +26,12 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.wirelessalien.android.bhagavadgita.activity.VerseDetailActivity
-import com.wirelessalien.android.bhagavadgita.data.Translation
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.AllVerseCardviewItemBinding
 
 class AllVerseAdapter(
     private var verses: List<Verse>,
     private var textSize: Int,
-    private var translations: Map<Int, Translation>,
 ) : RecyclerView.Adapter<AllVerseAdapter.AllVerseViewHolder>() {
 
     inner class AllVerseViewHolder(private val binding: AllVerseCardviewItemBinding) :
@@ -44,11 +42,6 @@ class AllVerseAdapter(
             binding.verseTextView.text = verse.text
             binding.verseTitleTextView.textSize = textSize.toFloat()
             binding.verseTextView.textSize = textSize.toFloat()
-
-            val translation = translations[verse.verse_id]
-            translation?.let {
-                binding.verseDescriptionTextView.text = it.description
-            }
 
             binding.root.setOnClickListener {
                 val intent = newIntent(binding.root.context, verse)

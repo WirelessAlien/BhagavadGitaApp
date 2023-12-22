@@ -2,6 +2,7 @@ package com.wirelessalien.android.bhagavadgita.activity
 
 import android.content.Context
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,13 +17,16 @@ import com.wirelessalien.android.bhagavadgita.utils.Themes
 import kotlinx.coroutines.*
 import java.io.IOException
 
-class AllVerseActivity: AppCompatActivity() {
+@OptIn(DelicateCoroutinesApi::class)
+class AllVerseActivity : AppCompatActivity() {
 
     private lateinit var binding: AllVerseActivityBinding
     private var verseList: List<Verse> = emptyList()
     private var currentTextSize: Int = 16
     private lateinit var searchView: SearchView
-
+    private lateinit var adapter: AllVerseAdapter
+    private lateinit var translationList: Map<Int, Translation>
+    private lateinit var commentaryList: Map<Int, Commentary>
 
     @DelicateCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,20 +37,37 @@ class AllVerseActivity: AppCompatActivity() {
         binding = AllVerseActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val sharedPrefTextSize = getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
-        currentTextSize = sharedPrefTextSize.getInt("text_size", 16) // Get the saved text size
+        // Initialize UI components
+        initUI()
 
-        updateAdapterTextSize(currentTextSize, verseList)
-
-        val translationList = loadTranslations() // Load translations from the respective JSON
-        val commentaryList = loadCommentaries() // Load commentaries from the respective JSON
+        // Load translations and commentaries
+        translationList = loadTranslations()
+        commentaryList = loadCommentaries()
 
         // Initialize the adapter with translations
-        val adapter = AllVerseAdapter(verseList, currentTextSize, translationList)
+        adapter = AllVerseAdapter(verseList, currentTextSize)
         binding.verseRecyclerView.adapter = adapter
         binding.verseRecyclerView.layoutManager = LinearLayoutManager(this)
 
         // Load the verses asynchronously
+        loadVersesAsync()
+
+        // Set up search functionality
+        setupSearchView()
+    }
+
+    private fun initUI() {
+        val sharedPrefTextSize =
+            getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
+        currentTextSize = sharedPrefTextSize.getInt("text_size", 16)
+        updateAdapterTextSize(currentTextSize, verseList)
+    }
+
+    private fun loadVersesAsync() {
+        // Show ProgressBar
+        binding.progressBar.visibility = View.VISIBLE
+
+        // Load verses asynchronously
         GlobalScope.launch(Dispatchers.IO) {
             verseList = loadAllVerses()
 
@@ -54,16 +75,13 @@ class AllVerseActivity: AppCompatActivity() {
             withContext(Dispatchers.Main) {
                 // Set the chapter details in the UI
                 binding.verseRecyclerView.layoutManager = LinearLayoutManager(this@AllVerseActivity)
-                binding.verseRecyclerView.adapter = AllVerseAdapter(verseList, currentTextSize, translationList)
-
-                // Hide the ProgressBar once the verses are loaded
-
+                binding.verseRecyclerView.adapter = AllVerseAdapter(verseList, currentTextSize)
+                binding.progressBar.visibility = View.GONE // Hide the ProgressBar once the verses are loaded
             }
         }
+    }
 
-        binding.verseRecyclerView.layoutManager = LinearLayoutManager(this)
-        binding.verseRecyclerView.adapter = AllVerseAdapter(verseList, 16, translationList)
-
+    private fun setupSearchView() {
         searchView = binding.searchView
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -72,43 +90,56 @@ class AllVerseActivity: AppCompatActivity() {
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                val verseSearchResult = when {
-                    newText.isNullOrBlank() -> verseList
-                    else -> verseList.filter { verse ->
-                        val titleMatch = verse.title.contains(newText, ignoreCase = true)
-                        val textMatch = verse.text.contains(newText, ignoreCase = true)
-                        val transliterationMatch = verse.transliteration.contains(newText, ignoreCase = true)
-                        val chapterNumberMatch = verse.chapter_number.toString().contains(newText, ignoreCase = true)
-                        val wordMeaningsMatch = verse.word_meanings.contains(newText, ignoreCase = true)
-
-                        titleMatch || textMatch || transliterationMatch || chapterNumberMatch || wordMeaningsMatch
-                    }
-                }
-
-                val translationSearchResult = translationList.values.filter { translation ->
-                    translation.authorName.contains(newText!!, ignoreCase = true) ||
-                            translation.description.contains(newText, ignoreCase = true)
-                }
-
-                val commentarySearchResult = commentaryList.values.filter { commentary ->
-                    commentary.authorName.contains(newText!!, ignoreCase = true) ||
-                            commentary.description.contains(newText, ignoreCase = true)
-                }
-
-                val filteredList = if (verseSearchResult.isNotEmpty() || translationSearchResult.isNotEmpty() || commentarySearchResult.isNotEmpty()) {
-                    // Combine the results and get unique verse_ids
-                    val verseIds = (verseSearchResult.map { it.verse_id } + translationSearchResult.map { it.verse_id } + commentarySearchResult.map {it.verse_id}).toSet()
-
-                    // Filter the original verseList based on the verse_ids
-                    verseList.filter { it.verse_id in verseIds }
-                } else {
-                    emptyList()
-                }
-
-                updateAdapterTextSize(currentTextSize, filteredList)
+                // Perform search in the background
+                searchInBackground(newText)
                 return true
             }
         })
+    }
+
+    private fun searchInBackground(newText: String?) {
+        GlobalScope.launch(Dispatchers.IO) {
+            val verseSearchResult = when {
+                newText.isNullOrBlank() -> verseList
+                else -> verseList.filter { verse ->
+                    val titleMatch = verse.title.contains(newText, ignoreCase = true)
+                    val textMatch = verse.text.contains(newText, ignoreCase = true)
+                    val transliterationMatch =
+                        verse.transliteration.contains(newText, ignoreCase = true)
+                    val chapterNumberMatch =
+                        verse.chapter_number.toString().contains(newText, ignoreCase = true)
+                    val wordMeaningsMatch =
+                        verse.word_meanings.contains(newText, ignoreCase = true)
+
+                    titleMatch || textMatch || transliterationMatch || chapterNumberMatch || wordMeaningsMatch
+                }
+            }
+
+            val translationSearchResult = translationList.values.filter { translation ->
+                translation.authorName.contains(newText!!, ignoreCase = true) ||
+                        translation.description.contains(newText, ignoreCase = true)
+            }
+
+            val commentarySearchResult = commentaryList.values.filter { commentary ->
+                commentary.authorName.contains(newText!!, ignoreCase = true) ||
+                        commentary.description.contains(newText, ignoreCase = true)
+            }
+
+            val filteredList = if (verseSearchResult.isNotEmpty() || translationSearchResult.isNotEmpty() || commentarySearchResult.isNotEmpty()) {
+                // Combine the results and get unique verse_ids
+                val verseIds = (verseSearchResult.map { it.verse_id } + translationSearchResult.map { it.verse_id } + commentarySearchResult.map { it.verse_id }).toSet()
+
+                // Filter the original verseList based on the verse_ids
+                verseList.filter { it.verse_id in verseIds }
+            } else {
+                emptyList()
+            }
+
+            // Update the UI on the main thread
+            withContext(Dispatchers.Main) {
+                updateAdapterTextSize(currentTextSize, filteredList)
+            }
+        }
     }
 
     private fun loadTranslations(): Map<Int, Translation> {

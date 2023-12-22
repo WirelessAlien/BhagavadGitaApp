@@ -48,18 +48,6 @@
             android:textAlignment="center"
             android:textSize="14sp" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/verseDescriptionTextView"
-            android:layout_marginTop="10dp"
-            android:textSize="14sp"/>
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/verseCommentaryTextView"
-            android:layout_marginTop="10dp"
-            android:textSize="14sp"/>
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>
