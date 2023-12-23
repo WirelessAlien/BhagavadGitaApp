@@ -71,4 +71,6 @@
     <color name="md_theme_dark_inverseSurface">#EDE0DD</color>
     <color name="md_theme_dark_inversePrimary">#9F412B</color>
     <color name="black">#000000</color>
+
+    <color name="blue">#0000FF</color>
 </resources>

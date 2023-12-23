@@ -18,36 +18,36 @@
   ~
   -->
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_margin="5dp"
+    android:clickable="true"
+    android:focusable="true"
+    style="@style/Widget.Material3.CardView.Outlined"
+    app:cardElevation="5dp"
+    app:cardCornerRadius="5dp">
 
-    <RadioGroup
-        android:id="@+id/themeRadioGroup"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="15dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="10dp">
 
-        <com.google.android.material.radiobutton.MaterialRadioButton
-            android:id="@+id/lightThemeButton"
+        <TextView
+            android:id="@+id/verseTitleTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Light Theme" />
-
-        <com.google.android.material.radiobutton.MaterialRadioButton
-            android:id="@+id/darkThemeButton"
-            android:layout_width="wrap_content"
+            android:textAlignment="center"
+            android:textSize="16sp"/>
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Dark Theme" />
+            android:id="@+id/verseTextView"
+            android:textAlignment="center"
+            android:textSize="14sp" />
 
-        <com.google.android.material.radiobutton.MaterialRadioButton
-            android:id="@+id/blackThemeButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Black Theme"/>
-    </RadioGroup>
+    </LinearLayout>
 
-</LinearLayout>
+</com.google.android.material.card.MaterialCardView>

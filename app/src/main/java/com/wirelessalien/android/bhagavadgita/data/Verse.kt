@@ -31,4 +31,5 @@ data class Verse(
     val verse_id: Int,
     val transliteration: String,
     val word_meanings: String
+
 )

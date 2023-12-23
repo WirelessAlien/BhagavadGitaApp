@@ -29,12 +29,14 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.color.DynamicColors
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.wirelessalien.android.bhagavadgita.activity.AboutGitaActivity
+import com.wirelessalien.android.bhagavadgita.activity.AllVerseActivity
 import com.wirelessalien.android.bhagavadgita.activity.HanumanChalisaActivity
 import com.wirelessalien.android.bhagavadgita.adapter.ChapterAdapter
 import com.wirelessalien.android.bhagavadgita.adapter.SliderVerseAdapter
@@ -43,6 +45,7 @@ import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityMainBinding
 import com.wirelessalien.android.bhagavadgita.fragment.AboutAppFragment
 import com.wirelessalien.android.bhagavadgita.fragment.ThemeFragment
+import com.wirelessalien.android.bhagavadgita.utils.Themes
 import org.json.JSONArray
 import java.io.IOException
 import java.nio.charset.Charset
@@ -62,11 +65,7 @@ class MainActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
 
-        val sharedPreferences = getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
-        when (sharedPreferences.getString("chosenTheme", "default")) {
-            "black" -> setTheme(R.style.AppTheme_Black)
-            else -> setTheme(R.style.AppTheme)
-        }
+        Themes.loadTheme(this)
 
         val sharedPrefTextSize = getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
         currentTextSize = sharedPrefTextSize.getInt("text_size", 16) // Get the saved text size
@@ -150,10 +149,11 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        binding.btnAboutGita.setOnClickListener {
-            val intent = Intent(this, AboutGitaActivity::class.java)
+        binding.btnAllVerse.setOnClickListener {
+            val intent = Intent(this, AllVerseActivity::class.java)
             startActivity(intent)
         }
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
