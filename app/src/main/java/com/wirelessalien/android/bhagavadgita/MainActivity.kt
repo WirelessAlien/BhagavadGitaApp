@@ -29,7 +29,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.color.DynamicColors
@@ -37,6 +36,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.wirelessalien.android.bhagavadgita.activity.AboutGitaActivity
 import com.wirelessalien.android.bhagavadgita.activity.AllVerseActivity
+import com.wirelessalien.android.bhagavadgita.activity.FavouriteActivity
 import com.wirelessalien.android.bhagavadgita.activity.HanumanChalisaActivity
 import com.wirelessalien.android.bhagavadgita.adapter.ChapterAdapter
 import com.wirelessalien.android.bhagavadgita.adapter.SliderVerseAdapter
@@ -60,9 +60,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewPager: ViewPager2
     private var currentTextSize: Int = 16 // Default text size
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
 
         Themes.loadTheme(this)
@@ -85,8 +83,6 @@ class MainActivity : AppCompatActivity() {
 
         // Parse JSON data
         chapterList = parseJson(jsonString)
-
-
 
         val adapterC = ChapterAdapter(chapterList, 16)
         binding.recyclerView.adapter = adapterC
@@ -143,7 +139,6 @@ class MainActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
 
-
         binding.hanumanChalisaText.setOnClickListener {
             val intent = Intent(this, HanumanChalisaActivity::class.java)
             startActivity(intent)
@@ -153,14 +148,11 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, AllVerseActivity::class.java)
             startActivity(intent)
         }
-
     }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
         return super.onCreateOptionsMenu(menu)
     }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.nav_about_gita -> {
@@ -181,11 +173,13 @@ class MainActivity : AppCompatActivity() {
                 aboutDialog.show(supportFragmentManager, "AboutAppFragment")
 
             }
-
+            R.id.nav_fav -> {
+                intent.setClass(this, FavouriteActivity::class.java)
+                startActivity(intent)
+            }
         }
         return super.onOptionsItemSelected(item)
     }
-
     private fun updateAdapterTextSize(newSize: Int) {
 
         val recyclerViewC = binding.recyclerView
@@ -195,8 +189,6 @@ class MainActivity : AppCompatActivity() {
         val sharedPrefTextSize= getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
         sharedPrefTextSize.edit().putInt("text_size", newSize).apply()
     }
-
-
     private fun loadVersesFromJson(): List<Verse> {
         val json: String?
         try {
@@ -210,12 +202,9 @@ class MainActivity : AppCompatActivity() {
             e.printStackTrace()
             return emptyList()
         }
-
         val listType = object : TypeToken<List<Verse>>() {}.type
         return Gson().fromJson(json, listType)
     }
-
-
     private fun parseJson(jsonString: String): List<Chapter> {
         val chapterList = mutableListOf<Chapter>()
         val jsonArray = JSONArray(jsonString)
@@ -236,7 +225,6 @@ class MainActivity : AppCompatActivity() {
             )
             chapterList.add(chapter)
         }
-
         return chapterList
     }
 }
