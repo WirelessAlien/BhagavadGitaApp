@@ -45,4 +45,6 @@
     <string name="share_icon">Share Icon</string>
     <string name="version">Version</string>
     <string name="show_more">Show More</string>
+    <string name="verse_title">Verse Title</string>
+    <string name="verse_content">Verse Content</string>
 </resources>

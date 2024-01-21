@@ -62,13 +62,21 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_toEndOf="@id/changeTextSize"
-                android:layout_toStartOf="@id/copyButton"
+                android:layout_toStartOf="@id/favButton"
                 android:max="4"
                 android:progress="1"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="3dp"
                 android:layout_marginEnd="3dp"/>
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/favButton"
+                style="?attr/materialIconButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:layout_toStartOf="@id/copyButton"
+                app:icon="@drawable/ic_favorite_line" />
             <!-- Clipboard Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/copyButton"

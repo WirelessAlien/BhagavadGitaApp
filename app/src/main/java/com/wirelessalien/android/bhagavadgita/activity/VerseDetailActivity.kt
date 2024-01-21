@@ -43,6 +43,7 @@ import com.wirelessalien.android.bhagavadgita.adapter.CustomSpinnerAdapter
 import com.wirelessalien.android.bhagavadgita.adapter.TranslationAdapter
 import com.wirelessalien.android.bhagavadgita.data.Chapter
 import com.wirelessalien.android.bhagavadgita.data.Commentary
+import com.wirelessalien.android.bhagavadgita.data.FavouriteVerse
 import com.wirelessalien.android.bhagavadgita.data.Translation
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityVerseDetailBinding
@@ -232,6 +233,9 @@ class VerseDetailActivity : AppCompatActivity() {
         binding.copyButton.setOnClickListener {
             copyText()
         }
+        binding.favButton.setOnClickListener {
+            onFavoriteButtonClick()
+        }
 
         binding.viewTranslationButton.setOnClickListener {
             val currentVerseNumber = verses[currentVerseIndex].verse_id
@@ -267,6 +271,42 @@ class VerseDetailActivity : AppCompatActivity() {
 
             }
         })
+    }
+
+    private fun onFavoriteButtonClick() {
+        // Get the text elements you want to save
+        val verseTitle = binding.verseTitleTextView.text.toString()
+        val verseContent = binding.verseContentTextView.text.toString()
+        val transliteration = binding.verseTransliterationTextView.text.toString()
+        val wordMeanings = binding.verseWordMeaningsTextView.text.toString()
+
+        val translationRecyclerView = binding.translationRecyclerView
+        val translationAdapter = translationRecyclerView.adapter as TranslationAdapter
+        val translationText = translationAdapter.getAllTranslationText()
+
+        val commentaryRecyclerView = binding.commentaryRecyclerView
+        val commentaryAdapter = commentaryRecyclerView.adapter as CommentaryAdapter
+        val commentaryText = commentaryAdapter.getAllCommentaryText()
+
+        // Retrieve the existing list of favorites from SharedPreferences
+        val sharedPreferences = getSharedPreferences("favorites", Context.MODE_PRIVATE)
+        val gson = Gson()
+        val favoritesJson = sharedPreferences.getString("favoriteList", "[]")
+        val favoriteListType = object : TypeToken<List<FavouriteVerse>>() {}.type
+        val favoriteList = gson.fromJson<List<FavouriteVerse>>(favoritesJson, favoriteListType).toMutableList()
+
+        // Add the new favorite item to the list
+        val newFavoriteItem = FavouriteVerse(verseTitle, verseContent, transliteration, wordMeanings, translationText, commentaryText)
+        favoriteList.add(newFavoriteItem)
+
+        // Save the updated list of favorites back to SharedPreferences
+        val editor = sharedPreferences.edit()
+        val updatedFavoritesJson = gson.toJson(favoriteList)
+        editor.putString("favoriteList", updatedFavoritesJson)
+        editor.apply()
+
+        // Display a message or update UI to indicate that it's saved as a favorite
+        Toast.makeText(this, "Added to Favorites", Toast.LENGTH_SHORT).show()
     }
 
     private fun updateTextSize(newSize: Int) {
