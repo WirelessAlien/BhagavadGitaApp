@@ -1,0 +1,3 @@
+Fixed themes not changing issue
+Added ability to search verse, translation, commentary etc. within the app
+Click All Verse > Search
