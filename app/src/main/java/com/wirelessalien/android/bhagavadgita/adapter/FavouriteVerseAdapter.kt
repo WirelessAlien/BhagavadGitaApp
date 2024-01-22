@@ -20,11 +20,13 @@
 package com.wirelessalien.android.bhagavadgita.adapter
 
 // FavoriteVerseAdapter.kt
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.wirelessalien.android.bhagavadgita.R
+import com.wirelessalien.android.bhagavadgita.activity.VerseDetailActivity
 import com.wirelessalien.android.bhagavadgita.data.FavouriteVerse
 import com.wirelessalien.android.bhagavadgita.databinding.FavVerseItemBinding
 
@@ -55,7 +57,20 @@ class FavouriteVerseAdapter(private val favoriteList: MutableList<FavouriteVerse
             binding.combinedCommentaryH.visibility = if (favoriteItem.isExpanded) View.VISIBLE else View.GONE
 
 
-            //delete button
+           binding.readAllBtn.setOnClickListener {
+               val context = it.context
+               val intent = Intent(context, VerseDetailActivity::class.java).apply {
+                   putExtra("chapter_number", favoriteItem.chapterId)
+                   putExtra("verse_title", favoriteItem.verseTitle)
+                   putExtra("verse_text", favoriteItem.verseContent)
+                   putExtra("verse_transliteration", favoriteItem.transliteration)
+                   putExtra("verse_word_meanings", favoriteItem.wordMeanings)
+
+                   }
+               context.startActivity(intent)
+           }
+
+
             binding.deleteBtn.setOnClickListener {
                 onDeleteClickListener?.let { click ->
                     click(bindingAdapterPosition)

@@ -22,6 +22,7 @@ package com.wirelessalien.android.bhagavadgita.activity
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -30,6 +31,7 @@ import com.google.gson.reflect.TypeToken
 import com.wirelessalien.android.bhagavadgita.adapter.FavouriteVerseAdapter
 import com.wirelessalien.android.bhagavadgita.data.FavouriteVerse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityFavouriteBinding
+import com.wirelessalien.android.bhagavadgita.utils.Themes
 
 class FavouriteActivity : AppCompatActivity() {
 
@@ -39,9 +41,13 @@ class FavouriteActivity : AppCompatActivity() {
     private val favoriteList = mutableListOf<FavouriteVerse>()
     private lateinit var sharedPreferences: SharedPreferences
     private val gson = Gson()
+    private var currentTextSize: Int = 16 // Default text size
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Themes.loadTheme(this)
+
         binding = ActivityFavouriteBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -50,6 +56,9 @@ class FavouriteActivity : AppCompatActivity() {
 
         // Initialize SharedPreferences
         sharedPreferences = getSharedPreferences("favorites", Context.MODE_PRIVATE)
+
+        val sharedPrefTextSize = getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
+        currentTextSize = sharedPrefTextSize.getInt("text_size", 16) // Get the saved text size
 
         // Load the list of favorite items
         loadFavoriteList()
@@ -73,6 +82,14 @@ class FavouriteActivity : AppCompatActivity() {
         val favoriteListType = object : TypeToken<List<FavouriteVerse>>() {}.type
         favoriteList.clear()
         favoriteList.addAll(gson.fromJson(favoritesJson, favoriteListType))
+
+        if (favoriteList.isEmpty()) {
+            // If the list is empty, show the emptyTextView
+            binding.emptyTextView.visibility = View.VISIBLE
+        } else {
+            // If the list is not empty, hide the emptyTextView
+            binding.emptyTextView.visibility = View.GONE
+        }
     }
 
     private fun saveFavoriteList() {

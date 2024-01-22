@@ -275,6 +275,7 @@ class VerseDetailActivity : AppCompatActivity() {
 
     private fun onFavoriteButtonClick() {
         // Get the text elements you want to save
+        val chapterId = verses[currentVerseIndex].chapter_number
         val verseTitle = binding.verseTitleTextView.text.toString()
         val verseContent = binding.verseContentTextView.text.toString()
         val transliteration = binding.verseTransliterationTextView.text.toString()
@@ -296,7 +297,7 @@ class VerseDetailActivity : AppCompatActivity() {
         val favoriteList = gson.fromJson<List<FavouriteVerse>>(favoritesJson, favoriteListType).toMutableList()
 
         // Add the new favorite item to the list
-        val newFavoriteItem = FavouriteVerse(verseTitle, verseContent, transliteration, wordMeanings, translationText, commentaryText)
+        val newFavoriteItem = FavouriteVerse(chapterId,verseTitle, verseContent, transliteration, wordMeanings, translationText, commentaryText)
         favoriteList.add(newFavoriteItem)
 
         // Save the updated list of favorites back to SharedPreferences
