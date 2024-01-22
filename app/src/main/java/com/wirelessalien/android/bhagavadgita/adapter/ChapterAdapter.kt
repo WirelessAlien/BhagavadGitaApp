@@ -25,7 +25,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.wirelessalien.android.bhagavadgita.R
-import com.wirelessalien.android.bhagavadgita.activity.ChapterDetailActivity
+import com.wirelessalien.android.bhagavadgita.activity.ChapterDetailsActivity
 import com.wirelessalien.android.bhagavadgita.data.Chapter
 import com.wirelessalien.android.bhagavadgita.databinding.ChapterCardviewItemBinding
 
@@ -42,7 +42,7 @@ class ChapterAdapter(private val chapters: List<Chapter>, private var textSize: 
             binding.root.setOnClickListener {
                 if (currentPosition != RecyclerView.NO_POSITION) {
                     val chapter = chapters[currentPosition]
-                    val intent = Intent(binding.root.context, ChapterDetailActivity::class.java)
+                    val intent = Intent(binding.root.context, ChapterDetailsActivity::class.java)
                     intent.apply {
                         putExtra("chapter_number", chapter.chapter_number)
                         putExtra("chapter_name", chapter.name)

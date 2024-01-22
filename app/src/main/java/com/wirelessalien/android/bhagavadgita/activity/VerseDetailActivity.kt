@@ -212,7 +212,7 @@ class VerseDetailActivity : AppCompatActivity() {
             val nextChapterNumber = chapterNumber + 1
             if (nextChapterNumber <= 18) {
                 val nextChapterDetails = getChapterDetails(nextChapterNumber)
-                val intent = Intent(this, ChapterDetailActivity::class.java).apply {
+                val intent = Intent(this, ChapterDetailsActivity::class.java).apply {
                     putExtra("chapter_number", nextChapterDetails?.chapter_number ?: 0)
                     putExtra("chapter_name", nextChapterDetails?.name)
                     putExtra("name_meaning", nextChapterDetails?.name_meaning)

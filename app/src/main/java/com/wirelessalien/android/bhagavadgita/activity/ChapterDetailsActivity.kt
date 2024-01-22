@@ -36,7 +36,7 @@ import com.wirelessalien.android.bhagavadgita.utils.Themes
 import kotlinx.coroutines.*
 import java.io.IOException
 
-class ChapterDetailActivity : AppCompatActivity() {
+class ChapterDetailsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityChapterDetailBinding
     private var verseList: List<Verse> = emptyList()
@@ -85,7 +85,7 @@ class ChapterDetailActivity : AppCompatActivity() {
                 binding.chapterNumberTextView.text = chapterNumber.toString()
                 binding.chapterNameTextView.text = chapterName
                 binding.chapterNameMeaningTextView.text = chapterNameMeaning
-                binding.verseRecyclerView.layoutManager = LinearLayoutManager(this@ChapterDetailActivity)
+                binding.verseRecyclerView.layoutManager = LinearLayoutManager(this@ChapterDetailsActivity)
                 binding.verseRecyclerView.adapter = VerseAdapter(verseList, currentTextSize)
 
                 // Hide the ProgressBar once the verses are loaded
