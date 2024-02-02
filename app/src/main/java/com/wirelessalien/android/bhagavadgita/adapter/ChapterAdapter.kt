@@ -61,12 +61,15 @@ class ChapterAdapter(private val chapters: List<Chapter>, private var textSize: 
             binding.chapterNumberTextView.text = chapter.chapter_number.toString()
             binding.chapterNameTextView.text = chapter.name
             binding.chapterNameMeaningTextView.text = chapter.name_meaning
+            binding.verseCount.text = chapter.verses_count.toString()
 
             // Set the text size for TextViews
             binding.chapterT.textSize = textSize.toFloat()
             binding.chapterNumberTextView.textSize = textSize.toFloat()
             binding.chapterNameTextView.textSize = textSize.toFloat()
             binding.chapterNameMeaningTextView.textSize = textSize.toFloat()
+            binding.verseCount.textSize = textSize.toFloat()
+
         }
     }
 

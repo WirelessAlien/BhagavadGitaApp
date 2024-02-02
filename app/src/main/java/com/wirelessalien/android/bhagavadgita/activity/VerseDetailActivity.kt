@@ -28,12 +28,14 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GestureDetectorCompat
+import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -83,7 +85,9 @@ class VerseDetailActivity : AppCompatActivity() {
         currentTextSize = sharedPrefTextSize.getInt("text_size", 16) // Get the saved text size
 
         gestureDetector = GestureDetectorCompat(this, MyGestureListener())
-        binding.root.setOnTouchListener { _, event -> gestureDetector.onTouchEvent(event) }
+
+        // Set the touch listener on the NestedScrollView
+        binding.scrollView.setOnTouchListener { _, event -> gestureDetector.onTouchEvent(event) }
 
         mediaPlayer = MediaPlayer()
         verses = emptyList()
@@ -530,7 +534,7 @@ class VerseDetailActivity : AppCompatActivity() {
         return "$textToShare\n$additionalText"
     }
 
-    fun copyText() {
+    private fun copyText() {
         val textToCopy = getAllTextContent()
 
         val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
@@ -542,7 +546,7 @@ class VerseDetailActivity : AppCompatActivity() {
     }
 
 
-    fun shareText() {
+    private fun shareText() {
         val textToShare = getAllTextContent()
 
         val sendIntent = Intent().apply {

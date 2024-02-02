@@ -49,6 +49,15 @@
                 android:layout_marginStart="2dp"
                 android:layout_toEndOf="@id/chapterT"
                 android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/verseCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="22"
+                android:textSize="12sp"
+                android:layout_alignParentEnd="true"/>
+
         </RelativeLayout>
 
         <TextView
