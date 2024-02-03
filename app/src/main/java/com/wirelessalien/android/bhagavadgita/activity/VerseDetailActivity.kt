@@ -28,14 +28,16 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
-import android.widget.*
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.ProgressBar
+import android.widget.SeekBar
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GestureDetectorCompat
-import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -50,7 +52,11 @@ import com.wirelessalien.android.bhagavadgita.data.Translation
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityVerseDetailBinding
 import com.wirelessalien.android.bhagavadgita.utils.Themes
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -69,6 +75,8 @@ class VerseDetailActivity : AppCompatActivity() {
     private lateinit var commentary: List<Commentary>
     private lateinit var selectedLanguageC: String
     private var currentTextSize: Int = 16
+    private var verseStartTime: Long = 0
+    private var manualModeEnabled = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -94,8 +102,10 @@ class VerseDetailActivity : AppCompatActivity() {
         commentary = emptyList()
         translations = emptyList()
 
+        startVerseTimer()
         updateTextSize(currentTextSize)
         updateAdapterTextSize(currentTextSize)
+        updateSwitchState()
 
         // Retrieve verse details and chapter number from intent extras
         val chapterNumber = intent.getIntExtra("chapter_number", 0)
@@ -240,6 +250,9 @@ class VerseDetailActivity : AppCompatActivity() {
         binding.favButton.setOnClickListener {
             onFavoriteButtonClick()
         }
+        binding.readMRadioBtn.setOnCheckedChangeListener { _, isChecked ->
+            manualModeEnabled = isChecked
+        }
 
         binding.viewTranslationButton.setOnClickListener {
             val currentVerseNumber = verses[currentVerseIndex].verse_id
@@ -276,6 +289,69 @@ class VerseDetailActivity : AppCompatActivity() {
             }
         })
     }
+
+    private val handler = Handler(Looper.getMainLooper())
+    private val updateTimerRunnable = object : Runnable {
+        override fun run() {
+            // Check elapsed time and mark verse as read if necessary
+            val elapsedTime = System.currentTimeMillis() - verseStartTime
+            if (elapsedTime >= 2000) { // 30 seconds
+                markVerseAsRead()
+            }
+            // Schedule the next update
+            handler.postDelayed(this, 1000) // Update every 1 second
+        }
+    }
+
+    private fun startVerseTimer() {
+        verseStartTime = System.currentTimeMillis()
+        handler.postDelayed(updateTimerRunnable, 1000) // Start the timer
+    }
+
+    private fun stopVerseTimer() {
+        handler.removeCallbacks(updateTimerRunnable) // Stop the timer
+    }
+
+    private fun updateSwitchState() {
+        if (verses.isNotEmpty() && currentVerseIndex in verses.indices) {
+            val sharedPreferences = getSharedPreferences("read_verses", Context.MODE_PRIVATE)
+            val verseId = verses[currentVerseIndex].verse_id
+            val isRead = sharedPreferences.getBoolean("$verseId", false)
+
+
+            binding.readMRadioBtn.isChecked = isRead
+        }
+    }
+
+    private fun markVerseAsRead() {
+        val sharedPreferences = getSharedPreferences("read_verses", Context.MODE_PRIVATE)
+        val verseId = verses[currentVerseIndex].verse_id
+        val chapterNumber = verses[currentVerseIndex].chapter_number
+
+        if (manualModeEnabled) {
+            // If manual mode is enabled, toggle the read status based on switch state
+            val isRead = sharedPreferences.getBoolean("$verseId", false)
+            sharedPreferences.edit().apply {
+                putBoolean("$verseId", !isRead)
+                putInt("$verseId-chapter", if (!isRead) chapterNumber else 0) // Set chapter only if marking as read
+                apply()
+            }
+        } else {
+            // If manual mode is not enabled, mark verse as read based on elapsed time
+            val elapsedTime = System.currentTimeMillis() - verseStartTime
+            if (elapsedTime >= 2000) { // 30 seconds
+                sharedPreferences.edit().apply {
+                    putBoolean("$verseId", true)
+                    putInt("$verseId-chapter", chapterNumber)
+                    apply()
+                }
+            }
+        }
+        updateSwitchState()
+    }
+
+
+
 
     private fun onFavoriteButtonClick() {
         // Get the text elements you want to save
@@ -403,6 +479,8 @@ class VerseDetailActivity : AppCompatActivity() {
 
     private fun onSwipeRight() {
         if (currentVerseIndex > 0) {
+            stopVerseTimer()
+            updateSwitchState()
             pauseAudio()
             currentVerseIndex--
             val prevVerse = verses[currentVerseIndex]
@@ -410,12 +488,15 @@ class VerseDetailActivity : AppCompatActivity() {
             updateTranslationList()
             updateCommentaryList()
             updateAdapterTextSize(currentTextSize)
+            startVerseTimer()
 
         }
     }
 
     private fun onSwipeLeft() {
         if (currentVerseIndex < verses.size - 1) {
+            stopVerseTimer()
+            updateSwitchState()
             pauseAudio()
             currentVerseIndex++
             val nextVerse = verses[currentVerseIndex]
@@ -423,6 +504,7 @@ class VerseDetailActivity : AppCompatActivity() {
             updateTranslationList()
             updateCommentaryList()
             updateAdapterTextSize(currentTextSize)
+            startVerseTimer()
             if (currentVerseIndex == verses.size - 1) {
                 binding.nextChapterButton.visibility = View.VISIBLE
             }

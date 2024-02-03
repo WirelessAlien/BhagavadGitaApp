@@ -119,46 +119,75 @@
             android:layout_margin="10dp"
             style="@style/Widget.Material3.CardView.Outlined"
             app:cardCornerRadius="5dp">
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <SeekBar
-                    android:id="@+id/seekBar"
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_marginTop="15dp"
-                    android:layout_toEndOf="@id/playPauseButton"
-                    android:layout_toStartOf="@id/viewTranslationButton"
-                    android:max="100"
-                    android:progress="0" />
+                    android:layout_height="wrap_content">
 
-                <ImageButton
-                    android:id="@+id/playPauseButton"
-                    style="?attr/materialIconButtonStyle"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:contentDescription="@string/play"
-                    android:layout_alignParentStart="true"
-                    android:src="@drawable/ic_play"/>
+                    <SeekBar
+                        android:id="@+id/seekBar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_marginTop="15dp"
+                        android:layout_toEndOf="@id/playPauseButton"
+                        android:layout_toStartOf="@id/viewTranslationButton"
+                        android:max="100"
+                        android:progress="0" />
 
-                <ImageButton
-                    android:id="@+id/viewTranslationButton"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:src="@drawable/ic_translate"
-                    android:layout_alignParentEnd="true"
-                    style="?attr/materialIconButtonStyle"
-                    android:contentDescription="@string/translation" />
+                    <ImageButton
+                        android:id="@+id/playPauseButton"
+                        style="?attr/materialIconButtonStyle"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:contentDescription="@string/play"
+                        android:layout_alignParentStart="true"
+                        android:src="@drawable/ic_play"/>
 
-                <ProgressBar
-                    android:id="@+id/progressBar"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:visibility="gone" />
-            </RelativeLayout>
-        </com.google.android.material.card.MaterialCardView>
+                    <ImageButton
+                        android:id="@+id/viewTranslationButton"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/ic_translate"
+                        android:layout_alignParentEnd="true"
+                        style="?attr/materialIconButtonStyle"
+                        android:contentDescription="@string/translation" />
+
+                    <ProgressBar
+                        android:id="@+id/progressBar"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:visibility="gone" />
+                </RelativeLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                app:cardCornerRadius="5dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/markasRead"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:layout_marginStart="10dp"
+                        android:layout_centerVertical="true"
+                        android:text="Mark as read"/>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/readMRadioBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_toRightOf="@+id/markasRead" />
+                </RelativeLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"

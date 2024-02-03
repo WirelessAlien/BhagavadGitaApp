@@ -29,6 +29,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.wirelessalien.android.bhagavadgita.R
+import com.wirelessalien.android.bhagavadgita.adapter.ChapterAdapter
 import com.wirelessalien.android.bhagavadgita.adapter.VerseAdapter
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityChapterDetailBinding
@@ -121,6 +122,13 @@ class ChapterDetailsActivity : AppCompatActivity() {
 
         binding.verseRecyclerView.layoutManager = LinearLayoutManager(this)
         binding.verseRecyclerView.adapter = VerseAdapter(verseList, 16)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val adapter = binding.verseRecyclerView.adapter as? VerseAdapter
+        adapter?.updateProgressData()
+        adapter?.notifyDataSetChanged()
     }
 
     private fun getEllipsizedText(text: String, maxLines: Int, maxCharactersPerLine: Int): String {

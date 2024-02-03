@@ -20,7 +20,9 @@
 
 package com.wirelessalien.android.bhagavadgita.adapter
 
+import android.content.Context
 import android.content.Intent
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -70,6 +72,19 @@ class ChapterAdapter(private val chapters: List<Chapter>, private var textSize: 
             binding.chapterNameMeaningTextView.textSize = textSize.toFloat()
             binding.verseCount.textSize = textSize.toFloat()
 
+            val totalVerses = chapter.verses_count
+
+            // Calculate the number of read verses
+            val sharedPreferences = binding.root.context.getSharedPreferences("read_verses", Context.MODE_PRIVATE)
+            val readVerses = sharedPreferences.all.keys.count {
+                it.endsWith("-chapter") && sharedPreferences.getInt(it, 0) == chapter.chapter_number && sharedPreferences.getBoolean(it.removeSuffix("-chapter"), false)            }
+
+            val progress = (readVerses.toDouble() / totalVerses.toDouble()) * 100
+
+            binding.progressBarReadCount.progress = progress.toInt()
+            binding.progressTextView.text = String.format("%.2f%%", progress)
+
+
         }
     }
 
@@ -82,6 +97,8 @@ class ChapterAdapter(private val chapters: List<Chapter>, private var textSize: 
         return ChapterViewHolder(binding)
     }
 
+
+
     override fun onBindViewHolder(holder: ChapterViewHolder, position: Int) {
         holder.bind(chapters[position], position)
     }
@@ -92,6 +109,10 @@ class ChapterAdapter(private val chapters: List<Chapter>, private var textSize: 
 
     fun updateTextSize(newSize: Int) {
         textSize = newSize
+        notifyDataSetChanged()
+    }
+
+    fun updateProgressData() {
         notifyDataSetChanged()
     }
 }

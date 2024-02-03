@@ -59,6 +59,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var verseList: List<Verse>
     private lateinit var viewPager: ViewPager2
     private var currentTextSize: Int = 16 // Default text size
+    private var chapterAdapter: ChapterAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -148,6 +149,13 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, AllVerseActivity::class.java)
             startActivity(intent)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val adapterC = binding.recyclerView.adapter as? ChapterAdapter
+        adapterC?.updateProgressData()
+        adapterC?.notifyDataSetChanged()
     }
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)

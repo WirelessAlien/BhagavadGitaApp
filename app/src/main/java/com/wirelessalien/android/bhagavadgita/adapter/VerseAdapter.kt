@@ -20,6 +20,7 @@
 
 package com.wirelessalien.android.bhagavadgita.adapter
 
+import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -37,6 +38,13 @@ class VerseAdapter(private val verses: List<Verse>, private var textSize: Int) :
         fun bind(verse: Verse) {
             binding.verseTitleTextView.text = verse.title
             binding.verseTitleTextView.textSize = textSize.toFloat()
+
+            val sharedPreferences = binding.root.context.getSharedPreferences("read_verses", Context.MODE_PRIVATE)
+            val verseId = verse.verse_id
+            val isVerseRead = sharedPreferences.getBoolean("$verseId", false)
+
+            // Set checkbox based on read status
+            binding.readChecked.isChecked = isVerseRead
 
             binding.root.setOnClickListener {
                 val intent = Intent(binding.root.context, VerseDetailActivity::class.java)
@@ -70,6 +78,10 @@ class VerseAdapter(private val verses: List<Verse>, private var textSize: Int) :
 
     fun updateTextSize(newSize: Int) {
         textSize = newSize
+        notifyDataSetChanged()
+    }
+
+    fun updateProgressData() {
         notifyDataSetChanged()
     }
 }
