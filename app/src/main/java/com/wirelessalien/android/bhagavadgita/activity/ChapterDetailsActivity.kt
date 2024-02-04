@@ -61,6 +61,7 @@ class ChapterDetailsActivity : AppCompatActivity() {
         progressBar = binding.progressBar
         updateAdapterTextSize(currentTextSize)
         updateTextSize(currentTextSize)
+        setSupportActionBar(binding.toolbar)
 
         // Retrieve the chapter details from the intent
         val chapterNumber = intent.getIntExtra("chapter_number", 0)
@@ -83,11 +84,12 @@ class ChapterDetailsActivity : AppCompatActivity() {
             // Update the UI on the main thread
             withContext(Dispatchers.Main) {
                 // Set the chapter details in the UI
-                binding.chapterNumberTextView.text = chapterNumber.toString()
                 binding.chapterNameTextView.text = chapterName
                 binding.chapterNameMeaningTextView.text = chapterNameMeaning
                 binding.verseRecyclerView.layoutManager = LinearLayoutManager(this@ChapterDetailsActivity)
                 binding.verseRecyclerView.adapter = VerseAdapter(verseList, currentTextSize)
+
+                supportActionBar?.title = "Chapter $chapterNumber"
 
                 // Hide the ProgressBar once the verses are loaded
                 progressBar.visibility = View.GONE
@@ -164,7 +166,6 @@ class ChapterDetailsActivity : AppCompatActivity() {
 
         currentTextSize = newSize
         val textViewList = listOf(
-            binding.chapterNumberTextView,
             binding.chapterNameTextView,
             binding.chapterNameMeaningTextView,
             binding.chapterSummaryTextView,

@@ -59,7 +59,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var verseList: List<Verse>
     private lateinit var viewPager: ViewPager2
     private var currentTextSize: Int = 16 // Default text size
-    private var chapterAdapter: ChapterAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

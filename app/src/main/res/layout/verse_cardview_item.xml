@@ -25,6 +25,7 @@
     android:layout_margin="5dp"
     android:clickable="true"
     android:focusable="true"
+    android:id="@+id/cardviewVerseItem"
     style="@style/Widget.Material3.CardView.Outlined"
     app:cardElevation="5dp"
     app:cardCornerRadius="5dp">
@@ -42,14 +43,6 @@
             android:layout_centerVertical="true"
             android:text="Verse 1"
             android:textSize="16sp"/>
-
-        <CheckBox
-            android:id="@+id/readChecked"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            />
-
     </RelativeLayout>
 
 </com.google.android.material.card.MaterialCardView>

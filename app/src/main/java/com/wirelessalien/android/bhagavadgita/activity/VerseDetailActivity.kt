@@ -28,6 +28,7 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
@@ -77,6 +78,7 @@ class VerseDetailActivity : AppCompatActivity() {
     private var currentTextSize: Int = 16
     private var verseStartTime: Long = 0
     private var manualModeEnabled = false
+    private var switchStateUpdated = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -105,7 +107,6 @@ class VerseDetailActivity : AppCompatActivity() {
         startVerseTimer()
         updateTextSize(currentTextSize)
         updateAdapterTextSize(currentTextSize)
-        updateSwitchState()
 
         // Retrieve verse details and chapter number from intent extras
         val chapterNumber = intent.getIntExtra("chapter_number", 0)
@@ -250,8 +251,16 @@ class VerseDetailActivity : AppCompatActivity() {
         binding.favButton.setOnClickListener {
             onFavoriteButtonClick()
         }
+        binding.readMRadioBtn.isChecked = isVerseRead()
+
+        // Set a listener on the switch
         binding.readMRadioBtn.setOnCheckedChangeListener { _, isChecked ->
-            manualModeEnabled = isChecked
+            if (isChecked) {
+                markVerseAsRead()
+            } else {
+                markVerseAsUnread()
+                Log.d("VerseDetailActivity", "Verse marked as unread")
+            }
         }
 
         binding.viewTranslationButton.setOnClickListener {
@@ -295,7 +304,7 @@ class VerseDetailActivity : AppCompatActivity() {
         override fun run() {
             // Check elapsed time and mark verse as read if necessary
             val elapsedTime = System.currentTimeMillis() - verseStartTime
-            if (elapsedTime >= 2000) { // 30 seconds
+            if (elapsedTime >= 5000) { // 30 seconds
                 markVerseAsRead()
             }
             // Schedule the next update
@@ -312,46 +321,28 @@ class VerseDetailActivity : AppCompatActivity() {
         handler.removeCallbacks(updateTimerRunnable) // Stop the timer
     }
 
-    private fun updateSwitchState() {
-        if (verses.isNotEmpty() && currentVerseIndex in verses.indices) {
-            val sharedPreferences = getSharedPreferences("read_verses", Context.MODE_PRIVATE)
-            val verseId = verses[currentVerseIndex].verse_id
-            val isRead = sharedPreferences.getBoolean("$verseId", false)
-
-
-            binding.readMRadioBtn.isChecked = isRead
-        }
+    private fun isVerseRead(): Boolean {
+        val sharedPreferences = getSharedPreferences("read_verses", Context.MODE_PRIVATE)
+        val verseId = verses[currentVerseIndex].verse_id
+        return sharedPreferences.getBoolean("$verseId", false)
     }
 
     private fun markVerseAsRead() {
         val sharedPreferences = getSharedPreferences("read_verses", Context.MODE_PRIVATE)
         val verseId = verses[currentVerseIndex].verse_id
         val chapterNumber = verses[currentVerseIndex].chapter_number
-
-        if (manualModeEnabled) {
-            // If manual mode is enabled, toggle the read status based on switch state
-            val isRead = sharedPreferences.getBoolean("$verseId", false)
-            sharedPreferences.edit().apply {
-                putBoolean("$verseId", !isRead)
-                putInt("$verseId-chapter", if (!isRead) chapterNumber else 0) // Set chapter only if marking as read
-                apply()
-            }
-        } else {
-            // If manual mode is not enabled, mark verse as read based on elapsed time
-            val elapsedTime = System.currentTimeMillis() - verseStartTime
-            if (elapsedTime >= 2000) { // 30 seconds
-                sharedPreferences.edit().apply {
-                    putBoolean("$verseId", true)
-                    putInt("$verseId-chapter", chapterNumber)
-                    apply()
-                }
-            }
+        sharedPreferences.edit().apply {
+            putBoolean("$verseId", true)
+            putInt("$verseId-chapter", chapterNumber)
+            apply()
         }
-        updateSwitchState()
     }
 
-
-
+    private fun markVerseAsUnread() {
+      val sharedPreferences = getSharedPreferences("read_verses", Context.MODE_PRIVATE)
+      val verseId = verses[currentVerseIndex].verse_id
+      sharedPreferences.edit().putBoolean("$verseId", false).apply()
+    }
 
     private fun onFavoriteButtonClick() {
         // Get the text elements you want to save
@@ -480,7 +471,6 @@ class VerseDetailActivity : AppCompatActivity() {
     private fun onSwipeRight() {
         if (currentVerseIndex > 0) {
             stopVerseTimer()
-            updateSwitchState()
             pauseAudio()
             currentVerseIndex--
             val prevVerse = verses[currentVerseIndex]
@@ -496,7 +486,6 @@ class VerseDetailActivity : AppCompatActivity() {
     private fun onSwipeLeft() {
         if (currentVerseIndex < verses.size - 1) {
             stopVerseTimer()
-            updateSwitchState()
             pauseAudio()
             currentVerseIndex++
             val nextVerse = verses[currentVerseIndex]

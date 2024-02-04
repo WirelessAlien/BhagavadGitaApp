@@ -24,7 +24,9 @@ import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.activity.VerseDetailActivity
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.VerseCardviewItemBinding
@@ -43,8 +45,11 @@ class VerseAdapter(private val verses: List<Verse>, private var textSize: Int) :
             val verseId = verse.verse_id
             val isVerseRead = sharedPreferences.getBoolean("$verseId", false)
 
-            // Set checkbox based on read status
-            binding.readChecked.isChecked = isVerseRead
+           if (isVerseRead) {
+               binding.cardviewVerseItem.strokeColor = ContextCompat.getColor(binding.root.context, R.color.md_theme_light_primary)
+           } else {
+               //do nothing
+           }
 
             binding.root.setOnClickListener {
                 val intent = Intent(binding.root.context, VerseDetailActivity::class.java)
