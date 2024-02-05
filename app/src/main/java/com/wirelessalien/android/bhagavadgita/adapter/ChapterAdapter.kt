@@ -51,6 +51,7 @@ class ChapterAdapter(private val chapters: List<Chapter>, private var textSize: 
                         putExtra("name_meaning", chapter.name_meaning)
                         putExtra("chapter_summary", chapter.chapter_summary)
                         putExtra("chapter_summary_hindi", chapter.chapter_summary_hindi)
+                        putExtra("verses_count", chapter.verses_count)
                     }
                     binding.root.context.startActivity(intent)
                 }

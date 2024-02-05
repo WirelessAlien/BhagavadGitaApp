@@ -76,9 +76,6 @@ class VerseDetailActivity : AppCompatActivity() {
     private lateinit var commentary: List<Commentary>
     private lateinit var selectedLanguageC: String
     private var currentTextSize: Int = 16
-    private var verseStartTime: Long = 0
-    private var manualModeEnabled = false
-    private var switchStateUpdated = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -104,7 +101,6 @@ class VerseDetailActivity : AppCompatActivity() {
         commentary = emptyList()
         translations = emptyList()
 
-        startVerseTimer()
         updateTextSize(currentTextSize)
         updateAdapterTextSize(currentTextSize)
 
@@ -299,28 +295,6 @@ class VerseDetailActivity : AppCompatActivity() {
         })
     }
 
-    private val handler = Handler(Looper.getMainLooper())
-    private val updateTimerRunnable = object : Runnable {
-        override fun run() {
-            // Check elapsed time and mark verse as read if necessary
-            val elapsedTime = System.currentTimeMillis() - verseStartTime
-            if (elapsedTime >= 5000) { // 30 seconds
-                markVerseAsRead()
-            }
-            // Schedule the next update
-            handler.postDelayed(this, 1000) // Update every 1 second
-        }
-    }
-
-    private fun startVerseTimer() {
-        verseStartTime = System.currentTimeMillis()
-        handler.postDelayed(updateTimerRunnable, 1000) // Start the timer
-    }
-
-    private fun stopVerseTimer() {
-        handler.removeCallbacks(updateTimerRunnable) // Stop the timer
-    }
-
     private fun isVerseRead(): Boolean {
         val sharedPreferences = getSharedPreferences("read_verses", Context.MODE_PRIVATE)
         val verseId = verses[currentVerseIndex].verse_id
@@ -470,7 +444,6 @@ class VerseDetailActivity : AppCompatActivity() {
 
     private fun onSwipeRight() {
         if (currentVerseIndex > 0) {
-            stopVerseTimer()
             pauseAudio()
             currentVerseIndex--
             val prevVerse = verses[currentVerseIndex]
@@ -478,14 +451,13 @@ class VerseDetailActivity : AppCompatActivity() {
             updateTranslationList()
             updateCommentaryList()
             updateAdapterTextSize(currentTextSize)
-            startVerseTimer()
+            binding.readMRadioBtn.isChecked = isVerseRead()
 
         }
     }
 
     private fun onSwipeLeft() {
         if (currentVerseIndex < verses.size - 1) {
-            stopVerseTimer()
             pauseAudio()
             currentVerseIndex++
             val nextVerse = verses[currentVerseIndex]
@@ -493,10 +465,10 @@ class VerseDetailActivity : AppCompatActivity() {
             updateTranslationList()
             updateCommentaryList()
             updateAdapterTextSize(currentTextSize)
-            startVerseTimer()
             if (currentVerseIndex == verses.size - 1) {
                 binding.nextChapterButton.visibility = View.VISIBLE
             }
+            binding.readMRadioBtn.isChecked = isVerseRead()
         } else {
             Toast.makeText(this, "You have reached the last verse of this chapter", Toast.LENGTH_SHORT).show()
         }

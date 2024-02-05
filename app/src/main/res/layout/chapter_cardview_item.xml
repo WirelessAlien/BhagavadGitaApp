@@ -71,31 +71,27 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="16sp"/>
-<RelativeLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="5dp">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp">
 
-    <com.google.android.material.progressindicator.LinearProgressIndicator
-        android:id="@+id/progressBarReadCount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toStartOf="@id/progressTextView"
-        android:layout_centerVertical="true"/>
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/progressBarReadCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toStartOf="@id/progressTextView"
+                android:layout_centerVertical="true"/>
 
-    <TextView
-        android:id="@+id/progressTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:text="12%"
-        android:textSize="12sp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginStart="5dp"/>
-
-
-
-</RelativeLayout>
+            <TextView
+                android:id="@+id/progressTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:text="12%"
+                android:textSize="12sp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginStart="5dp"/>
+        </RelativeLayout>
     </LinearLayout>
-
 </com.google.android.material.card.MaterialCardView>

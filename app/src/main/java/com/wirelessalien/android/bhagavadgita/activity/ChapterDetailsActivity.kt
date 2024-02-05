@@ -22,14 +22,13 @@ package com.wirelessalien.android.bhagavadgita.activity
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.wirelessalien.android.bhagavadgita.R
-import com.wirelessalien.android.bhagavadgita.adapter.ChapterAdapter
 import com.wirelessalien.android.bhagavadgita.adapter.VerseAdapter
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityChapterDetailBinding
@@ -69,6 +68,7 @@ class ChapterDetailsActivity : AppCompatActivity() {
         val chapterNameMeaning = intent.getStringExtra("name_meaning")
         val chapterSummary = intent.getStringExtra("chapter_summary")
         val chapterSummaryHindi = intent.getStringExtra("chapter_summary_hindi")
+        val versesCount = intent.getIntExtra("verses_count", 0)
 
         progressBar.visibility = View.VISIBLE
 
@@ -124,6 +124,19 @@ class ChapterDetailsActivity : AppCompatActivity() {
 
         binding.verseRecyclerView.layoutManager = LinearLayoutManager(this)
         binding.verseRecyclerView.adapter = VerseAdapter(verseList, 16)
+
+        // Calculate the number of read verses
+        val sharedPreferences = binding.root.context.getSharedPreferences("read_verses", Context.MODE_PRIVATE)
+        val readVerses = sharedPreferences.all.keys.count {
+            it.endsWith("-chapter") && sharedPreferences.getInt(it, 0) == chapterNumber && sharedPreferences.getBoolean(it.removeSuffix("-chapter"), false)            }
+
+        Log.d("ChapterDetailsActivity", "Read verses: $readVerses")
+        Log.d("ChapterDetailsActivity", "Total verses: $versesCount")
+        Log.d("ChapterDetailsActivity", "Progress: ${readVerses.toDouble() / versesCount.toDouble()}")
+        val progress = (readVerses.toDouble() / versesCount.toDouble()) * 100
+
+        binding.progressBarReadCount.progress = progress.toInt()
+        binding.progressTextView.text = String.format("%.2f%%", progress)
     }
 
     override fun onResume() {
