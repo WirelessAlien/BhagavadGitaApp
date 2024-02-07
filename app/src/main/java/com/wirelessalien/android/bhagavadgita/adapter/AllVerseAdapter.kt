@@ -22,6 +22,7 @@ package com.wirelessalien.android.bhagavadgita.adapter
 
 import android.content.Context
 import android.content.Intent
+import android.text.SpannableString
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -32,14 +33,17 @@ import com.wirelessalien.android.bhagavadgita.databinding.AllVerseCardviewItemBi
 class AllVerseAdapter(
     private var verses: List<Verse>,
     private var textSize: Int,
+    private var matchedText: String? = null,
+    private var matchedContexts: List<SpannableString>? = null
 ) : RecyclerView.Adapter<AllVerseAdapter.AllVerseViewHolder>() {
 
     inner class AllVerseViewHolder(private val binding: AllVerseCardviewItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(verse: Verse) {
+        fun bind(verse: Verse, matchedContext: SpannableString?) {
             binding.verseTitleTextView.text = verse.title
             binding.verseTextView.text = verse.text
+            binding.matchedTextView.text = matchedContext // Set matched context here
             binding.verseTitleTextView.textSize = textSize.toFloat()
             binding.verseTextView.textSize = textSize.toFloat()
 
@@ -60,18 +64,19 @@ class AllVerseAdapter(
     }
 
     override fun onBindViewHolder(holder: AllVerseViewHolder, position: Int) {
-        holder.bind(verses[position])
+        val matchedContext = matchedContexts?.getOrNull(position)
+        holder.bind(verses[position], matchedContext)
     }
 
     override fun getItemCount(): Int {
         return verses.size
     }
 
-    fun updateTextSize(newSize: Int, filteredList: List<Verse>? = null) {
+    fun updateTextSize(newSize: Int, filteredList: List<Verse>, matchedText: String?, matchedContexts: List<SpannableString>) {
         textSize = newSize
-        filteredList?.let {
-            verses = it
-        }
+        this.matchedText = matchedText
+        this.matchedContexts = matchedContexts
+        verses = filteredList
         notifyDataSetChanged()
     }
 
@@ -87,3 +92,4 @@ class AllVerseAdapter(
         }
     }
 }
+

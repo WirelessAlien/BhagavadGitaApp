@@ -33,12 +33,12 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import android.widget.ProgressBar
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GestureDetectorCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -93,7 +93,6 @@ class VerseDetailActivity : AppCompatActivity() {
 
         gestureDetector = GestureDetectorCompat(this, MyGestureListener())
 
-        // Set the touch listener on the NestedScrollView
         binding.scrollView.setOnTouchListener { _, event -> gestureDetector.onTouchEvent(event) }
 
         mediaPlayer = MediaPlayer()
@@ -110,37 +109,46 @@ class VerseDetailActivity : AppCompatActivity() {
         val verseText = intent.getStringExtra("verse_text")
         val verseTransliteration = intent.getStringExtra("verse_transliteration")
         val verseWordMeanings = intent.getStringExtra("verse_word_meanings")
-
-        translations = getTranslationsFromJson("translation.json")
-
         val textSize = currentTextSize
-        // Find all available authors from the translations
-        val allAuthors = translations.map { it.authorName }.distinct()
-        val authorSpinner = binding.authorSpinner
-        val authorAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, allAuthors)
-        authorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        authorSpinner.adapter = authorAdapter
 
-        val adapterA = CustomSpinnerAdapter(this, android.R.layout.simple_spinner_item, allAuthors, textSize)
-        adapterA.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        authorSpinner.adapter = adapterA
+        lifecycleScope.launch {
+            try {
+                translations = withContext(Dispatchers.IO) {
+                    getTranslationsFromJson("translation.json")
+                }
 
-        val savedAuthor = sharedPref.getString("selectedAuthor", "")
-        val savedAuthorPosition = allAuthors.indexOf(savedAuthor)
+                // Find all available authors from the translations
+                val allAuthors = translations.map { it.authorName }.distinct()
+                val authorSpinner = binding.authorSpinner
 
-        if (savedAuthorPosition != -1) {
-            authorSpinner.setSelection(savedAuthorPosition)
-        }
+                // Use CustomSpinnerAdapter with coroutines
+                val adapterA = withContext(Dispatchers.Main) {
+                    CustomSpinnerAdapter(this@VerseDetailActivity, android.R.layout.simple_spinner_item, allAuthors, textSize)
+                }
 
-        authorSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                selectedAuthor = allAuthors[position]
-                sharedPref.edit().putString("selectedAuthor", selectedAuthor).apply()
+                adapterA.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                authorSpinner.adapter = adapterA
 
-                updateTranslationList()
+                val savedAuthor = sharedPref.getString("selectedAuthor", "")
+                val savedAuthorPosition = allAuthors.indexOf(savedAuthor)
+
+                if (savedAuthorPosition != -1) {
+                    authorSpinner.setSelection(savedAuthorPosition)
+                }
+
+                authorSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                        selectedAuthor = allAuthors[position]
+                        sharedPref.edit().putString("selectedAuthor", selectedAuthor).apply()
+
+                        updateTranslationList()
+                    }
+
+                    override fun onNothingSelected(parent: AdapterView<*>?) {}
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
         val progressValue = when (currentTextSize) {
@@ -177,32 +185,42 @@ class VerseDetailActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
 
-        commentary = getCommentaryFromJson("commentary.json")
-        val allLanguage = commentary.map { it.lang }.distinct()
-        val languageSpinner = binding.cAuthorSpinner
-        val commentaryAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, allLanguage)
-        commentaryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        languageSpinner.adapter = commentaryAdapter
+        lifecycleScope.launch {
+            try {
+                commentary = withContext(Dispatchers.IO) {
+                    getCommentaryFromJson("commentary.json")
+                }
 
-        val adapterL = CustomSpinnerAdapter(this, android.R.layout.simple_spinner_item, allLanguage, textSize)
-        adapterL.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        languageSpinner.adapter = adapterL
+                val allLanguage = commentary.map { it.lang }.distinct()
+                val languageSpinner = binding.cAuthorSpinner
 
-        val savedLang = sharedPref.getString("selectedLang", "")
-        val savedLangPosition = allLanguage.indexOf(savedLang)
+                // Use CustomSpinnerAdapter with coroutines
+                val adapterL = withContext(Dispatchers.Main) {
+                    CustomSpinnerAdapter(this@VerseDetailActivity, android.R.layout.simple_spinner_item, allLanguage, textSize)
+                }
 
-        if (savedLangPosition != -1) {
-            languageSpinner.setSelection(savedLangPosition)
-        }
+                adapterL.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                languageSpinner.adapter = adapterL
 
-        languageSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                selectedLanguageC = allLanguage[position]
-                sharedPref.edit().putString("selectedLang", selectedLanguageC).apply()
-                updateCommentaryList()
+                val savedLang = sharedPref.getString("selectedLang", "")
+                val savedLangPosition = allLanguage.indexOf(savedLang)
+
+                if (savedLangPosition != -1) {
+                    languageSpinner.setSelection(savedLangPosition)
+                }
+
+                languageSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                        selectedLanguageC = allLanguage[position]
+                        sharedPref.edit().putString("selectedLang", selectedLanguageC).apply()
+                        updateCommentaryList()
+                    }
+
+                    override fun onNothingSelected(parent: AdapterView<*>?) {}
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
         // Update the layout with the verse details
@@ -253,9 +271,10 @@ class VerseDetailActivity : AppCompatActivity() {
         binding.readMRadioBtn.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 markVerseAsRead()
+                Toast.makeText(this, "Marked as Read", Toast.LENGTH_SHORT).show()
             } else {
                 markVerseAsUnread()
-                Log.d("VerseDetailActivity", "Verse marked as unread")
+                Toast.makeText(this, "Unmarked", Toast.LENGTH_SHORT).show()
             }
         }
 

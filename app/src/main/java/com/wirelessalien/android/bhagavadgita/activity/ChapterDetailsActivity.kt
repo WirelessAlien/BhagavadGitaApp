@@ -22,7 +22,6 @@ package com.wirelessalien.android.bhagavadgita.activity
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
@@ -33,7 +32,11 @@ import com.wirelessalien.android.bhagavadgita.adapter.VerseAdapter
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityChapterDetailBinding
 import com.wirelessalien.android.bhagavadgita.utils.Themes
-import kotlinx.coroutines.*
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.IOException
 
 class ChapterDetailsActivity : AppCompatActivity() {
@@ -130,9 +133,6 @@ class ChapterDetailsActivity : AppCompatActivity() {
         val readVerses = sharedPreferences.all.keys.count {
             it.endsWith("-chapter") && sharedPreferences.getInt(it, 0) == chapterNumber && sharedPreferences.getBoolean(it.removeSuffix("-chapter"), false)            }
 
-        Log.d("ChapterDetailsActivity", "Read verses: $readVerses")
-        Log.d("ChapterDetailsActivity", "Total verses: $versesCount")
-        Log.d("ChapterDetailsActivity", "Progress: ${readVerses.toDouble() / versesCount.toDouble()}")
         val progress = (readVerses.toDouble() / versesCount.toDouble()) * 100
 
         binding.progressBarReadCount.progress = progress.toInt()
