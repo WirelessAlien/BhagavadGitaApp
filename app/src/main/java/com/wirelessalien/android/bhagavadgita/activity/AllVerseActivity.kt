@@ -1,10 +1,15 @@
 package com.wirelessalien.android.bhagavadgita.activity
 
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.BackgroundColorSpan
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -17,7 +22,6 @@ import com.wirelessalien.android.bhagavadgita.utils.Themes
 import kotlinx.coroutines.*
 import java.io.IOException
 
-@OptIn(DelicateCoroutinesApi::class)
 class AllVerseActivity : AppCompatActivity() {
 
     private lateinit var binding: AllVerseActivityBinding
@@ -60,7 +64,7 @@ class AllVerseActivity : AppCompatActivity() {
         val sharedPrefTextSize =
             getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
         currentTextSize = sharedPrefTextSize.getInt("text_size", 16)
-        updateAdapterTextSize(currentTextSize, verseList)
+        updateAdapterTextSize(currentTextSize, verseList, "", emptyList())
     }
 
     private fun loadVersesAsync() {
@@ -68,7 +72,7 @@ class AllVerseActivity : AppCompatActivity() {
         binding.progressBar.visibility = View.VISIBLE
 
         // Load verses asynchronously
-        GlobalScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch(Dispatchers.IO) {
             verseList = loadAllVerses()
 
             // Update the UI on the main thread
@@ -98,7 +102,7 @@ class AllVerseActivity : AppCompatActivity() {
     }
 
     private fun searchInBackground(newText: String?) {
-        GlobalScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch(Dispatchers.IO) {
             val verseSearchResult = when {
                 newText.isNullOrBlank() -> verseList
                 else -> verseList.filter { verse ->
@@ -125,6 +129,65 @@ class AllVerseActivity : AppCompatActivity() {
                         commentary.description.contains(newText, ignoreCase = true)
             }
 
+            val matchedContexts = mutableListOf<String>()
+
+           // Add matched contexts for verse titles
+            verseSearchResult.forEach { verse ->
+                if (verse.title.contains(newText!!, ignoreCase = true)) {
+                    matchedContexts.add("Match found in verse title: ${verse.title}")
+                }
+            }
+
+            // Add matched contexts for verse text
+            verseSearchResult.forEach { verse ->
+                if (verse.text.contains(newText!!, ignoreCase = true)) {
+                    matchedContexts.add(verse.text)
+                }
+            }
+
+            // Add matched contexts for chapter numbers
+            verseSearchResult.forEach { verse ->
+                if (verse.chapter_number.toString().contains(newText!!, ignoreCase = true)) {
+                    matchedContexts.add("Match found in chapter: ${verse.chapter_number}")
+                }
+            }
+
+            // Add matched contexts for transliteration
+            verseSearchResult.forEach { verse ->
+                if (verse.transliteration.contains(newText!!, ignoreCase = true)) {
+                    matchedContexts.add("Match found in transliteration: ${verse.transliteration}")
+                }
+            }
+
+            // Add matched contexts for word meanings
+            verseSearchResult.forEach { verse ->
+                if (verse.word_meanings.contains(newText!!, ignoreCase = true)) {
+                    matchedContexts.add("Match found in word meanings: ${verse.word_meanings}")
+                }
+            }
+
+            // Add matched contexts for translations
+            translationSearchResult.forEach { translation ->
+                if (translation.authorName.contains(newText!!, ignoreCase = true)) {
+                    matchedContexts.add("Match found in translation author: ${translation.authorName}")
+                }
+                if (translation.description.contains(newText, ignoreCase = true)) {
+                    matchedContexts.add("Match found in translation: ${translation.description}")
+                }
+            }
+
+            // Add matched contexts for commentaries
+            commentarySearchResult.forEach { commentary ->
+                if (commentary.authorName.contains(newText!!, ignoreCase = true)) {
+                    matchedContexts.add("Match found in commentary author: ${commentary.authorName}")
+                }
+                if (commentary.description.contains(newText, ignoreCase = true)) {
+                    matchedContexts.add("Match found in commentary: ${commentary.description}")
+                }
+            }
+
+            val matchedText = if (!newText.isNullOrBlank()) newText else null
+
             val filteredList = if (verseSearchResult.isNotEmpty() || translationSearchResult.isNotEmpty() || commentarySearchResult.isNotEmpty()) {
                 // Combine the results and get unique verse_ids
                 val verseIds = (verseSearchResult.map { it.verse_id } + translationSearchResult.map { it.verse_id } + commentarySearchResult.map { it.verse_id }).toSet()
@@ -135,11 +198,31 @@ class AllVerseActivity : AppCompatActivity() {
                 emptyList()
             }
 
-            // Update the UI on the main thread
+            val highlightedMatchedContexts = matchedContexts.map { context ->
+                val spannableString = SpannableString(context)
+                val startIndex = context.indexOf(newText!!, ignoreCase = true)
+                if (startIndex != -1) {
+                    val endIndex = startIndex + newText.length
+                    spannableString.setSpan(
+                        BackgroundColorSpan(Color.YELLOW), // Highlight color
+                        startIndex, endIndex,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+                spannableString
+            }
+
+            // Update UI on the main thread
             withContext(Dispatchers.Main) {
-                updateAdapterTextSize(currentTextSize, filteredList)
+                updateAdapterTextSize(currentTextSize, filteredList, matchedText, highlightedMatchedContexts)
             }
         }
+    }
+
+    private fun updateAdapterTextSize(newSize: Int, filteredList: List<Verse>, matchedText: String?, matchedContexts: List<SpannableString>) {
+        val recyclerViewC = binding.verseRecyclerView
+        val adapterC = recyclerViewC.adapter as? AllVerseAdapter
+        adapterC?.updateTextSize(newSize, filteredList, matchedText, matchedContexts)
     }
 
     private fun loadTranslations(): Map<Int, Translation> {
@@ -177,11 +260,5 @@ class AllVerseActivity : AppCompatActivity() {
         val verseListType = object : TypeToken<List<Verse>>() {}.type
 
         return Gson().fromJson(jsonString, verseListType)
-    }
-
-    private fun updateAdapterTextSize(newSize: Int, filteredList: List<Verse>) {
-        val recyclerViewC = binding.verseRecyclerView
-        val adapterC = recyclerViewC.adapter as? AllVerseAdapter
-        adapterC?.updateTextSize(newSize, filteredList)
     }
 }

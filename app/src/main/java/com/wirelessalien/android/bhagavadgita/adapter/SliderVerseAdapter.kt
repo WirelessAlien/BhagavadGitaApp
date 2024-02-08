@@ -20,12 +20,14 @@
 
 package com.wirelessalien.android.bhagavadgita.adapter
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.wirelessalien.android.bhagavadgita.R
+import com.wirelessalien.android.bhagavadgita.activity.VerseDetailActivity
 import com.wirelessalien.android.bhagavadgita.data.Verse
 
 class SliderVerseAdapter(private val verses: List<Verse>) :
@@ -49,6 +51,18 @@ class SliderVerseAdapter(private val verses: List<Verse>) :
 
         fun bind(verse: Verse) {
             verseTextView.text = verse.text
+
+            itemView.setOnClickListener {
+                val intent = Intent(itemView.context, VerseDetailActivity::class.java).apply {
+                    putExtra("chapter_number", verse.chapter_number)
+                    putExtra("verse_title", verse.title)
+                    putExtra("verse_text", verse.text)
+                    putExtra("verse_transliteration", verse.transliteration)
+                    putExtra("verse_word_meanings", verse.word_meanings)
+                    // Add other verse details here if needed
+                }
+                itemView.context.startActivity(intent)
+            }
         }
     }
 }

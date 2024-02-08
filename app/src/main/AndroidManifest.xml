@@ -35,7 +35,7 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".activity.ChapterDetailActivity"
+            android:name=".activity.ChapterDetailsActivity"
             android:launchMode="singleTop"
             android:exported="false">
             <meta-data

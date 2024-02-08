@@ -28,15 +28,18 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.adapter.VerseAdapter
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityChapterDetailBinding
 import com.wirelessalien.android.bhagavadgita.utils.Themes
-import kotlinx.coroutines.*
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.IOException
 
-class ChapterDetailActivity : AppCompatActivity() {
+class ChapterDetailsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityChapterDetailBinding
     private var verseList: List<Verse> = emptyList()
@@ -60,6 +63,7 @@ class ChapterDetailActivity : AppCompatActivity() {
         progressBar = binding.progressBar
         updateAdapterTextSize(currentTextSize)
         updateTextSize(currentTextSize)
+        setSupportActionBar(binding.toolbar)
 
         // Retrieve the chapter details from the intent
         val chapterNumber = intent.getIntExtra("chapter_number", 0)
@@ -67,6 +71,7 @@ class ChapterDetailActivity : AppCompatActivity() {
         val chapterNameMeaning = intent.getStringExtra("name_meaning")
         val chapterSummary = intent.getStringExtra("chapter_summary")
         val chapterSummaryHindi = intent.getStringExtra("chapter_summary_hindi")
+        val versesCount = intent.getIntExtra("verses_count", 0)
 
         progressBar.visibility = View.VISIBLE
 
@@ -82,11 +87,12 @@ class ChapterDetailActivity : AppCompatActivity() {
             // Update the UI on the main thread
             withContext(Dispatchers.Main) {
                 // Set the chapter details in the UI
-                binding.chapterNumberTextView.text = chapterNumber.toString()
                 binding.chapterNameTextView.text = chapterName
                 binding.chapterNameMeaningTextView.text = chapterNameMeaning
-                binding.verseRecyclerView.layoutManager = LinearLayoutManager(this@ChapterDetailActivity)
+                binding.verseRecyclerView.layoutManager = LinearLayoutManager(this@ChapterDetailsActivity)
                 binding.verseRecyclerView.adapter = VerseAdapter(verseList, currentTextSize)
+
+                supportActionBar?.title = "Chapter $chapterNumber"
 
                 // Hide the ProgressBar once the verses are loaded
                 progressBar.visibility = View.GONE
@@ -121,6 +127,23 @@ class ChapterDetailActivity : AppCompatActivity() {
 
         binding.verseRecyclerView.layoutManager = LinearLayoutManager(this)
         binding.verseRecyclerView.adapter = VerseAdapter(verseList, 16)
+
+        // Calculate the number of read verses
+        val sharedPreferences = binding.root.context.getSharedPreferences("read_verses", Context.MODE_PRIVATE)
+        val readVerses = sharedPreferences.all.keys.count {
+            it.endsWith("-chapter") && sharedPreferences.getInt(it, 0) == chapterNumber && sharedPreferences.getBoolean(it.removeSuffix("-chapter"), false)            }
+
+        val progress = (readVerses.toDouble() / versesCount.toDouble()) * 100
+
+        binding.progressBarReadCount.progress = progress.toInt()
+        binding.progressTextView.text = String.format("%.2f%%", progress)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val adapter = binding.verseRecyclerView.adapter as? VerseAdapter
+        adapter?.updateProgressData()
+        adapter?.notifyDataSetChanged()
     }
 
     private fun getEllipsizedText(text: String, maxLines: Int, maxCharactersPerLine: Int): String {
@@ -156,7 +179,6 @@ class ChapterDetailActivity : AppCompatActivity() {
 
         currentTextSize = newSize
         val textViewList = listOf(
-            binding.chapterNumberTextView,
             binding.chapterNameTextView,
             binding.chapterNameMeaningTextView,
             binding.chapterSummaryTextView,

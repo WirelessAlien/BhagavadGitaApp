@@ -149,6 +149,13 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        val adapterC = binding.recyclerView.adapter as? ChapterAdapter
+        adapterC?.updateProgressData()
+        adapterC?.notifyDataSetChanged()
+    }
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
         return super.onCreateOptionsMenu(menu)
