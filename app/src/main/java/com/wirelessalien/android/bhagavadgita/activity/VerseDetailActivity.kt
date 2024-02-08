@@ -274,7 +274,6 @@ class VerseDetailActivity : AppCompatActivity() {
                 Toast.makeText(this, "Marked as Read", Toast.LENGTH_SHORT).show()
             } else {
                 markVerseAsUnread()
-                Toast.makeText(this, "Unmarked", Toast.LENGTH_SHORT).show()
             }
         }
 
