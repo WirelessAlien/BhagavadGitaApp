@@ -1,0 +1,4 @@
+Clickable random verses #22
+Added progress for verse reading
+Improve search experience #17
+Added ability to select favourite verse
