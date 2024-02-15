@@ -1,4 +1,4 @@
-package com.wirelessalien.android.bhagavadgita.activity
+package com.wirelessalien.android.bhagavadgita.fragment
 
 import android.content.Context
 import android.graphics.Color
@@ -6,25 +6,29 @@ import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.BackgroundColorSpan
+import android.view.LayoutInflater
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
+import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.transition.TransitionInflater
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.adapter.AllVerseAdapter
 import com.wirelessalien.android.bhagavadgita.data.Commentary
 import com.wirelessalien.android.bhagavadgita.data.Translation
 import com.wirelessalien.android.bhagavadgita.data.Verse
-import com.wirelessalien.android.bhagavadgita.databinding.AllVerseActivityBinding
+import com.wirelessalien.android.bhagavadgita.databinding.FragmentAllVerseBinding
 import com.wirelessalien.android.bhagavadgita.utils.Themes
 import kotlinx.coroutines.*
 import java.io.IOException
 
-class AllVerseActivity : AppCompatActivity() {
+class AllVerseFragment : Fragment() {
 
-    private lateinit var binding: AllVerseActivityBinding
+    private lateinit var binding: FragmentAllVerseBinding
     private var verseList: List<Verse> = emptyList()
     private var currentTextSize: Int = 16
     private lateinit var searchView: SearchView
@@ -33,13 +37,20 @@ class AllVerseActivity : AppCompatActivity() {
     private lateinit var commentaryList: Map<Int, Commentary>
 
     @DelicateCoroutinesApi
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentAllVerseBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        Themes.loadTheme(this)
-
-        binding = AllVerseActivityBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val inflater = TransitionInflater.from(requireContext())
+        exitTransition = inflater.inflateTransition(R.transition.slide_right)
+        Themes.loadTheme(requireActivity())
 
         // Initialize UI components
         initUI()
@@ -51,7 +62,7 @@ class AllVerseActivity : AppCompatActivity() {
         // Initialize the adapter with translations
         adapter = AllVerseAdapter(verseList, currentTextSize)
         binding.verseRecyclerView.adapter = adapter
-        binding.verseRecyclerView.layoutManager = LinearLayoutManager(this)
+        binding.verseRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         // Load the verses asynchronously
         loadVersesAsync()
@@ -62,7 +73,7 @@ class AllVerseActivity : AppCompatActivity() {
 
     private fun initUI() {
         val sharedPrefTextSize =
-            getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
+            requireActivity().getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
         currentTextSize = sharedPrefTextSize.getInt("text_size", 16)
         updateAdapterTextSize(currentTextSize, verseList, "", emptyList())
     }
@@ -78,8 +89,9 @@ class AllVerseActivity : AppCompatActivity() {
             // Update the UI on the main thread
             withContext(Dispatchers.Main) {
                 // Set the chapter details in the UI
-                binding.verseRecyclerView.layoutManager = LinearLayoutManager(this@AllVerseActivity)
-                binding.verseRecyclerView.adapter = AllVerseAdapter(verseList, currentTextSize)
+                binding.verseRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+                adapter = AllVerseAdapter(verseList, currentTextSize)
+                binding.verseRecyclerView.adapter = adapter
                 binding.progressBar.visibility = View.GONE // Hide the ProgressBar once the verses are loaded
             }
         }
@@ -246,7 +258,7 @@ class AllVerseActivity : AppCompatActivity() {
 
     private fun loadJsonFromAsset(fileName: String): String? {
         return try {
-            applicationContext.assets.open(fileName).bufferedReader().use {
+            requireContext().applicationContext.assets.open(fileName).bufferedReader().use {
                 it.readText()
             }
         } catch (ioException: IOException) {

@@ -1,44 +1,10 @@
-
-<!--
-  ~  This file is part of BhagavadGitaApp. @WirelessAlien
-  ~
-  ~  BhagavadGitaApp is free software: you can redistribute it and/or modify
-  ~  it under the terms of the GNU General Public License as published by
-  ~  the Free Software Foundation, either version 3 of the License, or
-  ~  (at your option) any later version.
-  ~
-  ~  BhagavadGitaApp is distributed in the hope that it will be useful,
-  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  ~  GNU General Public License for more details.
-  ~
-  ~   You should have received a copy of the GNU General Public License
-  ~   along with BhagavadGitaApp. If not, see <https://www.gnu.org/licenses/>.
-  ~
-  ~
-  -->
-
-<!--
-  ~  This file is part of BhagavadGitaApp. @WirelessAlien
-  ~
-  ~  BhagavadGitaApp is free software: you can redistribute it and/or modify
-  ~  it under the terms of the GNU General Public License as published by
-  ~  the Free Software Foundation, either version 3 of the License, or
-  ~  (at your option) any later version.
-  ~
-  ~  BhagavadGitaApp is distributed in the hope that it will be useful,
-  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-  ~  GNU General Public License for more details.
-  ~
-  ~   You should have received a copy of the GNU General Public License
-  ~   along with BhagavadGitaApp. If not, see <https://www.gnu.org/licenses/>.
-  ~
-  ~
-  -->
-
-<vector android:height="24dp" android:tint="#000000"
-    android:viewportHeight="24" android:viewportWidth="24"
-    android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
-    <path android:fillColor="@android:color/white" android:pathData="M8,5v14l11,-7z"/>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960"
+    android:tint="?attr/colorControlNormal">
+  <path
+      android:fillColor="#FF000000"
+      android:pathData="M320,687v-414q0,-17 12,-28.5t28,-11.5q5,0 10.5,1.5T381,239l326,207q9,6 13.5,15t4.5,19q0,10 -4.5,19T707,514L381,721q-5,3 -10.5,4.5T360,727q-16,0 -28,-11.5T320,687ZM400,480ZM400,614 L610,480 400,346v268Z"/>
 </vector>

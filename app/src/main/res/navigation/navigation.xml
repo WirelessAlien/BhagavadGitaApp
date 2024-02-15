@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~  This file is part of BhagavadGitaApp. @WirelessAlien
+  ~
+  ~  BhagavadGitaApp is free software: you can redistribute it and/or modify
+  ~  it under the terms of the GNU General Public License as published by
+  ~  the Free Software Foundation, either version 3 of the License, or
+  ~  (at your option) any later version.
+  ~
+  ~  BhagavadGitaApp is distributed in the hope that it will be useful,
+  ~  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~  GNU General Public License for more details.
+  ~
+  ~   You should have received a copy of the GNU General Public License
+  ~   along with BhagavadGitaApp. If not, see <https://www.gnu.org/licenses/>.
+  ~
+  ~
+  -->
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/navigation"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.wirelessalien.android.bhagavadgita.fragment.HomeFragment"
+        android:label="Home" >
+        <action
+            android:id="@+id/action_homeFragment_to_allVerseFragment"
+            app:destination="@id/allVerseFragment"
+            app:popUpTo="@id/homeFragment"/>
+    </fragment>
+    <fragment
+        android:id="@+id/allVerseFragment"
+        android:name="com.wirelessalien.android.bhagavadgita.fragment.AllVerseFragment"
+        android:label="All Verse" >
+        <action
+            android:id="@+id/action_allVerseFragment_to_favouriteFragment"
+            app:destination="@id/favouriteFragment"
+            app:popUpTo="@id/homeFragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/favouriteFragment"
+        android:name="com.wirelessalien.android.bhagavadgita.fragment.FavouriteFragment"
+        android:label="Favourites" >
+        <action
+            android:id="@+id/action_favouriteFragment_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/homeFragment"/>
+    </fragment>
+</navigation>

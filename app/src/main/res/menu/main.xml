@@ -39,9 +39,4 @@
         android:title="About"
         android:icon="@drawable/ic_info"
         app:showAsAction="ifRoom"/>
-    <item
-        android:id="@+id/nav_fav"
-        android:title="Favourite"
-        android:icon="@drawable/ic_favorite_line"
-        app:showAsAction="always"/>
 </menu>

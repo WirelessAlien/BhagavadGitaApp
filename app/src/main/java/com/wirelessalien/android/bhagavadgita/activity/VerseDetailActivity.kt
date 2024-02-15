@@ -40,6 +40,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GestureDetectorCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.wirelessalien.android.bhagavadgita.R
@@ -52,6 +53,7 @@ import com.wirelessalien.android.bhagavadgita.data.FavouriteVerse
 import com.wirelessalien.android.bhagavadgita.data.Translation
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityVerseDetailBinding
+import com.wirelessalien.android.bhagavadgita.fragment.VerseListBottomSheetFragment
 import com.wirelessalien.android.bhagavadgita.utils.Themes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -76,6 +78,7 @@ class VerseDetailActivity : AppCompatActivity() {
     private lateinit var commentary: List<Commentary>
     private lateinit var selectedLanguageC: String
     private var currentTextSize: Int = 16
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -151,40 +154,6 @@ class VerseDetailActivity : AppCompatActivity() {
             }
         }
 
-        val progressValue = when (currentTextSize) {
-            16 -> 0
-            20 -> 1
-            24 -> 2
-            28 -> 3
-            32 -> 4
-            else -> 1 // Default text size
-        }
-
-        binding.textSizeSeekBar.progress = progressValue
-
-        val textSizeSeekBar = binding.textSizeSeekBar
-        textSizeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                // Update the text size when the SeekBar progress changes
-                val newSize = when (progress) {
-                    0 -> 16
-                    1 -> 20
-                    2 -> 24
-                    3 -> 28
-                    4 -> 32
-                    else -> 16 // Default text size
-                }
-
-                updateTextSize(newSize)
-
-                updateAdapterTextSize(newSize)
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-        })
-
         lifecycleScope.launch {
             try {
                 commentary = withContext(Dispatchers.IO) {
@@ -256,15 +225,6 @@ class VerseDetailActivity : AppCompatActivity() {
             }
         }
 
-        binding.shareButton.setOnClickListener {
-            shareText()
-        }
-        binding.copyButton.setOnClickListener {
-            copyText()
-        }
-        binding.favButton.setOnClickListener {
-            onFavoriteButtonClick()
-        }
         binding.readMRadioBtn.isChecked = isVerseRead()
 
         // Set a listener on the switch
@@ -274,22 +234,6 @@ class VerseDetailActivity : AppCompatActivity() {
                 Toast.makeText(this, "Marked as Read", Toast.LENGTH_SHORT).show()
             } else {
                 markVerseAsUnread()
-            }
-        }
-
-        binding.viewTranslationButton.setOnClickListener {
-            val currentVerseNumber = verses[currentVerseIndex].verse_id
-            val intent = Intent(this, VerseTranslationActivity::class.java)
-            intent.putExtra("verse_id", currentVerseNumber)
-            startActivity(intent)
-        }
-
-        binding.playPauseButton.setOnClickListener {
-            val audioUrl = "https://github.com/WirelessAlien/gita/raw/main/data/verse_recitation/${verses[currentVerseIndex].chapter_number}/${verses[currentVerseIndex].verse_number}.mp3"
-            if (isPlaying) {
-                pauseAudio()
-            } else {
-                playAudio(audioUrl, binding.progressBar)
             }
         }
 
@@ -311,6 +255,109 @@ class VerseDetailActivity : AppCompatActivity() {
 
             }
         })
+
+        binding.bottomAppBar.setNavigationOnClickListener {
+            val bottomSheetFragment = VerseListBottomSheetFragment(verses) { selectedVerse ->
+                //navigate to the respective selected verse
+                val selectedVerseIndexC = verses.indexOfFirst { it.verse_id == selectedVerse.verse_id }
+                currentVerseIndex = selectedVerseIndexC
+                val selectedVerseC = verses[currentVerseIndex]
+                updateVerseDetails(binding, selectedVerseC)
+                updateTranslationList()
+                updateCommentaryList()
+                finish()
+            }
+
+            bottomSheetFragment.show(supportFragmentManager, "VerseListBottomSheetFragment")
+        }
+
+        binding.bottomAppBar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.share -> {
+                    shareText()
+                    true
+                }
+                R.id.favourite -> {
+                    onFavoriteButtonClick()
+                    true
+                }
+                R.id.copy -> {
+                    copyText()
+                    true
+                }
+                R.id.textSize -> {
+                    showTextSizeBottomSheetDialog()
+                    true
+                }
+                R.id.translation -> {
+                    showAllTranslation()
+                    true
+                }
+
+                else -> false
+            }
+        }
+
+        binding.fabMedia.setOnClickListener {
+           //play audio and change the icon using setImageResource
+            val audioUrl = "https://github.com/WirelessAlien/gita/raw/main/data/verse_recitation/${verses[currentVerseIndex].chapter_number}/${verses[currentVerseIndex].verse_number}.mp3"
+            if (isPlaying) {
+                pauseAudio()
+                binding.fabMedia.setImageResource(R.drawable.ic_play)
+            } else {
+                playAudio(audioUrl, binding.progressBar)
+                binding.fabMedia.setImageResource(R.drawable.ic_pause)
+            }
+        }
+    }
+
+    private fun showAllTranslation() {
+        val currentVerseNumber = verses[currentVerseIndex].verse_id
+        val intent = Intent(this, VerseTranslationActivity::class.java)
+        intent.putExtra("verse_id", currentVerseNumber)
+        startActivity(intent)
+    }
+
+    private fun showTextSizeBottomSheetDialog() {
+        val bottomSheetView = layoutInflater.inflate(R.layout.text_size_bottom_sheet, null)
+        val dialog = BottomSheetDialog(this)
+        dialog.setContentView(bottomSheetView)
+
+        val progressValue = when (currentTextSize) {
+            16 -> 0
+            20 -> 1
+            24 -> 2
+            28 -> 3
+            32 -> 4
+            else -> 1 // Default text size
+        }
+
+        val textSizeSeekBar = bottomSheetView.findViewById<SeekBar>(R.id.textSizeSeekBar)
+        textSizeSeekBar.progress = progressValue
+
+        textSizeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                // Update the text size when the SeekBar progress changes
+                val newSize = when (progress) {
+                    0 -> 16
+                    1 -> 20
+                    2 -> 24
+                    3 -> 28
+                    4 -> 32
+                    else -> 16 // Default text size
+                }
+
+                updateTextSize(newSize)
+
+                updateAdapterTextSize(newSize)
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+
+        dialog.show()
     }
 
     private fun isVerseRead(): Boolean {
@@ -670,7 +717,6 @@ class VerseDetailActivity : AppCompatActivity() {
                     }
                     isPlaying = true
                     progressBar.visibility = View.GONE
-                    updatePlayPauseButton()
                     startSeekBarUpdate()
                 }
             } catch (e: IOException) {
@@ -689,16 +735,8 @@ class VerseDetailActivity : AppCompatActivity() {
     private fun pauseAudio() {
         mediaPlayer.pause()
         isPlaying = false
-        updatePlayPauseButton()
     }
 
-    private fun updatePlayPauseButton() {
-        if (isPlaying) {
-            binding.playPauseButton.setImageResource(R.drawable.ic_pause)
-        } else {
-            binding.playPauseButton.setImageResource(R.drawable.ic_play)
-        }
-    }
 
     private fun startSeekBarUpdate() {
         binding.seekBar.max = mediaPlayer.duration
@@ -723,7 +761,6 @@ class VerseDetailActivity : AppCompatActivity() {
         if (::mediaPlayer.isInitialized) {
             mediaPlayer.pause()
             isPlaying = false
-            updatePlayPauseButton()
         }
     }
 

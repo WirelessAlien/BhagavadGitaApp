@@ -22,7 +22,8 @@
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
-    android:viewportHeight="108">
+    android:viewportHeight="108"
+    android:tint="?attr/colorControlNormal">
   <group android:scaleX="0.19050987"
       android:scaleY="0.19050987"
       android:translateX="5.2294736"

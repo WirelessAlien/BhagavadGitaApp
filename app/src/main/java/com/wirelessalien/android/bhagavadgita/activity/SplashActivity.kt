@@ -25,7 +25,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
-import com.wirelessalien.android.bhagavadgita.MainActivity
 import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.utils.Themes
 
@@ -42,7 +41,7 @@ class SplashActivity : AppCompatActivity() {
 
         Handler(Looper.getMainLooper()).postDelayed({
             // This method will be executed once the timer is over
-            val intent = Intent(this, MainActivity::class.java)
+            val intent = Intent(this, FragmentActivity::class.java)
             startActivity(intent)
             finish()
         }, splashTimeOut)

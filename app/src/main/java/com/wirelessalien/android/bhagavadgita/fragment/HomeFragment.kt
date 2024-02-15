@@ -18,33 +18,36 @@
  *
  */
 
-package com.wirelessalien.android.bhagavadgita
+package com.wirelessalien.android.bhagavadgita.fragment
 
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.LayoutInflater
 import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.transition.TransitionInflater
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.color.DynamicColors
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.activity.AboutGitaActivity
-import com.wirelessalien.android.bhagavadgita.activity.AllVerseActivity
-import com.wirelessalien.android.bhagavadgita.activity.FavouriteActivity
 import com.wirelessalien.android.bhagavadgita.activity.HanumanChalisaActivity
 import com.wirelessalien.android.bhagavadgita.adapter.ChapterAdapter
 import com.wirelessalien.android.bhagavadgita.adapter.SliderVerseAdapter
 import com.wirelessalien.android.bhagavadgita.data.Chapter
 import com.wirelessalien.android.bhagavadgita.data.Verse
-import com.wirelessalien.android.bhagavadgita.databinding.ActivityMainBinding
-import com.wirelessalien.android.bhagavadgita.fragment.AboutAppFragment
-import com.wirelessalien.android.bhagavadgita.fragment.ThemeFragment
+import com.wirelessalien.android.bhagavadgita.databinding.FragmentHomeBinding
 import com.wirelessalien.android.bhagavadgita.utils.Themes
 import org.json.JSONArray
 import java.io.IOException
@@ -52,32 +55,39 @@ import java.nio.charset.Charset
 import kotlin.random.Random
 
 
-class MainActivity : AppCompatActivity() {
+class HomeFragment : Fragment() {
 
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var binding: FragmentHomeBinding
     private lateinit var chapterList: List<Chapter>
     private lateinit var verseList: List<Verse>
     private lateinit var viewPager: ViewPager2
     private var currentTextSize: Int = 16 // Default text size
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentHomeBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        Themes.loadTheme(this)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val inflater = TransitionInflater.from(requireContext())
+        exitTransition = inflater.inflateTransition(R.transition.slide_right)
+        Themes.loadTheme(requireActivity())
 
-        val sharedPrefTextSize = getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
+        val sharedPrefTextSize = requireActivity().getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
         currentTextSize = sharedPrefTextSize.getInt("text_size", 16) // Get the saved text size
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        DynamicColors.applyToActivityIfAvailable(this)
+        DynamicColors.applyToActivityIfAvailable(requireActivity())
 
         verseList = loadVersesFromJson()
         verseList = verseList.shuffled(Random(System.currentTimeMillis()))
 
         // Load JSON data from assets
-        val jsonString = applicationContext.assets.open("chapters.json").bufferedReader().use {
+        val jsonString = requireActivity().applicationContext.assets.open("chapters.json").bufferedReader().use {
             it.readText()
         }
 
@@ -86,11 +96,11 @@ class MainActivity : AppCompatActivity() {
 
         val adapterC = ChapterAdapter(chapterList, 16)
         binding.recyclerView.adapter = adapterC
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         updateAdapterTextSize(currentTextSize)
         // Setup the toolbar
-        setSupportActionBar(binding.toolbar)
+        (requireActivity() as AppCompatActivity).setSupportActionBar(binding.toolbar)
 
         // Setup ViewPager
         viewPager = binding.viewPager
@@ -140,14 +150,12 @@ class MainActivity : AppCompatActivity() {
         })
 
         binding.hanumanChalisaText.setOnClickListener {
-            val intent = Intent(this, HanumanChalisaActivity::class.java)
+            val intent = Intent(requireContext(), HanumanChalisaActivity::class.java)
             startActivity(intent)
         }
 
-        binding.btnAllVerse.setOnClickListener {
-            val intent = Intent(this, AllVerseActivity::class.java)
-            startActivity(intent)
-        }
+        setHasOptionsMenu(true)
+
     }
 
     override fun onResume() {
@@ -156,50 +164,50 @@ class MainActivity : AppCompatActivity() {
         adapterC?.updateProgressData()
         adapterC?.notifyDataSetChanged()
     }
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.main, menu)
-        return super.onCreateOptionsMenu(menu)
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.main, menu)
+        super.onCreateOptionsMenu(menu, inflater)
     }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.nav_about_gita -> {
-                intent.setClass(this, AboutGitaActivity::class.java)
+                val intent = Intent(requireContext(), AboutGitaActivity::class.java)
                 startActivity(intent)
             }
             R.id.nav_hanuman_chalisa -> {
-                intent.setClass(this, HanumanChalisaActivity::class.java)
+                val intent = Intent(requireContext(), HanumanChalisaActivity::class.java)
                 startActivity(intent)
             }
             R.id.nav_theme -> {
                 val themeDialog = ThemeFragment()
-                themeDialog.show(supportFragmentManager, "theme_dialog")
+                themeDialog.show(requireActivity().supportFragmentManager, "theme_dialog")
                 return true
             }
             R.id.nav_about -> {
                 val aboutDialog = AboutAppFragment()
-                aboutDialog.show(supportFragmentManager, "AboutAppFragment")
+                aboutDialog.show(requireActivity().supportFragmentManager, "AboutAppFragment")
 
-            }
-            R.id.nav_fav -> {
-                intent.setClass(this, FavouriteActivity::class.java)
-                startActivity(intent)
             }
         }
         return super.onOptionsItemSelected(item)
     }
+
     private fun updateAdapterTextSize(newSize: Int) {
 
         val recyclerViewC = binding.recyclerView
         val adapterC = recyclerViewC.adapter as? ChapterAdapter
         adapterC?.updateTextSize(newSize)
 
-        val sharedPrefTextSize= getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
+        val sharedPrefTextSize= requireActivity().getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
         sharedPrefTextSize.edit().putInt("text_size", newSize).apply()
     }
+
     private fun loadVersesFromJson(): List<Verse> {
         val json: String?
         try {
-            val inputStream = assets.open("verse.json")
+            val inputStream = requireActivity().assets.open("verse.json")
             val size = inputStream.available()
             val buffer = ByteArray(size)
             inputStream.read(buffer)
@@ -212,6 +220,7 @@ class MainActivity : AppCompatActivity() {
         val listType = object : TypeToken<List<Verse>>() {}.type
         return Gson().fromJson(json, listType)
     }
+
     private fun parseJson(jsonString: String): List<Chapter> {
         val chapterList = mutableListOf<Chapter>()
         val jsonArray = JSONArray(jsonString)

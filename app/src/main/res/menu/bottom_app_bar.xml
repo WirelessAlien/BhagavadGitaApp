@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/share"
+        android:title="@string/share"
+        android:icon="@drawable/ic_share"
+        android:visible="true"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/favourite"
+        android:title="Favourite"
+        android:icon="@drawable/ic_favorite_line"
+        android:visible="true"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/copy"
+        android:title="Copy"
+        android:icon="@drawable/ic_copy"
+        android:visible="true"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/textSize"
+        android:title="Text Size"
+        android:icon="@drawable/ic_text_size"
+        android:visible="true"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/translation"
+        android:title="Translation"
+        android:icon="@drawable/ic_translate"
+        app:showAsAction="ifRoom"/>
+</menu>

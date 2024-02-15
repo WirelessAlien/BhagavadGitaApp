@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/home"
+        android:icon="@drawable/home"
+        android:title="Home" />
+
+    <item
+        android:id="@+id/allVerse"
+        android:icon="@drawable/filter_list"
+        android:title="All Verse" />
+
+    <item
+        android:id="@+id/favourite"
+        android:icon="@drawable/ic_favorite_line"
+        android:title="Favorite" />
+
+</menu>

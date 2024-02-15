@@ -17,25 +17,29 @@
  *
  */
 
-package com.wirelessalien.android.bhagavadgita.activity
+package com.wirelessalien.android.bhagavadgita.fragment
 
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.transition.TransitionInflater
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.adapter.FavouriteVerseAdapter
 import com.wirelessalien.android.bhagavadgita.data.FavouriteVerse
-import com.wirelessalien.android.bhagavadgita.databinding.ActivityFavouriteBinding
+import com.wirelessalien.android.bhagavadgita.databinding.FragmentFavouriteBinding
 import com.wirelessalien.android.bhagavadgita.utils.Themes
 
-class FavouriteActivity : AppCompatActivity() {
+class FavouriteFragment : Fragment() {
 
-    private lateinit var binding: ActivityFavouriteBinding
+    private lateinit var binding: FragmentFavouriteBinding
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: FavouriteVerseAdapter
     private val favoriteList = mutableListOf<FavouriteVerse>()
@@ -43,21 +47,29 @@ class FavouriteActivity : AppCompatActivity() {
     private val gson = Gson()
     private var currentTextSize: Int = 16 // Default text size
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentFavouriteBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        Themes.loadTheme(this)
-
-        binding = ActivityFavouriteBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val inflater = TransitionInflater.from(requireContext())
+        exitTransition = inflater.inflateTransition(R.transition.slide_right)
+        Themes.loadTheme(requireActivity())
 
         recyclerView = binding.favoritesRecyclerView
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         // Initialize SharedPreferences
-        sharedPreferences = getSharedPreferences("favorites", Context.MODE_PRIVATE)
+        sharedPreferences = requireActivity().getSharedPreferences("favorites", Context.MODE_PRIVATE)
 
-        val sharedPrefTextSize = getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
+        val sharedPrefTextSize =
+            requireActivity().getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
         currentTextSize = sharedPrefTextSize.getInt("text_size", 16) // Get the saved text size
 
         // Load the list of favorite items
