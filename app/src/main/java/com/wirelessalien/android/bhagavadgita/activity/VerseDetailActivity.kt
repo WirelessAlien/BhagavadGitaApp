@@ -28,6 +28,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.GestureDetector
+import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
 import android.widget.AdapterView
@@ -227,6 +228,8 @@ class VerseDetailActivity : AppCompatActivity() {
                 }
                 startActivity(intent)
                 finish()
+                it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+
             } else {
                 Toast.makeText(this, "No more chapters available.", Toast.LENGTH_SHORT).show()
                 binding.nextChapterButton.isEnabled = false
@@ -571,7 +574,7 @@ class VerseDetailActivity : AppCompatActivity() {
             val editor = sharedPrefLastRead.edit()
             editor.putInt("last_verse_id", prevVerse.verse_id)
             editor.apply()
-
+            binding.root.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
         }
     }
 
@@ -594,6 +597,7 @@ class VerseDetailActivity : AppCompatActivity() {
             val editor = sharedPrefLastRead.edit()
             editor.putInt("last_verse_id", nextVerse.verse_id)
             editor.apply()
+            binding.root.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
         } else {
             Toast.makeText(this, "You have reached the last verse of this chapter", Toast.LENGTH_SHORT).show()
         }
