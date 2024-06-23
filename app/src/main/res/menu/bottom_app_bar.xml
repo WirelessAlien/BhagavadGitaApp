@@ -44,6 +44,11 @@
         android:visible="true"
         app:showAsAction="ifRoom"/>
     <item
+        android:id="@+id/note"
+        android:title="Add Note"
+        android:icon="@drawable/home"
+        app:showAsAction="ifRoom"/>
+    <item
         android:id="@+id/translation"
         android:title="Translation"
         android:icon="@drawable/ic_translate"

@@ -31,8 +31,11 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.widget.AdapterView
+import android.widget.Button
+import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.SeekBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GestureDetectorCompat
@@ -190,6 +193,13 @@ class VerseDetailActivity : AppCompatActivity() {
             }
         }
 
+        val sharedPrefLastRead = getSharedPreferences("last_opened_verse", Context.MODE_PRIVATE)
+        val editor = sharedPrefLastRead.edit()
+        if (verses.isNotEmpty()) {
+            editor.putInt("last_verse_id", verses[currentVerseIndex].verse_id)
+        }
+        editor.apply()
+
         // Update the layout with the verse details
         binding.verseTitleTextView.text = verseTitle
         binding.verseContentTextView.text = verseText
@@ -254,18 +264,25 @@ class VerseDetailActivity : AppCompatActivity() {
             }
         })
 
-        binding.bottomAppBar.setNavigationOnClickListener {
-            val bottomSheetFragment = VerseListBottomSheetFragment(verses) { selectedVerse ->
-                //navigate to the respective selected verse
-                val selectedVerseIndexC = verses.indexOfFirst { it.verse_id == selectedVerse.verse_id }
-                currentVerseIndex = selectedVerseIndexC
-                val selectedVerseC = verses[currentVerseIndex]
-                updateVerseDetails(binding, selectedVerseC)
-                updateTranslationList()
-                updateCommentaryList()
-            }
+        binding.bottomAppBar.apply {
+            var bottomSheetFragment: VerseListBottomSheetFragment? = null
 
-            bottomSheetFragment.show(supportFragmentManager, "VerseListBottomSheetFragment")
+            setNavigationOnClickListener {
+                bottomSheetFragment = VerseListBottomSheetFragment(verses) { selectedVerse ->
+                    //navigate to the respective selected verse
+                    val selectedVerseIndexC = verses.indexOfFirst { it.verse_id == selectedVerse.verse_id }
+                    currentVerseIndex = selectedVerseIndexC
+                    val selectedVerseC = verses[currentVerseIndex]
+                    updateVerseDetails(binding, selectedVerseC)
+                    updateTranslationList()
+                    updateCommentaryList()
+
+                    // Dismiss the bottom sheet after selecting an item
+                    bottomSheetFragment?.dismiss()
+                }
+
+                bottomSheetFragment?.show(supportFragmentManager, "VerseListBottomSheetFragment")
+            }
         }
 
         binding.bottomAppBar.setOnMenuItemClickListener { menuItem ->
@@ -288,6 +305,10 @@ class VerseDetailActivity : AppCompatActivity() {
                 }
                 R.id.translation -> {
                     showAllTranslation()
+                    true
+                }
+                R.id.note -> {
+                    showNoteBottomSheet()
                     true
                 }
 
@@ -357,6 +378,35 @@ class VerseDetailActivity : AppCompatActivity() {
         dialog.show()
     }
 
+    private fun showNoteBottomSheet() {
+        val bottomSheetView = layoutInflater.inflate(R.layout.note_bottom_sheet, null)
+        val dialog = BottomSheetDialog(this)
+        dialog.setContentView(bottomSheetView)
+
+        val noteEditText = bottomSheetView.findViewById<EditText>(R.id.noteEditText)
+        val saveNoteButton = bottomSheetView.findViewById<Button>(R.id.saveNoteButton)
+        val verseTextView = bottomSheetView.findViewById<TextView>(R.id.verseTextView)
+        val verseTitleTextView = bottomSheetView.findViewById<TextView>(R.id.verseTitleTextView)
+
+        verseTextView.text = verses[currentVerseIndex].text
+        verseTitleTextView.text = verses[currentVerseIndex].title
+
+        // Load existing note if any
+        val sharedPreferences = getSharedPreferences("verse_notes", Context.MODE_PRIVATE)
+        val verseId = verses[currentVerseIndex].verse_id
+        val existingNote = sharedPreferences.getString("$verseId", "")
+        noteEditText.setText(existingNote)
+
+        saveNoteButton.setOnClickListener {
+            val note = noteEditText.text.toString()
+            sharedPreferences.edit().putString("$verseId", note).apply()
+            Toast.makeText(this, "Note saved", Toast.LENGTH_SHORT).show()
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
     private fun isVerseRead(): Boolean {
         val sharedPreferences = getSharedPreferences("read_verses", Context.MODE_PRIVATE)
         val verseId = verses[currentVerseIndex].verse_id
@@ -404,7 +454,7 @@ class VerseDetailActivity : AppCompatActivity() {
         val favoriteList = gson.fromJson<List<FavouriteVerse>>(favoritesJson, favoriteListType).toMutableList()
 
         // Add the new favorite item to the list
-        val newFavoriteItem = FavouriteVerse(chapterId,verseTitle, verseContent, transliteration, wordMeanings, translationText, commentaryText)
+        val newFavoriteItem = FavouriteVerse(chapterId, verseTitle, verseContent, transliteration, wordMeanings, translationText, commentaryText)
         favoriteList.add(newFavoriteItem)
 
         // Save the updated list of favorites back to SharedPreferences
@@ -416,6 +466,7 @@ class VerseDetailActivity : AppCompatActivity() {
         // Display a message or update UI to indicate that it's saved as a favorite
         Toast.makeText(this, "Added to Favorites", Toast.LENGTH_SHORT).show()
     }
+
 
     private fun updateTextSize(newSize: Int) {
 
@@ -515,6 +566,12 @@ class VerseDetailActivity : AppCompatActivity() {
             updateAdapterTextSize(currentTextSize)
             binding.readMRadioBtn.isChecked = isVerseRead()
 
+            // Save the current verse to SharedPreferences
+            val sharedPrefLastRead = getSharedPreferences("last_opened_verse", Context.MODE_PRIVATE)
+            val editor = sharedPrefLastRead.edit()
+            editor.putInt("last_verse_id", prevVerse.verse_id)
+            editor.apply()
+
         }
     }
 
@@ -531,6 +588,12 @@ class VerseDetailActivity : AppCompatActivity() {
                 binding.nextChapterButton.visibility = View.VISIBLE
             }
             binding.readMRadioBtn.isChecked = isVerseRead()
+
+            // Save the current verse to SharedPreferences
+            val sharedPrefLastRead = getSharedPreferences("last_opened_verse", Context.MODE_PRIVATE)
+            val editor = sharedPrefLastRead.edit()
+            editor.putInt("last_verse_id", nextVerse.verse_id)
+            editor.apply()
         } else {
             Toast.makeText(this, "You have reached the last verse of this chapter", Toast.LENGTH_SHORT).show()
         }
