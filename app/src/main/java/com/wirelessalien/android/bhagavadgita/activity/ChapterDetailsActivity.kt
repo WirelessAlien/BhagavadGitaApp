@@ -38,6 +38,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.IOException
+import java.util.Locale
 
 class ChapterDetailsActivity : AppCompatActivity() {
 
@@ -136,7 +137,7 @@ class ChapterDetailsActivity : AppCompatActivity() {
         val progress = (readVerses.toDouble() / versesCount.toDouble()) * 100
 
         binding.progressBarReadCount.progress = progress.toInt()
-        binding.progressTextView.text = String.format("%.2f%%", progress)
+        binding.progressTextView.text = String.format(Locale.getDefault(),"%.2f%%", progress)
     }
 
     override fun onResume() {
