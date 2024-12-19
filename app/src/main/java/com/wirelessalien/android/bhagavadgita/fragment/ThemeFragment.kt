@@ -21,18 +21,14 @@ package com.wirelessalien.android.bhagavadgita.fragment
 
 import android.app.Dialog
 import android.content.Context
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.wirelessalien.android.bhagavadgita.MainActivity
 import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.databinding.FragmentThemeBinding
-import kotlin.properties.Delegates
 
 class ThemeFragment : DialogFragment() {
     private lateinit var binding: FragmentThemeBinding

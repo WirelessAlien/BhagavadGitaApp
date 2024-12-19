@@ -22,11 +22,9 @@ package com.wirelessalien.android.bhagavadgita.adapter
 
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.activity.ChapterDetailsActivity
 import com.wirelessalien.android.bhagavadgita.data.Chapter
 import com.wirelessalien.android.bhagavadgita.databinding.ChapterCardviewItemBinding

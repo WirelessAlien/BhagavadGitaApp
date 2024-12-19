@@ -28,9 +28,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.os.VibrationAttributes
-import android.os.VibrationEffect
-import android.os.Vibrator
 import android.util.Log
 import android.view.GestureDetector
 import android.view.HapticFeedbackConstants

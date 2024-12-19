@@ -23,7 +23,6 @@ package com.wirelessalien.android.bhagavadgita.activity
 import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityAboutGitaBinding
 import com.wirelessalien.android.bhagavadgita.utils.Themes
 

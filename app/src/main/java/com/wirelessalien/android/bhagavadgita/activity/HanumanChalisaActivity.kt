@@ -20,7 +20,6 @@
 
 package com.wirelessalien.android.bhagavadgita.activity
 
-import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -28,7 +27,6 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityHanumanChalisaBinding
 import com.wirelessalien.android.bhagavadgita.fragment.HanumanChalisaE
 import com.wirelessalien.android.bhagavadgita.fragment.HanumanChalisaH

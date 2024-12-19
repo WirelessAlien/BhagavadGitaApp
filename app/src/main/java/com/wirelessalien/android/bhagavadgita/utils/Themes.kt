@@ -2,7 +2,6 @@ package com.wirelessalien.android.bhagavadgita.utils
 
 import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.ContentProviderCompat.requireContext
 import com.wirelessalien.android.bhagavadgita.R
 
 class Themes {
