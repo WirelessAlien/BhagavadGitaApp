@@ -7,20 +7,24 @@ import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.BackgroundColorSpan
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.wirelessalien.android.bhagavadgita.adapter.AllVerseAdapter
 import com.wirelessalien.android.bhagavadgita.data.Commentary
 import com.wirelessalien.android.bhagavadgita.data.Translation
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.AllVerseActivityBinding
+import com.wirelessalien.android.bhagavadgita.utils.NullableTypAdapterFactory
 import com.wirelessalien.android.bhagavadgita.utils.Themes
 import kotlinx.coroutines.*
 import java.io.IOException
+import kotlin.reflect.typeOf
 
 class AllVerseActivity : AppCompatActivity() {
 
@@ -80,7 +84,8 @@ class AllVerseActivity : AppCompatActivity() {
                 // Set the chapter details in the UI
                 binding.verseRecyclerView.layoutManager = LinearLayoutManager(this@AllVerseActivity)
                 binding.verseRecyclerView.adapter = AllVerseAdapter(verseList, currentTextSize)
-                binding.progressBar.visibility = View.GONE // Hide the ProgressBar once the verses are loaded
+                binding.progressBar.visibility =
+                    View.GONE // Hide the ProgressBar once the verses are loaded
             }
         }
     }
@@ -131,7 +136,7 @@ class AllVerseActivity : AppCompatActivity() {
 
             val matchedContexts = mutableListOf<String>()
 
-           // Add matched contexts for verse titles
+            // Add matched contexts for verse titles
             verseSearchResult.forEach { verse ->
                 if (verse.title.contains(newText!!, ignoreCase = true)) {
                     matchedContexts.add("Match found in verse title: ${verse.title}")
@@ -188,15 +193,17 @@ class AllVerseActivity : AppCompatActivity() {
 
             val matchedText = if (!newText.isNullOrBlank()) newText else null
 
-            val filteredList = if (verseSearchResult.isNotEmpty() || translationSearchResult.isNotEmpty() || commentarySearchResult.isNotEmpty()) {
-                // Combine the results and get unique verse_ids
-                val verseIds = (verseSearchResult.map { it.verse_id } + translationSearchResult.map { it.verse_id } + commentarySearchResult.map { it.verse_id }).toSet()
+            val filteredList =
+                if (verseSearchResult.isNotEmpty() || translationSearchResult.isNotEmpty() || commentarySearchResult.isNotEmpty()) {
+                    // Combine the results and get unique verse_ids
+                    val verseIds =
+                        (verseSearchResult.map { it.verse_id } + translationSearchResult.map { it.verse_id } + commentarySearchResult.map { it.verse_id }).toSet()
 
-                // Filter the original verseList based on the verse_ids
-                verseList.filter { it.verse_id in verseIds }
-            } else {
-                emptyList()
-            }
+                    // Filter the original verseList based on the verse_ids
+                    verseList.filter { it.verse_id in verseIds }
+                } else {
+                    emptyList()
+                }
 
             val highlightedMatchedContexts = matchedContexts.map { context ->
                 val spannableString = SpannableString(context)
@@ -214,12 +221,22 @@ class AllVerseActivity : AppCompatActivity() {
 
             // Update UI on the main thread
             withContext(Dispatchers.Main) {
-                updateAdapterTextSize(currentTextSize, filteredList, matchedText, highlightedMatchedContexts)
+                updateAdapterTextSize(
+                    currentTextSize,
+                    filteredList,
+                    matchedText,
+                    highlightedMatchedContexts
+                )
             }
         }
     }
 
-    private fun updateAdapterTextSize(newSize: Int, filteredList: List<Verse>, matchedText: String?, matchedContexts: List<SpannableString>) {
+    private fun updateAdapterTextSize(
+        newSize: Int,
+        filteredList: List<Verse>,
+        matchedText: String?,
+        matchedContexts: List<SpannableString>
+    ) {
         val recyclerViewC = binding.verseRecyclerView
         val adapterC = recyclerViewC.adapter as? AllVerseAdapter
         adapterC?.updateTextSize(newSize, filteredList, matchedText, matchedContexts)
@@ -241,10 +258,11 @@ class AllVerseActivity : AppCompatActivity() {
         val commentaries = Gson().fromJson<List<Commentary>>(jsonString, commentaryListType)
 
         // Convert the list of commentaries into a map for easy access
-        return commentaries.associateBy { it.id}
+        return commentaries.associateBy { it.id }
     }
 
     private fun loadJsonFromAsset(fileName: String): String? {
+
         return try {
             applicationContext.assets.open(fileName).bufferedReader().use {
                 it.readText()
@@ -258,7 +276,6 @@ class AllVerseActivity : AppCompatActivity() {
     private fun loadAllVerses(): List<Verse> {
         val jsonString = loadJsonFromAsset("verse.json")
         val verseListType = object : TypeToken<List<Verse>>() {}.type
-
         return Gson().fromJson(jsonString, verseListType)
     }
 }
