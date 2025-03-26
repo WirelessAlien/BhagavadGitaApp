@@ -641,16 +641,17 @@ class VerseDetailActivity : AppCompatActivity() {
         // Combine all the text content into one string
         val textToShare = """
         |Verse Title: $verseTitle
-        |Verse Content: $verseContent
-        |Verse Transliteration: $verseTransliteration
-        |Verse Word Meanings: $verseWordMeanings
-
+        
+        |Verse Content: 
+        |$verseContent
+        |Verse Transliteration: 
+        |$verseTransliteration
+        |Verse Word Meanings: 
+        |$verseWordMeanings
         |Translations:
         |$translationText
-
         |Commentary:
         |$commentaryText
-
         |Shared from - Bhagavad Gita App (https://github.com/WirelessAlien/BhagavadGitaApp)
     """.trimMargin()
 
