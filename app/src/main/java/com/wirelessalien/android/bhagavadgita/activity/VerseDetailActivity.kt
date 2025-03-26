@@ -640,23 +640,21 @@ class VerseDetailActivity : AppCompatActivity() {
 
         // Combine all the text content into one string
         val textToShare = """
-        Verse Title: $verseTitle
-        Verse Content: $verseContent
-        Verse Transliteration: $verseTransliteration
-        Verse Word Meanings: $verseWordMeanings
+        |Verse Title: $verseTitle
+        |Verse Content: $verseContent
+        |Verse Transliteration: $verseTransliteration
+        |Verse Word Meanings: $verseWordMeanings
 
-        Translations:
-        $translationText
+        |Translations:
+        |$translationText
 
-        Commentary:
-        $commentaryText
-    """.trimIndent()
+        |Commentary:
+        |$commentaryText
 
-        // Add your desired line of text at the end
-        val additionalText =
-            "Shared from - Bhagavad Gita App(https://github.com/WirelessAlien/BhagavadGitaApp)"
+        |Shared from - Bhagavad Gita App (https://github.com/WirelessAlien/BhagavadGitaApp)
+    """.trimMargin()
 
-        return "$textToShare\n$additionalText"
+        return "$textToShare"
     }
 
     private fun copyText() {
