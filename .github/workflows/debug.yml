@@ -20,7 +20,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Generate Debug APKs
-        run: ./gradlew assembleFullDebug assembleFossDebug
+        run: ./gradlew assembleDebug assembleDebug
 
       - name: Install curl
         run: sudo apt-get update && sudo apt-get install -y curl
@@ -30,8 +30,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          FULL_DEBUG_APK="app/build/outputs/apk/full/debug/app-full-debug.apk"
-          FOSS_DEBUG_APK="app/build/outputs/apk/foss/debug/app-foss-debug.apk"
+          FULL_DEBUG_APK="app/build/outputs/apkdebug/app-debug.apk"
 
           if [ -f "$FULL_DEBUG_APK" ]; then
             echo "Uploading Full Debug APK..."
@@ -43,12 +42,4 @@ jobs:
             echo "Error: Full Debug APK not found at $FULL_DEBUG_APK."
           fi
 
-          if [ -f "$FOSS_DEBUG_APK" ]; then
-            echo "Uploading Foss Debug APK..."
-            curl -s -X POST "https://api.telegram.org/bot${{ env.TELEGRAM_BOT_TOKEN }}/sendDocument" \
-            -F chat_id=${{ env.TELEGRAM_CHAT_ID }} \
-            -F caption="Foss Debug APK Build #${{ github.run_number }}" \
-            -F document=@"$FOSS_DEBUG_APK"
-          else
-            echo "Error: Foss Debug APK not found at $FOSS_DEBUG_APK."
-          fi
+        
