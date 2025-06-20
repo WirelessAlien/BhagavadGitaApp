@@ -61,8 +61,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="5dp"
-                style="@style/Widget.Material3.CardView.Outlined"
-                app:cardElevation="5dp"
                 android:layout_margin="10dp">
             <TextView
                 android:id="@+id/verseTransliterationF"
@@ -87,8 +85,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="5dp"
-                style="@style/Widget.Material3.CardView.Outlined"
-                app:cardElevation="5dp"
                 android:layout_margin="10dp">
 
                 <TextView
