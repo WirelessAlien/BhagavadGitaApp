@@ -48,4 +48,6 @@
     <string name="verse_title">Verse Title</string>
     <string name="verse_content">Verse Content</string>
     <string name="no_favorites">No Favourites</string>
+    <string name="search_hint">Search chapters, verses...</string>
+
 </resources>
