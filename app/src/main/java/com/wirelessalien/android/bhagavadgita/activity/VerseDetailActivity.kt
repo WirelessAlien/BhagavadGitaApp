@@ -48,7 +48,9 @@ import com.wirelessalien.android.bhagavadgita.adapter.CustomSpinnerAdapter
 import com.wirelessalien.android.bhagavadgita.adapter.TranslationAdapter
 import com.wirelessalien.android.bhagavadgita.data.Chapter
 import com.wirelessalien.android.bhagavadgita.data.Commentary
-import com.wirelessalien.android.bhagavadgita.data.FavouriteVerse
+// FavouriteVerse is not directly used here for saving anymore, but might be used by other parts if not fully refactored.
+// For now, we are creating FavoriteDbHelper and using it.
+import com.wirelessalien.android.bhagavadgita.data.FavoriteDbHelper
 import com.wirelessalien.android.bhagavadgita.data.Translation
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityVerseDetailBinding
@@ -258,6 +260,8 @@ class VerseDetailActivity : AppCompatActivity() {
         if (selectedVerseIndex != -1) {
             currentVerseIndex = selectedVerseIndex
         }
+        // Update favorite button status after verses are loaded and currentVerseIndex is set
+        updateFavoriteButtonStatus()
 
         binding.nextChapterButton.setOnClickListener {
             val nextChapterNumber = chapterNumber + 1
@@ -363,49 +367,49 @@ class VerseDetailActivity : AppCompatActivity() {
     }
 
     private fun onFavoriteButtonClick() {
-        // Get the text elements you want to save
-        val chapterId = verses[currentVerseIndex].chapter_number
-        val verseTitle = binding.verseTitleTextView.text.toString()
-        val verseContent = binding.verseContentTextView.text.toString()
-        val transliteration = binding.verseTransliterationTextView.text.toString()
-        val wordMeanings = binding.verseWordMeaningsTextView.text.toString()
+        val currentVerse = verses[currentVerseIndex]
+        val verseId = currentVerse.verse_id
+        val verseText = currentVerse.text // Or construct as needed, e.g., title + content
 
-        val translationRecyclerView = binding.translationRecyclerView
-        val translationAdapter = translationRecyclerView.adapter as TranslationAdapter
-        val translationText = translationAdapter.getAllTranslationText()
+        val dbHelper = FavoriteDbHelper(this)
 
-        val commentaryRecyclerView = binding.commentaryRecyclerView
-        val commentaryAdapter = commentaryRecyclerView.adapter as CommentaryAdapter
-        val commentaryText = commentaryAdapter.getAllCommentaryText()
+        // Check if the verse is already a favorite
+        val existingFavorite = dbHelper.getFavoriteByVerseId(verseId)
 
-        // Retrieve the existing list of favorites from SharedPreferences
-        val sharedPreferences = getSharedPreferences("favorites", Context.MODE_PRIVATE)
-        val gson = Gson()
-        val favoritesJson = sharedPreferences.getString("favoriteList", "[]")
-        val favoriteListType = object : TypeToken<List<FavouriteVerse>>() {}.type
-        val favoriteList =
-            gson.fromJson<List<FavouriteVerse>>(favoritesJson, favoriteListType).toMutableList()
+        if (existingFavorite == null) {
+            // Add to favorites
+            val chapterId = currentVerse.chapter_number // Get chapter_number
+            val result = dbHelper.addFavorite(chapterId, verseId, verseText)
+            if (result != -1L) {
+                Toast.makeText(this, "Added to Favorites", Toast.LENGTH_SHORT).show()
+                binding.favButton.setIconResource(android.R.drawable.btn_star_big_on) // Placeholder for filled icon
+            } else {
+                Toast.makeText(this, "Failed to add to Favorites", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            // Remove from favorites
+            val result = dbHelper.removeFavorite(verseId)
+            if (result > 0) {
+                Toast.makeText(this, "Removed from Favorites", Toast.LENGTH_SHORT).show()
+                binding.favButton.setIconResource(android.R.drawable.btn_star_big_off) // Placeholder for line icon
+            } else {
+                Toast.makeText(this, "Failed to remove from Favorites", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
-        // Add the new favorite item to the list
-        val newFavoriteItem = FavouriteVerse(
-            chapterId,
-            verseTitle,
-            verseContent,
-            transliteration,
-            wordMeanings,
-            translationText,
-            commentaryText
-        )
-        favoriteList.add(newFavoriteItem)
-
-        // Save the updated list of favorites back to SharedPreferences
-        val editor = sharedPreferences.edit()
-        val updatedFavoritesJson = gson.toJson(favoriteList)
-        editor.putString("favoriteList", updatedFavoritesJson)
-        editor.apply()
-
-        // Display a message or update UI to indicate that it's saved as a favorite
-        Toast.makeText(this, "Added to Favorites", Toast.LENGTH_SHORT).show()
+    // Method to update favorite button based on whether the verse is in favorites
+    private fun updateFavoriteButtonStatus() {
+        if (::verses.isInitialized && verses.isNotEmpty()) {
+            val currentVerse = verses[currentVerseIndex]
+            val dbHelper = FavoriteDbHelper(this)
+            val isFavorite = dbHelper.getFavoriteByVerseId(currentVerse.verse_id) != null
+            if (isFavorite) {
+                binding.favButton.setIconResource(android.R.drawable.btn_star_big_on) // Placeholder for filled icon
+            } else {
+                binding.favButton.setIconResource(android.R.drawable.btn_star_big_off) // Placeholder for line icon
+            }
+        }
     }
 
     private fun updateTextSize(newSize: Int) {
@@ -548,6 +552,7 @@ class VerseDetailActivity : AppCompatActivity() {
         updateCommentaryList()
         updateAdapterTextSize(currentTextSize)
         binding.readMRadioBtn.isChecked = isVerseRead()
+        updateFavoriteButtonStatus() // Update favorite button when verse changes
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             binding.root.performHapticFeedback(HapticFeedbackConstants.CONFIRM)

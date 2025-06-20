@@ -80,13 +80,24 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:icon="@drawable/read_more"
-                android:layout_toEndOf="@id/toggleExpandBtn"
+                android:layout_toStartOf="@id/deleteBtn"
                 style="@style/Widget.Material3.Button.IconButton"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/addNoteBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/Widget.Material3.Button.IconButton"
+                app:icon="@android:drawable/ic_menu_edit"
+                android:layout_toStartOf="@id/readAllBtn"
+                tools:ignore="RelativeOverlap" />
+
 
         </RelativeLayout>
     </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/verseDetailsCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
@@ -95,116 +106,73 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        app:cardCornerRadius="5dp">
-        <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/combinedContentTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:layout_gravity="center_horizontal"
-        android:padding="5dp"
-        android:textSize="16sp"
-        android:text="@string/verse_content" />
-    </com.google.android.material.card.MaterialCardView>
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        app:cardCornerRadius="5dp">
+            android:orientation="vertical"
+            android:padding="8dp">
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/combinedTransliterationTextViewH"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:textSize="16sp"
-            android:text="@string/transliteration" />
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/combinedContentTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:layout_gravity="center_horizontal"
+                android:padding="5dp"
+                android:textSize="16sp"
+                android:text="@string/verse_content"
+                android:visibility="gone"/>
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/combinedTransliterationTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:padding="5dp"
-            android:textSize="16sp"
-            android:text="@string/verse_content" />
-    </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/userNoteTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:padding="5dp"
+                android:textSize="14sp"
+                android:textStyle="italic"
+                android:visibility="gone"
+                tools:text="This is a user note."/>
 
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        app:cardCornerRadius="5dp">
+            <!-- Removed Transliteration, Word Meaning, Translation, Commentary TextViews and their headers -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/combinedTransliterationTextViewH"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/combinedTransliterationTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/combinedWordMeaningTextViewH"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/combinedWordMeaningTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/combinedTranslationH"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/combinedTranslation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/combinedCommentaryH"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/combinedCommentary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/combinedWordMeaningTextViewH"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:padding="5dp"
-            android:text="@string/word_meanings" />
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/combinedWordMeaningTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:padding="5dp"
-            android:textSize="16sp"
-            android:text="@string/verse_content" />
-    </com.google.android.material.card.MaterialCardView>
-
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        app:cardCornerRadius="5dp">
-
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/combinedTranslationH"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:padding="5dp"
-            android:text="@string/translation" />
-
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/combinedTranslation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:layout_marginTop="20dp"
-            android:textSize="16sp"
-            android:text="@string/verse_content" />
-
-    </com.google.android.material.card.MaterialCardView>
-
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        app:cardCornerRadius="5dp">
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/combinedCommentaryH"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:padding="5dp"
-            android:text="@string/commentary" />
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/combinedCommentary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:padding="5dp"
-            android:textSize="16sp"
-            android:text="@string/verse_content" />
-    </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
-
 </LinearLayout>

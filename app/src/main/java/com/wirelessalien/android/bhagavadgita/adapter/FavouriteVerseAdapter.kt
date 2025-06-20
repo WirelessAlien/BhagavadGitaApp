@@ -30,9 +30,11 @@ import com.wirelessalien.android.bhagavadgita.activity.VerseDetailActivity
 import com.wirelessalien.android.bhagavadgita.data.FavouriteVerse
 import com.wirelessalien.android.bhagavadgita.databinding.FavVerseItemBinding
 
-
-class FavouriteVerseAdapter(private val favoriteList: MutableList<FavouriteVerse>) :
-    RecyclerView.Adapter<FavouriteVerseAdapter.ViewHolder>() {
+class FavouriteVerseAdapter(
+    private val favoriteList: MutableList<FavouriteVerse>,
+    private val onDeleteClicked: (FavouriteVerse) -> Unit,
+    private val onAddNoteClicked: (FavouriteVerse) -> Unit
+) : RecyclerView.Adapter<FavouriteVerseAdapter.ViewHolder>() {
 
     inner class ViewHolder(private val binding: FavVerseItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -40,41 +42,51 @@ class FavouriteVerseAdapter(private val favoriteList: MutableList<FavouriteVerse
         fun bind(favoriteItem: FavouriteVerse) {
             binding.combinedTitleTextView.text = favoriteItem.verseTitle
             binding.combinedContentTextView.text = favoriteItem.verseContent
-            binding.combinedTransliterationTextView.text = favoriteItem.transliteration
-            binding.combinedWordMeaningTextView.text = favoriteItem.wordMeanings
-            binding.combinedTranslation.text = favoriteItem.translationData
-            binding.combinedCommentary.text = favoriteItem.commentaryData
 
+            // Hide fields no longer in FavouriteVerse model
+            binding.combinedTransliterationTextView.visibility = View.GONE
+            binding.combinedWordMeaningTextView.visibility = View.GONE
+            binding.combinedTranslation.visibility = View.GONE
+            binding.combinedCommentary.visibility = View.GONE
+            binding.combinedTransliterationTextViewH.visibility = View.GONE
+            binding.combinedWordMeaningTextViewH.visibility = View.GONE
+            binding.combinedTranslationH.visibility = View.GONE
+            binding.combinedCommentaryH.visibility = View.GONE
+
+            // Display user note if available
+            if (!favoriteItem.userNote.isNullOrEmpty()) {
+                binding.userNoteTextView.text = favoriteItem.userNote
+                binding.userNoteTextView.visibility = View.VISIBLE
+            } else {
+                binding.userNoteTextView.visibility = View.GONE
+            }
+
+            // Content and Note visibility based on expansion
             binding.combinedContentTextView.visibility = if (favoriteItem.isExpanded) View.VISIBLE else View.GONE
-            binding.combinedTransliterationTextView.visibility = if (favoriteItem.isExpanded) View.VISIBLE else View.GONE
-            binding.combinedWordMeaningTextView.visibility = if (favoriteItem.isExpanded) View.VISIBLE else View.GONE
-            binding.combinedTranslation.visibility = if (favoriteItem.isExpanded) View.VISIBLE else View.GONE
-            binding.combinedCommentary.visibility = if (favoriteItem.isExpanded) View.VISIBLE else View.GONE
-
-            binding.combinedTransliterationTextViewH.visibility = if (favoriteItem.isExpanded) View.VISIBLE else View.GONE
-            binding.combinedWordMeaningTextViewH.visibility = if (favoriteItem.isExpanded) View.VISIBLE else View.GONE
-            binding.combinedTranslationH.visibility = if (favoriteItem.isExpanded) View.VISIBLE else View.GONE
-            binding.combinedCommentaryH.visibility = if (favoriteItem.isExpanded) View.VISIBLE else View.GONE
+            binding.userNoteTextView.visibility = if (favoriteItem.isExpanded && !favoriteItem.userNote.isNullOrEmpty()) View.VISIBLE else View.GONE
 
 
-           binding.readAllBtn.setOnClickListener {
-               val context = it.context
-               val intent = Intent(context, VerseDetailActivity::class.java).apply {
-                   putExtra("chapter_number", favoriteItem.chapterId)
-                   putExtra("verse_title", favoriteItem.verseTitle)
-                   putExtra("verse_text", favoriteItem.verseContent)
-                   putExtra("verse_transliteration", favoriteItem.transliteration)
-                   putExtra("verse_word_meanings", favoriteItem.wordMeanings)
-
-                   }
-               context.startActivity(intent)
-           }
-
+            binding.readAllBtn.setOnClickListener {
+                val context = it.context
+                val intent = Intent(context, VerseDetailActivity::class.java).apply {
+                    putExtra("chapter_number", favoriteItem.chapterId) // Use the correct chapterId
+                    putExtra("verse_title", favoriteItem.verseTitle)
+                    putExtra("verse_text", favoriteItem.verseContent)
+                    // Pass global verse_id as an extra field, if VerseDetailActivity needs it to pinpoint the exact verse
+                    // For instance, if chapter_number and verse_number (within chapter) are primary keys for lookup.
+                    // The current VerseDetailActivity seems to find the verse by title within the chapter.
+                    // If favoriteItem.verseId is the global ID, ensure VerseDetailActivity can use it.
+                    // Let's assume favoriteItem.verseTitle is unique enough within the chapter for now.
+                }
+                context.startActivity(intent)
+            }
 
             binding.deleteBtn.setOnClickListener {
-                onDeleteClickListener?.let { click ->
-                    click(bindingAdapterPosition)
-                }
+                onDeleteClicked(favoriteItem)
+            }
+
+            binding.addNoteBtn.setOnClickListener { // Assuming you add an addNoteBtn in your layout
+                onAddNoteClicked(favoriteItem)
             }
 
             if (favoriteItem.isExpanded) {
@@ -83,15 +95,16 @@ class FavouriteVerseAdapter(private val favoriteList: MutableList<FavouriteVerse
                 binding.toggleExpandBtn.check(R.id.collapseBtn)
             }
 
-            // Set up a click listener for expanding/collapsing this item
             binding.expandBtn.setOnClickListener {
-                favoriteItem.isExpanded = true
-                notifyItemChanged(bindingAdapterPosition)
+                onExpandClickListener?.let { click ->
+                    click(bindingAdapterPosition)
+                }
             }
 
             binding.collapseBtn.setOnClickListener {
-                favoriteItem.isExpanded = false
-                notifyItemChanged(bindingAdapterPosition)
+                onExpandClickListener?.let { click ->
+                    click(bindingAdapterPosition)
+                }
             }
         }
     }
@@ -112,14 +125,8 @@ class FavouriteVerseAdapter(private val favoriteList: MutableList<FavouriteVerse
         return favoriteList.size
     }
 
-    private var onDeleteClickListener: ((Int) -> Unit)? = null
-
-    fun setOnDeleteClickListener(listener: (Int) -> Unit) {
-        onDeleteClickListener = listener
-    }
-
+    // Keep setOnExpandClickListener as it's used by the Activity/Fragment
     private var onExpandClickListener: ((Int) -> Unit)? = null
-
     fun setOnExpandClickListener(listener: (Int) -> Unit) {
         onExpandClickListener = listener
     }
