@@ -30,7 +30,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          FULL_DEBUG_APK="app/build/outputs/apkdebug/app-debug.apk"
+          FULL_DEBUG_APK="app/build/outputs/apk/debug/app-debug.apk"
 
           if [ -f "$FULL_DEBUG_APK" ]; then
             echo "Uploading Full Debug APK..."
