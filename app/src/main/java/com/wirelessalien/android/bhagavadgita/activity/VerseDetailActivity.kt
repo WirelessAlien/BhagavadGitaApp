@@ -1,19 +1,20 @@
 /*
- * This file is part of BhagavadGitaApp <https://github.com/WirelessAlien/BhagavadGitaApp>
- * Copyright (C) 2023  WirelessAlien <https://github.com/WirelessAlien>
+ *  This file is part of BhagavadGitaApp. @WirelessAlien
  *
- * BhagavadGitaApp is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ *  BhagavadGitaApp is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
  *
- * BhagavadGitaApp is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ *  BhagavadGitaApp is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *   You should have received a copy of the GNU General Public License
+ *   along with BhagavadGitaApp. If not, see <https://www.gnu.org/licenses/>.
+ *
+ *
  */
 
 package com.wirelessalien.android.bhagavadgita.activity
@@ -23,11 +24,13 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.GestureDetector
+import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
 import android.widget.AdapterView
@@ -35,10 +38,8 @@ import android.widget.ProgressBar
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.GestureDetectorCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.wirelessalien.android.bhagavadgita.R
@@ -51,7 +52,7 @@ import com.wirelessalien.android.bhagavadgita.data.FavouriteVerse
 import com.wirelessalien.android.bhagavadgita.data.Translation
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityVerseDetailBinding
-import com.wirelessalien.android.bhagavadgita.fragment.VerseListBottomSheetFragment
+import com.wirelessalien.android.bhagavadgita.utils.Frequency
 import com.wirelessalien.android.bhagavadgita.utils.Themes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -70,14 +71,13 @@ class VerseDetailActivity : AppCompatActivity() {
     private lateinit var mediaPlayer: MediaPlayer
     private var isPlaying = false
     private lateinit var binding: ActivityVerseDetailBinding
-    private lateinit var gestureDetector: GestureDetectorCompat
+    private lateinit var gestureDetector: GestureDetector
     private lateinit var translations: List<Translation>
     private lateinit var selectedAuthor: String
     private lateinit var commentary: List<Commentary>
     private lateinit var selectedLanguageC: String
     private var currentTextSize: Int = 16
-
-
+    private val frequency = Frequency()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,7 +92,7 @@ class VerseDetailActivity : AppCompatActivity() {
         val sharedPrefTextSize = getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
         currentTextSize = sharedPrefTextSize.getInt("text_size", 16) // Get the saved text size
 
-        gestureDetector = GestureDetectorCompat(this, MyGestureListener())
+        gestureDetector = GestureDetector(this, MyGestureListener())
 
         binding.scrollView.setOnTouchListener { _, event -> gestureDetector.onTouchEvent(event) }
 
@@ -124,7 +124,12 @@ class VerseDetailActivity : AppCompatActivity() {
 
                 // Use CustomSpinnerAdapter with coroutines
                 val adapterA = withContext(Dispatchers.Main) {
-                    CustomSpinnerAdapter(this@VerseDetailActivity, android.R.layout.simple_spinner_item, allAuthors, textSize)
+                    CustomSpinnerAdapter(
+                        this@VerseDetailActivity,
+                        android.R.layout.simple_spinner_item,
+                        allAuthors,
+                        textSize
+                    )
                 }
 
                 adapterA.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -138,7 +143,12 @@ class VerseDetailActivity : AppCompatActivity() {
                 }
 
                 authorSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    override fun onItemSelected(
+                        parent: AdapterView<*>?,
+                        view: View?,
+                        position: Int,
+                        id: Long
+                    ) {
                         selectedAuthor = allAuthors[position]
                         sharedPref.edit().putString("selectedAuthor", selectedAuthor).apply()
 
@@ -152,6 +162,40 @@ class VerseDetailActivity : AppCompatActivity() {
             }
         }
 
+        val progressValue = when (currentTextSize) {
+            16 -> 0
+            20 -> 1
+            24 -> 2
+            28 -> 3
+            32 -> 4
+            else -> 1 // Default text size
+        }
+
+        binding.textSizeSeekBar.progress = progressValue
+
+        val textSizeSeekBar = binding.textSizeSeekBar
+        textSizeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                // Update the text size when the SeekBar progress changes
+                val newSize = when (progress) {
+                    0 -> 16
+                    1 -> 20
+                    2 -> 24
+                    3 -> 28
+                    4 -> 32
+                    else -> 16 // Default text size
+                }
+
+                updateTextSize(newSize)
+
+                updateAdapterTextSize(newSize)
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+
         lifecycleScope.launch {
             try {
                 commentary = withContext(Dispatchers.IO) {
@@ -163,7 +207,12 @@ class VerseDetailActivity : AppCompatActivity() {
 
                 // Use CustomSpinnerAdapter with coroutines
                 val adapterL = withContext(Dispatchers.Main) {
-                    CustomSpinnerAdapter(this@VerseDetailActivity, android.R.layout.simple_spinner_item, allLanguage, textSize)
+                    CustomSpinnerAdapter(
+                        this@VerseDetailActivity,
+                        android.R.layout.simple_spinner_item,
+                        allLanguage,
+                        textSize
+                    )
                 }
 
                 adapterL.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -176,15 +225,21 @@ class VerseDetailActivity : AppCompatActivity() {
                     languageSpinner.setSelection(savedLangPosition)
                 }
 
-                languageSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                        selectedLanguageC = allLanguage[position]
-                        sharedPref.edit().putString("selectedLang", selectedLanguageC).apply()
-                        updateCommentaryList()
-                    }
+                languageSpinner.onItemSelectedListener =
+                    object : AdapterView.OnItemSelectedListener {
+                        override fun onItemSelected(
+                            parent: AdapterView<*>?,
+                            view: View?,
+                            position: Int,
+                            id: Long
+                        ) {
+                            selectedLanguageC = allLanguage[position]
+                            sharedPref.edit().putString("selectedLang", selectedLanguageC).apply()
+                            updateCommentaryList()
+                        }
 
-                    override fun onNothingSelected(parent: AdapterView<*>?) {}
-                }
+                        override fun onNothingSelected(parent: AdapterView<*>?) {}
+                    }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -223,6 +278,15 @@ class VerseDetailActivity : AppCompatActivity() {
             }
         }
 
+        binding.shareButton.setOnClickListener {
+            shareText()
+        }
+        binding.copyButton.setOnClickListener {
+            copyText()
+        }
+        binding.favButton.setOnClickListener {
+            onFavoriteButtonClick()
+        }
         binding.readMRadioBtn.isChecked = isVerseRead()
 
         // Set a listener on the switch
@@ -235,12 +299,32 @@ class VerseDetailActivity : AppCompatActivity() {
             }
         }
 
+        binding.viewTranslationButton.setOnClickListener {
+            val currentVerseNumber = verses[currentVerseIndex].verse_id
+            val intent = Intent(this, VerseTranslationActivity::class.java)
+            intent.putExtra("verse_id", currentVerseNumber)
+            startActivity(intent)
+        }
+
+        binding.playPauseButton.setOnClickListener {
+            val audioUrl =
+                "https://github.com/WirelessAlien/gita/raw/main/data/verse_recitation/${verses[currentVerseIndex].chapter_number}/${verses[currentVerseIndex].verse_number}.mp3"
+            if (isPlaying) {
+                pauseAudio()
+            } else {
+                playAudio(audioUrl, binding.progressBar)
+            }
+        }
+
         binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progressValue: Int, fromUser: Boolean) {
+            override fun onProgressChanged(
+                seekBar: SeekBar?,
+                progressValue: Int,
+                fromUser: Boolean
+            ) {
                 if (fromUser) {
                     mediaPlayer.seekTo(progressValue)
-                }
-                else {
+                } else {
                     binding.seekBar.progress = mediaPlayer.currentPosition
                 }
             }
@@ -253,108 +337,6 @@ class VerseDetailActivity : AppCompatActivity() {
 
             }
         })
-
-        binding.bottomAppBar.setNavigationOnClickListener {
-            val bottomSheetFragment = VerseListBottomSheetFragment(verses) { selectedVerse ->
-                //navigate to the respective selected verse
-                val selectedVerseIndexC = verses.indexOfFirst { it.verse_id == selectedVerse.verse_id }
-                currentVerseIndex = selectedVerseIndexC
-                val selectedVerseC = verses[currentVerseIndex]
-                updateVerseDetails(binding, selectedVerseC)
-                updateTranslationList()
-                updateCommentaryList()
-            }
-
-            bottomSheetFragment.show(supportFragmentManager, "VerseListBottomSheetFragment")
-        }
-
-        binding.bottomAppBar.setOnMenuItemClickListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.share -> {
-                    shareText()
-                    true
-                }
-                R.id.favourite -> {
-                    onFavoriteButtonClick()
-                    true
-                }
-                R.id.copy -> {
-                    copyText()
-                    true
-                }
-                R.id.textSize -> {
-                    showTextSizeBottomSheetDialog()
-                    true
-                }
-                R.id.translation -> {
-                    showAllTranslation()
-                    true
-                }
-
-                else -> false
-            }
-        }
-
-        binding.fabMedia.setOnClickListener {
-           //play audio and change the icon using setImageResource
-            val audioUrl = "https://github.com/WirelessAlien/gita/raw/main/data/verse_recitation/${verses[currentVerseIndex].chapter_number}/${verses[currentVerseIndex].verse_number}.mp3"
-            if (isPlaying) {
-                pauseAudio()
-                binding.fabMedia.setImageResource(R.drawable.ic_play)
-            } else {
-                playAudio(audioUrl, binding.progressBar)
-                binding.fabMedia.setImageResource(R.drawable.ic_pause)
-            }
-        }
-    }
-
-    private fun showAllTranslation() {
-        val currentVerseNumber = verses[currentVerseIndex].verse_id
-        val intent = Intent(this, VerseTranslationActivity::class.java)
-        intent.putExtra("verse_id", currentVerseNumber)
-        startActivity(intent)
-    }
-
-    private fun showTextSizeBottomSheetDialog() {
-        val bottomSheetView = layoutInflater.inflate(R.layout.text_size_bottom_sheet, null)
-        val dialog = BottomSheetDialog(this)
-        dialog.setContentView(bottomSheetView)
-
-        val progressValue = when (currentTextSize) {
-            16 -> 0
-            20 -> 1
-            24 -> 2
-            28 -> 3
-            32 -> 4
-            else -> 1 // Default text size
-        }
-
-        val textSizeSeekBar = bottomSheetView.findViewById<SeekBar>(R.id.textSizeSeekBar)
-        textSizeSeekBar.progress = progressValue
-
-        textSizeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                // Update the text size when the SeekBar progress changes
-                val newSize = when (progress) {
-                    0 -> 16
-                    1 -> 20
-                    2 -> 24
-                    3 -> 28
-                    4 -> 32
-                    else -> 16 // Default text size
-                }
-
-                updateTextSize(newSize)
-
-                updateAdapterTextSize(newSize)
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-        })
-
-        dialog.show()
     }
 
     private fun isVerseRead(): Boolean {
@@ -375,9 +357,9 @@ class VerseDetailActivity : AppCompatActivity() {
     }
 
     private fun markVerseAsUnread() {
-      val sharedPreferences = getSharedPreferences("read_verses", Context.MODE_PRIVATE)
-      val verseId = verses[currentVerseIndex].verse_id
-      sharedPreferences.edit().putBoolean("$verseId", false).apply()
+        val sharedPreferences = getSharedPreferences("read_verses", Context.MODE_PRIVATE)
+        val verseId = verses[currentVerseIndex].verse_id
+        sharedPreferences.edit().putBoolean("$verseId", false).apply()
     }
 
     private fun onFavoriteButtonClick() {
@@ -401,10 +383,19 @@ class VerseDetailActivity : AppCompatActivity() {
         val gson = Gson()
         val favoritesJson = sharedPreferences.getString("favoriteList", "[]")
         val favoriteListType = object : TypeToken<List<FavouriteVerse>>() {}.type
-        val favoriteList = gson.fromJson<List<FavouriteVerse>>(favoritesJson, favoriteListType).toMutableList()
+        val favoriteList =
+            gson.fromJson<List<FavouriteVerse>>(favoritesJson, favoriteListType).toMutableList()
 
         // Add the new favorite item to the list
-        val newFavoriteItem = FavouriteVerse(chapterId,verseTitle, verseContent, transliteration, wordMeanings, translationText, commentaryText)
+        val newFavoriteItem = FavouriteVerse(
+            chapterId,
+            verseTitle,
+            verseContent,
+            transliteration,
+            wordMeanings,
+            translationText,
+            commentaryText
+        )
         favoriteList.add(newFavoriteItem)
 
         // Save the updated list of favorites back to SharedPreferences
@@ -432,7 +423,7 @@ class VerseDetailActivity : AppCompatActivity() {
             textView.textSize = newSize.toFloat()
         }
 
-        val sharedPrefTextSize= getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
+        val sharedPrefTextSize = getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
         sharedPrefTextSize.edit().putInt("text_size", newSize).apply()
     }
 
@@ -478,25 +469,24 @@ class VerseDetailActivity : AppCompatActivity() {
         private val swipeVelocityThreshold = 100
 
         override fun onFling(
-            e1: MotionEvent,
+            e1: MotionEvent?,
             e2: MotionEvent,
             velocityX: Float,
             velocityY: Float
         ): Boolean {
-            val distanceX = e2.x - e1.x
-            val distanceY = e2.y - e1.y
+            val distanceX = e2.x - (e1?.x ?: 0F)
+            val distanceY = e2.y - (e1?.y ?: 0F)
 
             if (abs(distanceX) > abs(distanceY) &&
                 abs(distanceX) > swipeThreshold &&
                 abs(velocityX) > swipeVelocityThreshold
             ) {
                 if (distanceX > 0) {
-
-                    onSwipeRight()
+                    onSwipe(SwipeDirection.RIGHT)
                 } else {
-
-                    onSwipeLeft()
+                    onSwipe(SwipeDirection.LEFT)
                 }
+                Log.i("Fling", "Fling detected at ${System.currentTimeMillis()}")
                 return true
             }
 
@@ -504,40 +494,67 @@ class VerseDetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun onSwipeRight() {
-        if (currentVerseIndex > 0) {
-            pauseAudio()
-            currentVerseIndex--
-            val prevVerse = verses[currentVerseIndex]
-            updateVerseDetails(binding, prevVerse)
-            updateTranslationList()
-            updateCommentaryList()
-            updateAdapterTextSize(currentTextSize)
-            binding.readMRadioBtn.isChecked = isVerseRead()
+    private fun hapticFeedback(inBound: Boolean) {
+        val feedbackType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (inBound) HapticFeedbackConstants.GESTURE_START else HapticFeedbackConstants.GESTURE_END
+        } else {
+            HapticFeedbackConstants.VIRTUAL_KEY
+        }
+        binding.root.performHapticFeedback(feedbackType)
+    }
 
+    enum class SwipeDirection {
+        LEFT, RIGHT
+    }
+
+    private fun onSwipe(direction: SwipeDirection) {
+        val (isValidSwipe, isChapterInBound, toastMessage) = when (direction) {
+            SwipeDirection.RIGHT -> {
+                if (currentVerseIndex > 0) {
+                    currentVerseIndex--
+                    Triple(true, true, null)
+                } else {
+                    Triple(false, false, "You have reached the first verse of this chapter")
+                }
+            }
+            SwipeDirection.LEFT -> {
+                if (currentVerseIndex < verses.size - 1) {
+                    currentVerseIndex++
+                    if (currentVerseIndex == verses.size - 1) {
+                        binding.nextChapterButton.visibility = View.VISIBLE
+                    }
+                    Triple(true, true, null)
+                } else {
+                    Triple(false, false, "You have reached the last verse of this chapter")
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            frequency.throttle(500) { hapticFeedback(isChapterInBound) }
+            if (isValidSwipe) {
+                handleVerseChange()
+            } else {
+                Toast.makeText(this@VerseDetailActivity, toastMessage, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
-    private fun onSwipeLeft() {
-        if (currentVerseIndex < verses.size - 1) {
-            pauseAudio()
-            currentVerseIndex++
-            val nextVerse = verses[currentVerseIndex]
-            updateVerseDetails(binding, nextVerse)
-            updateTranslationList()
-            updateCommentaryList()
-            updateAdapterTextSize(currentTextSize)
-            if (currentVerseIndex == verses.size - 1) {
-                binding.nextChapterButton.visibility = View.VISIBLE
-            }
-            binding.readMRadioBtn.isChecked = isVerseRead()
-        } else {
-            Toast.makeText(this, "You have reached the last verse of this chapter", Toast.LENGTH_SHORT).show()
+    private fun handleVerseChange() {
+        pauseAudio()
+        val currentVerse = verses[currentVerseIndex]
+        updateVerseDetails(binding, currentVerse)
+        updateTranslationList()
+        updateCommentaryList()
+        updateAdapterTextSize(currentTextSize)
+        binding.readMRadioBtn.isChecked = isVerseRead()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            binding.root.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
         }
     }
 
     private fun updateTranslationList() {
-
         // Filter the list of translations based on the selected author and verse number
         val filteredTranslations = translations.filter {
             it.authorName == selectedAuthor && it.verse_id == verses[currentVerseIndex].verse_id
@@ -549,6 +566,7 @@ class VerseDetailActivity : AppCompatActivity() {
         translationRecyclerView.layoutManager = LinearLayoutManager(this)
 
     }
+
     private fun updateCommentaryList() {
 
         val filteredCommentary = commentary.filter {
@@ -573,6 +591,7 @@ class VerseDetailActivity : AppCompatActivity() {
             null
         }
     }
+
     private fun updateVerseDetails(binding: ActivityVerseDetailBinding, verse: Verse) {
         binding.verseTitleTextView.text = verse.title
         binding.verseContentTextView.text = verse.text
@@ -634,7 +653,8 @@ class VerseDetailActivity : AppCompatActivity() {
     """.trimIndent()
 
         // Add your desired line of text at the end
-        val additionalText = "Shared from - Bhagavad Gita App(https://github.com/WirelessAlien/BhagavadGitaApp)"
+        val additionalText =
+            "Shared from - Bhagavad Gita App(https://github.com/WirelessAlien/BhagavadGitaApp)"
 
         return "$textToShare\n$additionalText"
     }
@@ -714,6 +734,7 @@ class VerseDetailActivity : AppCompatActivity() {
                     }
                     isPlaying = true
                     progressBar.visibility = View.GONE
+                    updatePlayPauseButton()
                     startSeekBarUpdate()
                 }
             } catch (e: IOException) {
@@ -732,8 +753,16 @@ class VerseDetailActivity : AppCompatActivity() {
     private fun pauseAudio() {
         mediaPlayer.pause()
         isPlaying = false
+        updatePlayPauseButton()
     }
 
+    private fun updatePlayPauseButton() {
+        if (isPlaying) {
+            binding.playPauseButton.setImageResource(R.drawable.ic_pause)
+        } else {
+            binding.playPauseButton.setImageResource(R.drawable.ic_play)
+        }
+    }
 
     private fun startSeekBarUpdate() {
         binding.seekBar.max = mediaPlayer.duration
@@ -758,6 +787,7 @@ class VerseDetailActivity : AppCompatActivity() {
         if (::mediaPlayer.isInitialized) {
             mediaPlayer.pause()
             isPlaying = false
+            updatePlayPauseButton()
         }
     }
 
