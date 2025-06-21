@@ -18,7 +18,6 @@
   ~
   -->
 
-<!-- activity_verse_detail.xml -->
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -30,11 +29,12 @@
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="?attr/actionBarSize"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="80dp"
+            android:layout_marginTop="20dp"
             android:orientation="vertical">
 
             <TextView
@@ -57,7 +57,7 @@
 
             <Space
                 android:layout_width="match_parent"
-                android:layout_height="15dp"/>
+                android:layout_height="20dp"/>
 
             <TextView
                 android:id="@+id/verseTransliterationTextView"
@@ -66,8 +66,7 @@
                 android:textSize="16sp"
                 android:padding="12dp"
                 android:textAlignment="center"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="22dp"/>
+                android:layout_gravity="center_horizontal"/>
 
             <ProgressBar
                 android:id="@+id/progressBar"
@@ -75,56 +74,32 @@
                 android:layout_height="48dp"
                 android:visibility="gone"
                 android:layout_gravity="center" />
-            <LinearLayout
+
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_margin="16dp"
+                app:boxCornerRadiusTopStart="5dp"
+                app:boxCornerRadiusTopEnd="5dp"
+                app:boxCornerRadiusBottomStart="5dp"
+                app:boxCornerRadiusBottomEnd="5dp"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu">
 
-                <LinearLayout
+                <AutoCompleteTextView
+                    android:id="@+id/audioSourceDropdown"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-
-                    <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/readMRadioBtn"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"/>
-
-                    <androidx.appcompat.widget.AppCompatSpinner
-                        android:id="@+id/audioSourceSpinner"
-                        android:layout_width="0dp"
-                        android:layout_height="48dp"
-                        android:layout_weight="2"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginEnd="8dp"
-                        tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
-
-                    <ImageButton
-                        android:id="@+id/playPauseButton"
-                        style="?attr/materialIconButtonStyle"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:contentDescription="@string/play"
-                        android:src="@drawable/ic_play"
-                        android:layout_weight="1"/>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/viewTranslationButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:icon="@drawable/ic_translate"
-                        android:layout_weight="1"
-                        style="?attr/materialIconButtonStyle"
-                        android:contentDescription="@string/translation" />
-                </LinearLayout>
-            </LinearLayout>
+                    android:layout_height="48dp"
+                    android:hint="@string/select_audio_source"
+                    android:inputType="none"
+                    android:padding="8dp"
+                    style="@style/Widget.Material3.AutoCompleteTextView.OutlinedBox.Dense"
+                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:layout_margin="16dp"
                 style="@style/Widget.Material3.CardView.Outlined"
                 app:cardCornerRadius="5dp">
 
@@ -178,70 +153,106 @@
                 android:visibility="gone" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/controlView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        style="@style/Widget.Material3.CardView.Outlined"
-        app:cardCornerRadius="5dp">
 
-        <RelativeLayout
+    <com.google.android.material.dockedtoolbar.DockedToolbarLayout
+        android:id="@+id/docked_toolbar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_gravity="bottom"
+        app:layout_behavior="com.google.android.material.behavior.HideViewOnScrollBehavior">
+
+        <LinearLayout
+            android:id="@+id/docked_toolbar_child"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/changeTextSize"
-                style="?attr/materialIconButtonStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_marginStart="3dp"
-                android:layout_marginTop="3dp"
-                android:layout_marginEnd="3dp"
-                android:layout_marginBottom="3dp"
-                android:contentDescription="@string/change_text_size_description"
-                app:icon="@drawable/ic_text_size" />
-            <SeekBar
-                android:id="@+id/textSizeSeekBar"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+
+            <FrameLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_toEndOf="@id/changeTextSize"
-                android:layout_toStartOf="@id/favButton"
-                android:max="4"
-                android:progress="1"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="3dp"
-                android:layout_marginEnd="3dp"/>
+                android:layout_weight="1">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/favButton"
-                style="?attr/materialIconButtonStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="3dp"
-                android:layout_marginTop="3dp"
-                android:layout_marginEnd="3dp"
-                android:layout_marginBottom="3dp"
-                android:layout_toStartOf="@id/copyButton"
-                app:icon="@drawable/ic_favorite_line" />
+                <Button
+                    android:id="@+id/action_button_previous"
+                    style="?attr/materialIconButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/previous_verse"
+                    app:icon="@drawable/ic_arrow_back" />
+            </FrameLayout>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/copyButton"
-                android:layout_width="wrap_content"
+            <FrameLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_toStartOf="@id/shareButton"
-                app:icon="@drawable/ic_copy"
-                android:layout_margin="3dp"
-                style="?attr/materialIconButtonStyle"/>
+                android:layout_weight="1">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/shareButton"
-                android:layout_width="wrap_content"
+                <Button
+                    android:id="@+id/action_button_next"
+                    style="?attr/materialIconButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/next_verse"
+                    app:icon="@drawable/ic_arrow_forward" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_margin="3dp"
-                app:icon="@drawable/ic_share"
-                style="?attr/materialIconButtonStyle" />
-        </RelativeLayout>
-    </com.google.android.material.card.MaterialCardView>
+                android:layout_weight="1">
+
+                <Button
+                    android:id="@+id/action_button_favorite"
+                    style="?attr/materialIconButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/add_to_favorite"
+                    app:icon="@drawable/ic_favorite_line" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <Button
+                    android:id="@+id/action_mark_as_read"
+                    style="?attr/materialIconButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    app:icon="@drawable/ic_check" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <Button
+                    android:id="@+id/action_button_share"
+                    style="?attr/materialIconButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:contentDescription="@string/share"
+                    app:icon="@drawable/ic_share" />
+            </FrameLayout>
+        </LinearLayout>
+    </com.google.android.material.dockedtoolbar.DockedToolbarLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_play"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_play"
+        app:layout_anchor="@id/docked_toolbar_layout"
+        app:layout_behavior="com.google.android.material.behavior.HideViewOnScrollBehavior"
+        app:layout_anchorGravity="center"
+        android:contentDescription="@string/play"
+        app:elevation="6dp"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

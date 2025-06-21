@@ -53,7 +53,11 @@
     <string name="card_title_ramcharitmanas">Ramcharitmanas</string>
     <string name="card_title_ramayan">Ramayan</string>
     <string name="play_chapter_audio">Play chapter audio</string>
-
+    <string name="previous_verse">Previous Verse</string>
+    <string name="next_verse">Next Verse</string>
+    <string name="add_to_favorite">Add to Favorite</string>
+    <string name="copy">Copy</string>
+    <string name="select_audio_source">Audio Source</string>
     <string-array name="theme_entries">
         <item>System Default</item>
         <item>Light</item>

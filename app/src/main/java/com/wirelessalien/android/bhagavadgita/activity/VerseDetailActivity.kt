@@ -31,11 +31,14 @@ import android.os.Looper
 import android.util.Log
 import android.view.GestureDetector
 import android.view.HapticFeedbackConstants
+// import android.view.Menu // No longer needed
+// import android.view.MenuItem // No longer needed
 import android.view.MotionEvent
 import android.view.View
 import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.ProgressBar
-import android.widget.SeekBar
+// import android.widget.SeekBar // No longer used
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -168,40 +171,6 @@ class VerseDetailActivity : AppCompatActivity() {
             }
         }
 
-        val progressValue = when (currentTextSize) {
-            16 -> 0
-            20 -> 1
-            24 -> 2
-            28 -> 3
-            32 -> 4
-            else -> 1 // Default text size
-        }
-
-        binding.textSizeSeekBar.progress = progressValue
-
-        val textSizeSeekBar = binding.textSizeSeekBar
-        textSizeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                // Update the text size when the SeekBar progress changes
-                val newSize = when (progress) {
-                    0 -> 16
-                    1 -> 20
-                    2 -> 24
-                    3 -> 28
-                    4 -> 32
-                    else -> 16 // Default text size
-                }
-
-                updateTextSize(newSize)
-
-                updateAdapterTextSize(newSize)
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-        })
-
         lifecycleScope.launch {
             try {
                 commentary = withContext(Dispatchers.IO) {
@@ -264,7 +233,7 @@ class VerseDetailActivity : AppCompatActivity() {
             currentVerseIndex = selectedVerseIndex
         }
         // Update favorite button status after verses are loaded and currentVerseIndex is set
-        updateFavoriteButtonStatus()
+        // updateFavoriteButtonStatus() // Removed this call
 
         binding.nextChapterButton.setOnClickListener {
             val nextChapterNumber = chapterNumber + 1
@@ -285,62 +254,29 @@ class VerseDetailActivity : AppCompatActivity() {
             }
         }
 
-        binding.shareButton.setOnClickListener {
-            shareText()
-        }
-        binding.copyButton.setOnClickListener {
-            copyText()
-        }
-        binding.favButton.setOnClickListener {
-            onFavoriteButtonClick()
-        }
-        binding.readMRadioBtn.isChecked = isVerseRead()
-
-        // Set a listener on the switch
-        binding.readMRadioBtn.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                markVerseAsRead()
-                Toast.makeText(this, "Marked as Read", Toast.LENGTH_SHORT).show()
-            } else {
-                markVerseAsUnread()
-            }
-        }
-
-        binding.viewTranslationButton.setOnClickListener {
-            val currentVerseNumber = verses[currentVerseIndex].verse_id
-            val intent = Intent(this, VerseTranslationActivity::class.java)
-            intent.putExtra("verse_id", currentVerseNumber)
-            startActivity(intent)
-        }
 
         // Initialize audio types
         audioTypes = AudioUrlHelper.audioOptions
         selectedAudioType = audioTypes.first() // Default to first audio type
 
         // Populate audio spinner
-        val audioSpinnerAdapter = CustomSpinnerAdapter(
+        val audioSourceAdapter = ArrayAdapter(
             this,
-            android.R.layout.simple_spinner_item,
-            audioTypes.map { it.displayName },
-            currentTextSize // Use current text size for spinner
+            android.R.layout.simple_dropdown_item_1line,
+            audioTypes.map { it.displayName } // Populate with display names
         )
-        audioSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.audioSourceSpinner.adapter = audioSpinnerAdapter
-        binding.audioSourceSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                selectedAudioType = audioTypes[position]
-                // If audio is playing, stop it as the source has changed
-                if (isPlaying) {
-                    pauseAudio()
-                }
-                // Optionally, you could start playing the new source immediately,
-                // but for now, we'll just set it and let the user press play.
+        binding.audioSourceDropdown.setAdapter(audioSourceAdapter)
+        binding.audioSourceDropdown.setOnItemClickListener { _, _, position, _ ->
+            selectedAudioType = audioTypes[position]
+            // If audio is playing, stop it as the source has changed
+            if (isPlaying) {
+                pauseAudio()
             }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+            // Optionally, you could start playing the new source immediately,
+            // but for now, we'll just set it and let the user press play.
         }
 
-        binding.playPauseButton.setOnClickListener {
+        binding.fabPlay.setOnClickListener {
             if (verses.isEmpty() || currentVerseIndex < 0 || currentVerseIndex >= verses.size) {
                 Toast.makeText(this, "Verse data not loaded yet.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -362,15 +298,99 @@ class VerseDetailActivity : AppCompatActivity() {
                 Toast.makeText(this, "Could not determine audio URL.", Toast.LENGTH_SHORT).show()
             }
         }
+
+        setupDockedToolbarActions() // New setup function name
     }
+
+    // Toolbar-specific methods (setupToolbarAndFab, onCreateOptionsMenu, onOptionsItemSelected) will be removed.
+
+    private fun setupDockedToolbarActions() {
+        binding.actionButtonPrevious.setOnClickListener {
+            navigateToPreviousVerse()
+        }
+        binding.actionButtonNext.setOnClickListener {
+            navigateToNextVerse()
+        }
+        binding.actionButtonFavorite.setOnClickListener {
+            onFavoriteButtonClick()
+        }
+
+        binding.actionButtonShare.setOnClickListener {
+            shareText()
+        }
+
+        // FAB setup remains the same as it's a separate component
+        binding.actionMarkAsRead.setOnClickListener {
+            toggleReadStatus()
+        }
+        // Set initial FAB state based on read status
+        updateFabReadStatus()
+    }
+
+    private fun navigateToPreviousVerse() {
+        if (currentVerseIndex > 0) {
+            currentVerseIndex--
+            handleVerseChange()
+            hapticFeedback(true)
+        } else {
+            Toast.makeText(this, "You have reached the first verse of this chapter", Toast.LENGTH_SHORT).show()
+            hapticFeedback(false)
+        }
+    }
+
+    private fun navigateToNextVerse() {
+        if (currentVerseIndex < verses.size - 1) {
+            currentVerseIndex++
+            if (currentVerseIndex == verses.size - 1) {
+                binding.nextChapterButton.visibility = View.VISIBLE // Keep this logic if next chapter button is still relevant
+            }
+            handleVerseChange()
+            hapticFeedback(true)
+        } else {
+            Toast.makeText(this, "You have reached the last verse of this chapter", Toast.LENGTH_SHORT).show()
+            hapticFeedback(false)
+        }
+    }
+
+    private fun toggleReadStatus() {
+        if (isVerseRead()) {
+            markVerseAsUnread()
+            Toast.makeText(this, "Marked as Unread", Toast.LENGTH_SHORT).show()
+        } else {
+            markVerseAsRead()
+            Toast.makeText(this, "Marked as Read", Toast.LENGTH_SHORT).show()
+        }
+        updateFabReadStatus()
+    }
+
+    private fun updateFabReadStatus() {
+        if (isVerseRead()) {
+            // Consider changing icon or tint if you have different icons for read/unread states
+            // For now, we just use the single 'ic_check'
+            binding.actionMarkAsRead.isSelected = true // Example: use isSelected state
+            // binding.fabMarkAsRead.setImageResource(R.drawable.ic_check_circle) // If you have a filled check
+        } else {
+            binding.actionMarkAsRead.isSelected = false
+            // binding.fabMarkAsRead.setImageResource(R.drawable.ic_check) // Default check
+        }
+    }
+
 
     private fun isVerseRead(): Boolean {
         val sharedPreferences = getSharedPreferences("read_verses", Context.MODE_PRIVATE)
+        // Ensure verses list is not empty and currentVerseIndex is valid
+        if (verses.isEmpty() || currentVerseIndex < 0 || currentVerseIndex >= verses.size) {
+            return false
+        }
         val verseId = verses[currentVerseIndex].verse_id
         return sharedPreferences.getBoolean("$verseId", false)
     }
 
     private fun markVerseAsRead() {
+        // Ensure verses list is not empty and currentVerseIndex is valid
+        if (verses.isEmpty() || currentVerseIndex < 0 || currentVerseIndex >= verses.size) {
+            return
+        }
         val sharedPreferences = getSharedPreferences("read_verses", Context.MODE_PRIVATE)
         val verseId = verses[currentVerseIndex].verse_id
         val chapterNumber = verses[currentVerseIndex].chapter_number
@@ -382,12 +402,20 @@ class VerseDetailActivity : AppCompatActivity() {
     }
 
     private fun markVerseAsUnread() {
+        // Ensure verses list is not empty and currentVerseIndex is valid
+        if (verses.isEmpty() || currentVerseIndex < 0 || currentVerseIndex >= verses.size) {
+            return
+        }
         val sharedPreferences = getSharedPreferences("read_verses", Context.MODE_PRIVATE)
         val verseId = verses[currentVerseIndex].verse_id
         sharedPreferences.edit().putBoolean("$verseId", false).apply()
     }
 
     private fun onFavoriteButtonClick() {
+        if (verses.isEmpty() || currentVerseIndex < 0 || currentVerseIndex >= verses.size) {
+            Toast.makeText(this, "Verse data not available.", Toast.LENGTH_SHORT).show()
+            return
+        }
         val currentVerse = verses[currentVerseIndex]
         val verseId = currentVerse.verse_id
         val verseText = currentVerse.text // Or construct as needed, e.g., title + content
@@ -403,7 +431,7 @@ class VerseDetailActivity : AppCompatActivity() {
             val result = dbHelper.addFavorite(chapterId, verseId, verseText)
             if (result != -1L) {
                 Toast.makeText(this, "Added to Favorites", Toast.LENGTH_SHORT).show()
-                binding.favButton.setIconResource(android.R.drawable.btn_star_big_on) // Placeholder for filled icon
+                // binding.favButton.setIconResource(R.drawable.ic_favorite_filled) // Update FAB/menu icon if dynamic
             } else {
                 Toast.makeText(this, "Failed to add to Favorites", Toast.LENGTH_SHORT).show()
             }
@@ -412,7 +440,7 @@ class VerseDetailActivity : AppCompatActivity() {
             val result = dbHelper.removeFavorite(verseId)
             if (result > 0) {
                 Toast.makeText(this, "Removed from Favorites", Toast.LENGTH_SHORT).show()
-                binding.favButton.setIconResource(android.R.drawable.btn_star_big_off) // Placeholder for line icon
+                // binding.favButton.setIconResource(R.drawable.ic_favorite_border) // Update FAB/menu icon if dynamic
             } else {
                 Toast.makeText(this, "Failed to remove from Favorites", Toast.LENGTH_SHORT).show()
             }
@@ -420,18 +448,18 @@ class VerseDetailActivity : AppCompatActivity() {
     }
 
     // Method to update favorite button based on whether the verse is in favorites
-    private fun updateFavoriteButtonStatus() {
-        if (::verses.isInitialized && verses.isNotEmpty()) {
-            val currentVerse = verses[currentVerseIndex]
-            val dbHelper = FavoriteDbHelper(this)
-            val isFavorite = dbHelper.getFavoriteByVerseId(currentVerse.verse_id) != null
-            if (isFavorite) {
-                binding.favButton.setIconResource(android.R.drawable.btn_star_big_on) // Placeholder for filled icon
-            } else {
-                binding.favButton.setIconResource(android.R.drawable.btn_star_big_off) // Placeholder for line icon
-            }
-        }
-    }
+    // private fun updateFavoriteButtonStatus() { // Removed this function
+    //     if (::verses.isInitialized && verses.isNotEmpty()) {
+    //         val currentVerse = verses[currentVerseIndex]
+    //         val dbHelper = FavoriteDbHelper(this)
+    //         val isFavorite = dbHelper.getFavoriteByVerseId(currentVerse.verse_id) != null
+    //         if (isFavorite) {
+    //             binding.favButton.setIconResource(android.R.drawable.btn_star_big_on) // Placeholder for filled icon
+    //         } else {
+    //             binding.favButton.setIconResource(android.R.drawable.btn_star_big_off) // Placeholder for line icon
+    //         }
+    //     }
+    // }
 
     private fun updateTextSize(newSize: Int) {
 
@@ -469,9 +497,11 @@ class VerseDetailActivity : AppCompatActivity() {
         customAdapterT?.textSize = newSize // Int value directly
         customAdapterT?.notifyDataSetChanged()
 
-        val customAdapterAudio = binding.audioSourceSpinner.adapter as? CustomSpinnerAdapter
-        customAdapterAudio?.textSize = newSize
-        customAdapterAudio?.notifyDataSetChanged()
+        val audioSourceAdapter = binding.audioSourceDropdown.adapter as? ArrayAdapter<*>
+        audioSourceAdapter?.let {
+            binding.audioSourceDropdown.textSize = newSize.toFloat()
+            (it as ArrayAdapter<String>).notifyDataSetChanged()
+        }
 
     }
 
@@ -574,8 +604,9 @@ class VerseDetailActivity : AppCompatActivity() {
         updateTranslationList()
         updateCommentaryList()
         updateAdapterTextSize(currentTextSize)
-        binding.readMRadioBtn.isChecked = isVerseRead()
-        updateFavoriteButtonStatus() // Update favorite button when verse changes
+        updateFabReadStatus() // Ensure FAB updates when verse changes
+        // binding.readMRadioBtn.isChecked = isVerseRead() // Handled by FAB now
+        // updateFavoriteButtonStatus() // Update favorite button when verse changes - Removed
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             binding.root.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
@@ -782,9 +813,9 @@ class VerseDetailActivity : AppCompatActivity() {
 
     private fun updatePlayPauseButton() {
         if (isPlaying) {
-            binding.playPauseButton.setImageResource(R.drawable.ic_pause)
+            binding.fabPlay.setImageResource(R.drawable.ic_pause)
         } else {
-            binding.playPauseButton.setImageResource(R.drawable.ic_play)
+            binding.fabPlay.setImageResource(R.drawable.ic_play)
         }
     }
 
