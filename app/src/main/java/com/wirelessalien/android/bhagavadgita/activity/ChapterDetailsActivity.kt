@@ -60,7 +60,6 @@ class ChapterDetailsActivity : AppCompatActivity() {
     private var verseList: List<Verse> = emptyList()
     private var isSummaryExpanded = false
     private var isSummaryHindiExpanded = false
-    private lateinit var progressBar: ProgressBar
     private var currentTextSize: Int = 16
 
     private lateinit var mediaPlayer: MediaPlayer
@@ -69,11 +68,6 @@ class ChapterDetailsActivity : AppCompatActivity() {
     private lateinit var audioTypes: List<AudioUrlHelper.AudioType>
     private lateinit var selectedAudioType: AudioUrlHelper.AudioType
     private var chapterNumber: Int = 0 // To store chapter number for audio playback
-
-    // Views for audio
-    private lateinit var audioSourceSpinner: AppCompatSpinner
-    private lateinit var playPauseChapterButton: ImageButton
-    private lateinit var audioLoadingProgressBar: ProgressBar
 
 
     @DelicateCoroutinesApi
@@ -88,7 +82,6 @@ class ChapterDetailsActivity : AppCompatActivity() {
         val sharedPrefTextSize = getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
         currentTextSize = sharedPrefTextSize.getInt("text_size", 16) // Get the saved text size
 
-        progressBar = binding.progressBar
         updateAdapterTextSize(currentTextSize)
         updateTextSize(currentTextSize)
         setSupportActionBar(binding.toolbar)
@@ -101,7 +94,7 @@ class ChapterDetailsActivity : AppCompatActivity() {
         val chapterSummaryHindi = intent.getStringExtra("chapter_summary_hindi")
         val versesCount = intent.getIntExtra("verses_count", 0)
 
-        progressBar.visibility = View.VISIBLE
+        binding.progressBar.visibility = View.VISIBLE
 
         val verse = loadVersesForChapter(chapterNumber)
         val adapter = VerseAdapter(verse, currentTextSize)
@@ -123,7 +116,7 @@ class ChapterDetailsActivity : AppCompatActivity() {
                 supportActionBar?.title = "Chapter $chapterNumber"
 
                 // Hide the ProgressBar once the verses are loaded
-                progressBar.visibility = View.GONE
+                binding.progressBar.visibility = View.GONE
             }
         }
 
@@ -174,10 +167,6 @@ class ChapterDetailsActivity : AppCompatActivity() {
         // Store chapter number for audio playback
         this.chapterNumber = chapterNumber
 
-        // Initialize Views from binding
-        audioSourceSpinner = binding.audioSourceSpinnerChapter
-        playPauseChapterButton = binding.playPauseButtonChapter
-        audioLoadingProgressBar = binding.audioLoadingProgressBarChapter
 
 
         // Populate audio spinner
@@ -188,8 +177,8 @@ class ChapterDetailsActivity : AppCompatActivity() {
             currentTextSize // Use current text size for spinner
         )
         audioSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        audioSourceSpinner.adapter = audioSpinnerAdapter
-        audioSourceSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        binding.audioSourceSpinnerChapter.adapter = audioSpinnerAdapter
+        binding.audioSourceSpinnerChapter.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 selectedAudioType = audioTypes[position]
                 if (isChapterPlaying) {
@@ -201,7 +190,7 @@ class ChapterDetailsActivity : AppCompatActivity() {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
-        playPauseChapterButton.setOnClickListener {
+        binding.playPauseButtonChapter.setOnClickListener {
             if (isChapterPlaying) {
                 pauseChapterAudio()
             } else {
@@ -269,7 +258,7 @@ class ChapterDetailsActivity : AppCompatActivity() {
         val adapterC = recyclerViewC.adapter as? VerseAdapter
         adapterC?.updateTextSize(newSize)
 
-        val customAdapterAudio = audioSourceSpinner.adapter as? CustomSpinnerAdapter
+        val customAdapterAudio = binding.audioSourceSpinnerChapter.adapter as? CustomSpinnerAdapter
         customAdapterAudio?.textSize = newSize
         customAdapterAudio?.notifyDataSetChanged()
     }
@@ -316,8 +305,8 @@ class ChapterDetailsActivity : AppCompatActivity() {
             val file = File(subDir, fileName)
 
             withContext(Dispatchers.Main) {
-                audioLoadingProgressBar.visibility = View.VISIBLE
-                playPauseChapterButton.isEnabled = false // Disable while loading
+                binding.audioLoadingProgressBarChapter.visibility = View.VISIBLE
+                binding.playPauseButtonChapter.isEnabled = false // Disable while loading
             }
 
             try {
@@ -346,8 +335,8 @@ class ChapterDetailsActivity : AppCompatActivity() {
                     mediaPlayer.prepareAsync() // Use prepareAsync for network/local file streams
 
                     mediaPlayer.setOnPreparedListener { mp ->
-                        audioLoadingProgressBar.visibility = View.GONE
-                        playPauseChapterButton.isEnabled = true
+                        binding.audioLoadingProgressBarChapter.visibility = View.GONE
+                        binding.playPauseButtonChapter.isEnabled = true
                         mp.start()
                         isChapterPlaying = true
                         updatePlayPauseChapterButton()
@@ -364,8 +353,8 @@ class ChapterDetailsActivity : AppCompatActivity() {
                     }
 
                     mediaPlayer.setOnErrorListener { mp, what, extra ->
-                        audioLoadingProgressBar.visibility = View.GONE
-                        playPauseChapterButton.isEnabled = true
+                        binding.audioLoadingProgressBarChapter.visibility = View.GONE
+                        binding.playPauseButtonChapter.isEnabled = true
                         Toast.makeText(this@ChapterDetailsActivity, "Error playing audio.", Toast.LENGTH_SHORT).show()
                         stopChapterAudio() // Stop on error
                         true // Error handled
@@ -373,8 +362,8 @@ class ChapterDetailsActivity : AppCompatActivity() {
                 }
             } catch (e: IOException) {
                 withContext(Dispatchers.Main) {
-                    audioLoadingProgressBar.visibility = View.GONE
-                    playPauseChapterButton.isEnabled = true
+                    binding.audioLoadingProgressBarChapter.visibility = View.GONE
+                    binding.playPauseButtonChapter.isEnabled = true
                     Toast.makeText(applicationContext, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
                     // Try next track on error
                     currentTrackIndex++
@@ -400,16 +389,16 @@ class ChapterDetailsActivity : AppCompatActivity() {
         isChapterPlaying = false
         currentTrackIndex = 0
         updatePlayPauseChapterButton()
-        audioLoadingProgressBar.visibility = View.GONE
-        playPauseChapterButton.isEnabled = true
+        binding.audioLoadingProgressBarChapter.visibility = View.GONE
+        binding.playPauseButtonChapter.isEnabled = true
     }
 
 
     private fun updatePlayPauseChapterButton() {
         if (isChapterPlaying) {
-            playPauseChapterButton.setImageResource(R.drawable.ic_pause)
+            binding.playPauseButtonChapter.setImageResource(R.drawable.ic_pause)
         } else {
-            playPauseChapterButton.setImageResource(R.drawable.ic_play)
+            binding.playPauseButtonChapter.setImageResource(R.drawable.ic_play)
         }
     }
 
