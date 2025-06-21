@@ -251,7 +251,6 @@ class VerseDetailActivity : AppCompatActivity() {
         binding.verseTitleTextView.text = verseTitle
         binding.verseContentTextView.text = verseText
         binding.verseTransliterationTextView.text = verseTransliteration
-        binding.verseWordMeaningsTextView.text = verseWordMeanings
 
         verses = getVerses(chapterNumber)
 
@@ -319,28 +318,6 @@ class VerseDetailActivity : AppCompatActivity() {
                 playAudio(audioUrl, binding.progressBar)
             }
         }
-
-        binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(
-                seekBar: SeekBar?,
-                progressValue: Int,
-                fromUser: Boolean
-            ) {
-                if (fromUser) {
-                    mediaPlayer.seekTo(progressValue)
-                } else {
-                    binding.seekBar.progress = mediaPlayer.currentPosition
-                }
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-            }
-        })
     }
 
     private fun isVerseRead(): Boolean {
@@ -419,7 +396,6 @@ class VerseDetailActivity : AppCompatActivity() {
             binding.verseTitleTextView,
             binding.verseContentTextView,
             binding.verseTransliterationTextView,
-            binding.verseWordMeaningsTextView
             // Add other TextViews in your layout that you want to update
         )
 
@@ -601,7 +577,6 @@ class VerseDetailActivity : AppCompatActivity() {
         binding.verseTitleTextView.text = verse.title
         binding.verseContentTextView.text = verse.text
         binding.verseTransliterationTextView.text = verse.transliteration
-        binding.verseWordMeaningsTextView.text = verse.word_meanings
     }
 
     private fun getChapterDetails(chapterNumber: Int): Chapter? {
@@ -633,7 +608,6 @@ class VerseDetailActivity : AppCompatActivity() {
         val verseTitle = binding.verseTitleTextView.text.toString()
         val verseContent = binding.verseContentTextView.text.toString()
         val verseTransliteration = binding.verseTransliterationTextView.text.toString()
-        val verseWordMeanings = binding.verseWordMeaningsTextView.text.toString()
 
         val translationRecyclerView = binding.translationRecyclerView
         val translationAdapter = translationRecyclerView.adapter as TranslationAdapter
@@ -648,7 +622,6 @@ class VerseDetailActivity : AppCompatActivity() {
         Verse Title: $verseTitle
         Verse Content: $verseContent
         Verse Transliteration: $verseTransliteration
-        Verse Word Meanings: $verseWordMeanings
 
         Translations:
         $translationText
@@ -740,7 +713,6 @@ class VerseDetailActivity : AppCompatActivity() {
                     isPlaying = true
                     progressBar.visibility = View.GONE
                     updatePlayPauseButton()
-                    startSeekBarUpdate()
                 }
             } catch (e: IOException) {
                 withContext(Dispatchers.Main) {
@@ -767,24 +739,6 @@ class VerseDetailActivity : AppCompatActivity() {
         } else {
             binding.playPauseButton.setImageResource(R.drawable.ic_play)
         }
-    }
-
-    private fun startSeekBarUpdate() {
-        binding.seekBar.max = mediaPlayer.duration
-        val handler = Handler(Looper.getMainLooper())
-
-        val updateInterval = 100
-
-        handler.postDelayed(object : Runnable {
-            override fun run() {
-                try {
-                    binding.seekBar.progress = mediaPlayer.currentPosition
-                    handler.postDelayed(this, updateInterval.toLong())
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
-        }, 0)
     }
 
     override fun onStop() {
