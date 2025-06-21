@@ -28,15 +28,11 @@ import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.color.DynamicColors
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -54,8 +50,6 @@ import com.wirelessalien.android.bhagavadgita.data.Chapter
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityMainBinding
 import com.wirelessalien.android.bhagavadgita.fragment.AboutAppFragment
-import com.wirelessalien.android.bhagavadgita.fragment.SettingsFragment
-import com.wirelessalien.android.bhagavadgita.fragment.ThemeFragment
 import com.wirelessalien.android.bhagavadgita.utils.Themes
 import org.json.JSONArray
 import java.io.IOException

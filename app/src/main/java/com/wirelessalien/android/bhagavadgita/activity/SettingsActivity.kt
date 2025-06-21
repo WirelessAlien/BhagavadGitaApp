@@ -20,7 +20,6 @@ package com.wirelessalien.android.bhagavadgita.activity
 
 import androidx.appcompat.app.AppCompatActivity
 import com.wirelessalien.android.bhagavadgita.databinding.ActivitySettingsBinding
-import com.wirelessalien.android.bhagavadgita.fragment.SettingsFragment
 
 class SettingsActivity : AppCompatActivity() {
 
