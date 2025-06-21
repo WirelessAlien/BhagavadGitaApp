@@ -52,6 +52,8 @@
     <string name="card_title_bhagavad_gita">Bhagavad Gita</string>
     <string name="card_title_ramcharitmanas">Ramcharitmanas</string>
     <string name="card_title_ramayan">Ramayan</string>
+    <string name="play_chapter_audio">Play chapter audio</string>
+
     <string-array name="theme_entries">
         <item>System Default</item>
         <item>Light</item>

@@ -21,17 +21,28 @@
 package com.wirelessalien.android.bhagavadgita.activity
 
 import android.content.Context
+import android.media.MediaPlayer
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ImageButton
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatSpinner
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.wirelessalien.android.bhagavadgita.R
+import com.wirelessalien.android.bhagavadgita.adapter.CustomSpinnerAdapter
 import com.wirelessalien.android.bhagavadgita.adapter.VerseAdapter
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityChapterDetailBinding
+import com.wirelessalien.android.bhagavadgita.utils.AudioUrlHelper
 import com.wirelessalien.android.bhagavadgita.utils.Themes
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -48,6 +59,19 @@ class ChapterDetailsActivity : AppCompatActivity() {
     private var isSummaryHindiExpanded = false
     private lateinit var progressBar: ProgressBar
     private var currentTextSize: Int = 16
+
+    private lateinit var mediaPlayer: MediaPlayer
+    private var isChapterPlaying = false
+    private var currentTrackIndex = 0
+    private lateinit var audioTypes: List<AudioUrlHelper.AudioType>
+    private lateinit var selectedAudioType: AudioUrlHelper.AudioType
+    private var chapterNumber: Int = 0 // To store chapter number for audio playback
+
+    // Views for audio
+    private lateinit var audioSourceSpinner: AppCompatSpinner
+    private lateinit var playPauseChapterButton: ImageButton
+    private lateinit var audioLoadingProgressBar: ProgressBar
+
 
     @DelicateCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -138,6 +162,49 @@ class ChapterDetailsActivity : AppCompatActivity() {
 
         binding.progressBarReadCount.progress = progress.toInt()
         binding.progressTextView.text = String.format(Locale.getDefault(),"%.2f%%", progress)
+
+        // Initialize MediaPlayer
+        mediaPlayer = MediaPlayer()
+        audioTypes = AudioUrlHelper.audioOptions
+        selectedAudioType = audioTypes.first() // Default to first audio type
+
+        // Store chapter number for audio playback
+        this.chapterNumber = chapterNumber
+
+        // Initialize Views from binding
+        audioSourceSpinner = binding.audioSourceSpinnerChapter
+        playPauseChapterButton = binding.playPauseButtonChapter
+        audioLoadingProgressBar = binding.audioLoadingProgressBarChapter
+
+
+        // Populate audio spinner
+        val audioSpinnerAdapter = CustomSpinnerAdapter(
+            this,
+            android.R.layout.simple_spinner_item,
+            audioTypes.map { it.displayName },
+            currentTextSize // Use current text size for spinner
+        )
+        audioSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        audioSourceSpinner.adapter = audioSpinnerAdapter
+        audioSourceSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                selectedAudioType = audioTypes[position]
+                if (isChapterPlaying) {
+                    stopChapterAudio() // Stop and reset if source changes
+                }
+                currentTrackIndex = 0 // Reset track index
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        playPauseChapterButton.setOnClickListener {
+            if (isChapterPlaying) {
+                pauseChapterAudio()
+            } else {
+                playChapterAudio()
+            }
+        }
     }
 
     override fun onResume() {
@@ -199,6 +266,166 @@ class ChapterDetailsActivity : AppCompatActivity() {
         val adapterC = recyclerViewC.adapter as? VerseAdapter
         adapterC?.updateTextSize(newSize)
 
+        val customAdapterAudio = audioSourceSpinner.adapter as? CustomSpinnerAdapter
+        customAdapterAudio?.textSize = newSize
+        customAdapterAudio?.notifyDataSetChanged()
+    }
+
+    private fun playChapterAudio() {
+        if (verseList.isEmpty()) {
+            Toast.makeText(this, "Verses not loaded yet.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (currentTrackIndex >= verseList.size) {
+            // All tracks played
+            stopChapterAudio()
+            Toast.makeText(this, "Finished playing chapter.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        playTrack(currentTrackIndex)
+    }
+
+    private fun playTrack(trackIndex: Int) {
+        if (trackIndex < 0 || trackIndex >= verseList.size) {
+            stopChapterAudio()
+            return
+        }
+
+        val verse = verseList[trackIndex]
+        val audioUrl = AudioUrlHelper.getAudioUrl(verse.chapter_number, verse.verse_number, selectedAudioType)
+
+        if (audioUrl == null) {
+            Toast.makeText(this, "Audio URL not found for verse ${verse.verse_number}", Toast.LENGTH_SHORT).show()
+            currentTrackIndex++
+            playChapterAudio() // Try next track
+            return
+        }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val fileName = AudioUrlHelper.getFileNameFromUrl(audioUrl, selectedAudioType, verse.chapter_number, verse.verse_number)
+            val cacheDir = applicationContext.cacheDir
+            val subDirName = "audio_cache"
+            val subDir = File(cacheDir, "$subDirName/chapter_${verse.chapter_number}")
+
+            if (!subDir.exists()) {
+                subDir.mkdirs()
+            }
+            val file = File(subDir, fileName)
+
+            withContext(Dispatchers.Main) {
+                audioLoadingProgressBar.visibility = View.VISIBLE
+                playPauseChapterButton.isEnabled = false // Disable while loading
+            }
+
+            try {
+                if (!file.exists()) {
+                    withContext(Dispatchers.IO) {
+                        val urlConnection = URL(audioUrl).openConnection()
+                        val contentLength = urlConnection.contentLength
+                        val inputStream = urlConnection.getInputStream()
+                        val outputStream = FileOutputStream(file)
+                        val buffer = ByteArray(1024)
+                        var totalBytesRead = 0
+                        var bytesRead: Int
+                        while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                            outputStream.write(buffer, 0, bytesRead)
+                            totalBytesRead += bytesRead
+                            // val progress = (totalBytesRead * 100 / contentLength) // Progress for single file
+                        }
+                        inputStream.close()
+                        outputStream.close()
+                    }
+                }
+
+                withContext(Dispatchers.Main) {
+                    mediaPlayer.reset() // Reset before setting new data source
+                    mediaPlayer.setDataSource(file.absolutePath)
+                    mediaPlayer.prepareAsync() // Use prepareAsync for network/local file streams
+
+                    mediaPlayer.setOnPreparedListener { mp ->
+                        audioLoadingProgressBar.visibility = View.GONE
+                        playPauseChapterButton.isEnabled = true
+                        mp.start()
+                        isChapterPlaying = true
+                        updatePlayPauseChapterButton()
+                    }
+
+                    mediaPlayer.setOnCompletionListener {
+                        currentTrackIndex++
+                        if (currentTrackIndex < verseList.size) {
+                            playTrack(currentTrackIndex)
+                        } else {
+                            stopChapterAudio()
+                            Toast.makeText(this@ChapterDetailsActivity, "Finished playing chapter.", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
+                    mediaPlayer.setOnErrorListener { mp, what, extra ->
+                        audioLoadingProgressBar.visibility = View.GONE
+                        playPauseChapterButton.isEnabled = true
+                        Toast.makeText(this@ChapterDetailsActivity, "Error playing audio.", Toast.LENGTH_SHORT).show()
+                        stopChapterAudio() // Stop on error
+                        true // Error handled
+                    }
+                }
+            } catch (e: IOException) {
+                withContext(Dispatchers.Main) {
+                    audioLoadingProgressBar.visibility = View.GONE
+                    playPauseChapterButton.isEnabled = true
+                    Toast.makeText(applicationContext, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    // Try next track on error
+                    currentTrackIndex++
+                    playChapterAudio()
+                }
+            }
+        }
+    }
+
+    private fun pauseChapterAudio() {
+        if (mediaPlayer.isPlaying) {
+            mediaPlayer.pause()
+        }
+        isChapterPlaying = false
+        updatePlayPauseChapterButton()
+    }
+
+    private fun stopChapterAudio() {
+        if (mediaPlayer.isPlaying) {
+            mediaPlayer.stop()
+        }
+        mediaPlayer.reset()
+        isChapterPlaying = false
+        currentTrackIndex = 0
+        updatePlayPauseChapterButton()
+        audioLoadingProgressBar.visibility = View.GONE
+        playPauseChapterButton.isEnabled = true
+    }
+
+
+    private fun updatePlayPauseChapterButton() {
+        if (isChapterPlaying) {
+            playPauseChapterButton.setImageResource(R.drawable.ic_pause)
+        } else {
+            playPauseChapterButton.setImageResource(R.drawable.ic_play)
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (::mediaPlayer.isInitialized && isChapterPlaying) {
+            // Keep playing if activity is just stopped but not destroyed,
+            // or pause if that's the desired behavior.
+            // For continuous chapter play, typically you might want it to continue if background play is intended.
+            // However, for simplicity and standard behavior, we'll pause it.
+            pauseChapterAudio()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (::mediaPlayer.isInitialized) {
+            mediaPlayer.release()
+        }
     }
 }
 

@@ -54,6 +54,7 @@ import com.wirelessalien.android.bhagavadgita.data.FavoriteDbHelper
 import com.wirelessalien.android.bhagavadgita.data.Translation
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityVerseDetailBinding
+import com.wirelessalien.android.bhagavadgita.utils.AudioUrlHelper
 import com.wirelessalien.android.bhagavadgita.utils.Frequency
 import com.wirelessalien.android.bhagavadgita.utils.Themes
 import kotlinx.coroutines.CoroutineScope
@@ -80,6 +81,9 @@ class VerseDetailActivity : AppCompatActivity() {
     private lateinit var selectedLanguageC: String
     private var currentTextSize: Int = 16
     private val frequency = Frequency()
+    private lateinit var audioTypes: List<AudioUrlHelper.AudioType>
+    private lateinit var selectedAudioType: AudioUrlHelper.AudioType
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -309,13 +313,53 @@ class VerseDetailActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        // Initialize audio types
+        audioTypes = AudioUrlHelper.audioOptions
+        selectedAudioType = audioTypes.first() // Default to first audio type
+
+        // Populate audio spinner
+        val audioSpinnerAdapter = CustomSpinnerAdapter(
+            this,
+            android.R.layout.simple_spinner_item,
+            audioTypes.map { it.displayName },
+            currentTextSize // Use current text size for spinner
+        )
+        audioSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.audioSourceSpinner.adapter = audioSpinnerAdapter
+        binding.audioSourceSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                selectedAudioType = audioTypes[position]
+                // If audio is playing, stop it as the source has changed
+                if (isPlaying) {
+                    pauseAudio()
+                }
+                // Optionally, you could start playing the new source immediately,
+                // but for now, we'll just set it and let the user press play.
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
         binding.playPauseButton.setOnClickListener {
-            val audioUrl =
-                "https://github.com/WirelessAlien/gita/raw/main/data/verse_recitation/${verses[currentVerseIndex].chapter_number}/${verses[currentVerseIndex].verse_number}.mp3"
-            if (isPlaying) {
-                pauseAudio()
+            if (verses.isEmpty() || currentVerseIndex < 0 || currentVerseIndex >= verses.size) {
+                Toast.makeText(this, "Verse data not loaded yet.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val currentVerse = verses[currentVerseIndex]
+            val audioUrl = AudioUrlHelper.getAudioUrl(
+                currentVerse.chapter_number,
+                currentVerse.verse_number,
+                selectedAudioType
+            )
+
+            if (audioUrl != null) {
+                if (isPlaying) {
+                    pauseAudio()
+                } else {
+                    playAudio(audioUrl, binding.progressBar, selectedAudioType, currentVerse.chapter_number, currentVerse.verse_number)
+                }
             } else {
-                playAudio(audioUrl, binding.progressBar)
+                Toast.makeText(this, "Could not determine audio URL.", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -425,6 +469,9 @@ class VerseDetailActivity : AppCompatActivity() {
         customAdapterT?.textSize = newSize // Int value directly
         customAdapterT?.notifyDataSetChanged()
 
+        val customAdapterAudio = binding.audioSourceSpinner.adapter as? CustomSpinnerAdapter
+        customAdapterAudio?.textSize = newSize
+        customAdapterAudio?.notifyDataSetChanged()
 
     }
 
@@ -663,13 +710,13 @@ class VerseDetailActivity : AppCompatActivity() {
     }
 
 
-    private fun playAudio(audioUrl: String, progressBar: ProgressBar) {
+    private fun playAudio(audioUrl: String, progressBar: ProgressBar, audioType: AudioUrlHelper.AudioType, chapterNum: Int, verseNum: Int) {
         CoroutineScope(Dispatchers.IO).launch {
-            val fileName = audioUrl.substringAfterLast("/")
+            val fileName = AudioUrlHelper.getFileNameFromUrl(audioUrl, audioType, chapterNum, verseNum)
             val cacheDir = applicationContext.cacheDir
             val subDirName = "audio_cache"
-            val chapterNumber = verses[currentVerseIndex].chapter_number
-            val subDir = File(cacheDir, "$subDirName/chapter_$chapterNumber")
+            // val chapterNumber = verses[currentVerseIndex].chapter_number // Already passed as chapterNum
+            val subDir = File(cacheDir, "$subDirName/chapter_$chapterNum")
 
             if (!subDir.exists()) {
                 subDir.mkdirs()
