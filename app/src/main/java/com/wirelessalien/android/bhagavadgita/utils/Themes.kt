@@ -2,17 +2,18 @@ package com.wirelessalien.android.bhagavadgita.utils
 
 import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.preference.PreferenceManager
 import com.wirelessalien.android.bhagavadgita.R
 
 class Themes {
     companion object{
         fun loadTheme(context: Context){
-            val sharedPreferences = context.getSharedPreferences("theme_prefs", Context.MODE_PRIVATE)
+            val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
-            when (sharedPreferences.getInt("themeMode", 0)) {
-                0 -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                1 -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                2 -> {
+            when (sharedPreferences.getString("theme_preference", "system")) {
+                "light" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                "dark" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                "black" -> {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
                     context.setTheme(R.style.AppTheme_Black)
                 }

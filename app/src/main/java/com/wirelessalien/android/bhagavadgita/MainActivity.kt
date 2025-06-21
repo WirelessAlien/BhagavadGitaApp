@@ -34,6 +34,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.color.DynamicColors
@@ -44,6 +45,7 @@ import com.wirelessalien.android.bhagavadgita.activity.AllVerseActivity
 import com.wirelessalien.android.bhagavadgita.activity.ChapterDetailsActivity
 import com.wirelessalien.android.bhagavadgita.activity.FavouriteActivity
 import com.wirelessalien.android.bhagavadgita.activity.HanumanChalisaActivity
+import com.wirelessalien.android.bhagavadgita.activity.SettingsActivity
 import com.wirelessalien.android.bhagavadgita.activity.VerseDetailActivity
 import com.wirelessalien.android.bhagavadgita.adapter.ChapterAdapter
 import com.wirelessalien.android.bhagavadgita.adapter.SearchResultsAdapter // Added import
@@ -52,6 +54,7 @@ import com.wirelessalien.android.bhagavadgita.data.Chapter
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityMainBinding
 import com.wirelessalien.android.bhagavadgita.fragment.AboutAppFragment
+import com.wirelessalien.android.bhagavadgita.fragment.SettingsFragment
 import com.wirelessalien.android.bhagavadgita.fragment.ThemeFragment
 import com.wirelessalien.android.bhagavadgita.utils.Themes
 import org.json.JSONArray
@@ -76,8 +79,8 @@ class MainActivity : AppCompatActivity() {
 
         Themes.loadTheme(this)
 
-        val sharedPrefTextSize = getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
-        currentTextSize = sharedPrefTextSize.getInt("text_size", 16) // Get the saved text size
+        val sharedPrefTextSize = PreferenceManager.getDefaultSharedPreferences(this)
+        currentTextSize = sharedPrefTextSize.getInt("text_size_preference", 16) // Get the saved text size
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -132,9 +135,8 @@ class MainActivity : AppCompatActivity() {
                     startActivity(intent)
                 }
                 R.id.nav_theme -> {
-                    val themeDialog = ThemeFragment()
-                    themeDialog.show(supportFragmentManager, "theme_dialog")
-                    return@setOnMenuItemClickListener true
+                    intent.setClass(this, SettingsActivity::class.java)
+                    startActivity(intent)
                 }
                 R.id.nav_about -> {
                     val aboutDialog = AboutAppFragment()

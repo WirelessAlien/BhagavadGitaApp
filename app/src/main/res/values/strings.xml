@@ -49,5 +49,21 @@
     <string name="verse_content">Verse Content</string>
     <string name="no_favorites">No Favourites</string>
     <string name="search_hint">Search chapters, verses...</string>
+    <string name="card_title_bhagavad_gita">Bhagavad Gita</string>
+    <string name="card_title_ramcharitmanas">Ramcharitmanas</string>
+    <string name="card_title_ramayan">Ramayan</string>
+    <string-array name="theme_entries">
+        <item>System Default</item>
+        <item>Light</item>
+        <item>Dark</item>
+        <item>Black</item>
+    </string-array>
+
+    <string-array name="theme_values">
+        <item>system</item>
+        <item>light</item>
+        <item>dark</item>
+        <item>black</item>
+    </string-array>
 
 </resources>
