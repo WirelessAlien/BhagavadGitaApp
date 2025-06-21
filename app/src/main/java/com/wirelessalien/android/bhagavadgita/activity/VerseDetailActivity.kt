@@ -129,43 +129,28 @@ class VerseDetailActivity : AppCompatActivity() {
 
                 // Find all available authors from the translations
                 val allAuthors = translations.map { it.authorName }.distinct()
-                val authorSpinner = binding.authorSpinner
+                val authorAutoComplete = binding.authorAutoCompleteTextView
 
-                // Use CustomSpinnerAdapter with coroutines
-                val adapterA = withContext(Dispatchers.Main) {
-                    CustomSpinnerAdapter(
-                        this@VerseDetailActivity,
-                        android.R.layout.simple_spinner_item,
-                        allAuthors,
-                        textSize
-                    )
-                }
-
-                adapterA.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                authorSpinner.adapter = adapterA
+                val adapterA = ArrayAdapter(
+                    this@VerseDetailActivity,
+                    android.R.layout.simple_dropdown_item_1line,
+                    allAuthors
+                )
+                authorAutoComplete.setAdapter(adapterA)
 
                 val savedAuthor = sharedPref.getString("selectedAuthor", "")
-                val savedAuthorPosition = allAuthors.indexOf(savedAuthor)
-
-                if (savedAuthorPosition != -1) {
-                    authorSpinner.setSelection(savedAuthorPosition)
+                if (allAuthors.contains(savedAuthor)) {
+                    authorAutoComplete.setText(savedAuthor, false)
+                    selectedAuthor = savedAuthor ?: ""
+                    updateTranslationList() // Load initial translation
                 }
 
-                authorSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                    override fun onItemSelected(
-                        parent: AdapterView<*>?,
-                        view: View?,
-                        position: Int,
-                        id: Long
-                    ) {
-                        selectedAuthor = allAuthors[position]
-                        sharedPref.edit().putString("selectedAuthor", selectedAuthor).apply()
-
-                        updateTranslationList()
-                    }
-
-                    override fun onNothingSelected(parent: AdapterView<*>?) {}
+                authorAutoComplete.setOnItemClickListener { parent, _, position, _ ->
+                    selectedAuthor = parent.adapter.getItem(position) as String
+                    sharedPref.edit().putString("selectedAuthor", selectedAuthor).apply()
+                    updateTranslationList()
                 }
+
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -178,43 +163,27 @@ class VerseDetailActivity : AppCompatActivity() {
                 }
 
                 val allLanguage = commentary.map { it.lang }.distinct()
-                val languageSpinner = binding.cAuthorSpinner
+                val cAuthorAutoComplete = binding.cAuthorAutoCompleteTextView
 
-                // Use CustomSpinnerAdapter with coroutines
-                val adapterL = withContext(Dispatchers.Main) {
-                    CustomSpinnerAdapter(
-                        this@VerseDetailActivity,
-                        android.R.layout.simple_spinner_item,
-                        allLanguage,
-                        textSize
-                    )
-                }
-
-                adapterL.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                languageSpinner.adapter = adapterL
+                val adapterL = ArrayAdapter(
+                    this@VerseDetailActivity,
+                    android.R.layout.simple_dropdown_item_1line,
+                    allLanguage
+                )
+                cAuthorAutoComplete.setAdapter(adapterL)
 
                 val savedLang = sharedPref.getString("selectedLang", "")
-                val savedLangPosition = allLanguage.indexOf(savedLang)
-
-                if (savedLangPosition != -1) {
-                    languageSpinner.setSelection(savedLangPosition)
+                if (allLanguage.contains(savedLang)) {
+                    cAuthorAutoComplete.setText(savedLang, false)
+                    selectedLanguageC = savedLang ?: "" // Initialize selectedLanguageC
+                    updateCommentaryList() // Load initial commentary
                 }
 
-                languageSpinner.onItemSelectedListener =
-                    object : AdapterView.OnItemSelectedListener {
-                        override fun onItemSelected(
-                            parent: AdapterView<*>?,
-                            view: View?,
-                            position: Int,
-                            id: Long
-                        ) {
-                            selectedLanguageC = allLanguage[position]
-                            sharedPref.edit().putString("selectedLang", selectedLanguageC).apply()
-                            updateCommentaryList()
-                        }
-
-                        override fun onNothingSelected(parent: AdapterView<*>?) {}
-                    }
+                cAuthorAutoComplete.setOnItemClickListener { parent, _, position, _ ->
+                    selectedLanguageC = parent.adapter.getItem(position) as String
+                    sharedPref.edit().putString("selectedLang", selectedLanguageC).apply()
+                    updateCommentaryList()
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -300,6 +269,8 @@ class VerseDetailActivity : AppCompatActivity() {
         }
 
         setupDockedToolbarActions() // New setup function name
+
+        updateFavoriteButtonStatus()
     }
 
     // Toolbar-specific methods (setupToolbarAndFab, onCreateOptionsMenu, onOptionsItemSelected) will be removed.
@@ -448,18 +419,18 @@ class VerseDetailActivity : AppCompatActivity() {
     }
 
     // Method to update favorite button based on whether the verse is in favorites
-    // private fun updateFavoriteButtonStatus() { // Removed this function
-    //     if (::verses.isInitialized && verses.isNotEmpty()) {
-    //         val currentVerse = verses[currentVerseIndex]
-    //         val dbHelper = FavoriteDbHelper(this)
-    //         val isFavorite = dbHelper.getFavoriteByVerseId(currentVerse.verse_id) != null
-    //         if (isFavorite) {
-    //             binding.favButton.setIconResource(android.R.drawable.btn_star_big_on) // Placeholder for filled icon
-    //         } else {
-    //             binding.favButton.setIconResource(android.R.drawable.btn_star_big_off) // Placeholder for line icon
-    //         }
-    //     }
-    // }
+     private fun updateFavoriteButtonStatus() {
+         if (::verses.isInitialized && verses.isNotEmpty()) {
+             val currentVerse = verses[currentVerseIndex]
+             val dbHelper = FavoriteDbHelper(this)
+             val isFavorite = dbHelper.getFavoriteByVerseId(currentVerse.verse_id) != null
+             if (isFavorite) {
+                 binding.actionButtonFavorite.setIconResource(android.R.drawable.btn_star_big_on) // Placeholder for filled icon
+             } else {
+                 binding.actionButtonFavorite.setIconResource(android.R.drawable.btn_star_big_off) // Placeholder for line icon
+             }
+         }
+     }
 
     private fun updateTextSize(newSize: Int) {
 
@@ -489,17 +460,19 @@ class VerseDetailActivity : AppCompatActivity() {
         val adapterC = recyclerViewC.adapter as? CommentaryAdapter
         adapterC?.updateTextSize(newSize)
 
-        val customAdapterC = binding.authorSpinner.adapter as? CustomSpinnerAdapter
-        customAdapterC?.textSize = newSize // Int value directly
-        customAdapterC?.notifyDataSetChanged()
-
-        val customAdapterT = binding.cAuthorSpinner.adapter as? CustomSpinnerAdapter
-        customAdapterT?.textSize = newSize // Int value directly
-        customAdapterT?.notifyDataSetChanged()
+        // Removed CustomSpinnerAdapter updates for authorSpinner and cAuthorSpinner
 
         val audioSourceAdapter = binding.audioSourceDropdown.adapter as? ArrayAdapter<*>
         audioSourceAdapter?.let {
-            binding.audioSourceDropdown.textSize = newSize.toFloat()
+            // Consider if AutoCompleteTextView text size needs dynamic updates here
+            // For now, assuming the default text size handling or theme-based size is sufficient
+            // binding.audioSourceDropdown.textSize = newSize.toFloat() // This might not be the correct way for AutoCompleteTextView
+            // It's usually controlled by the style or theme.
+            // If specific text size control is needed for the dropdown items,
+            // a custom adapter for AutoCompleteTextView might be required, or styling the dropdown items.
+            // For the input field itself, it's part of TextInputLayout and usually follows Material Design guidelines.
+            binding.authorAutoCompleteTextView.textSize = newSize.toFloat()
+            binding.cAuthorAutoCompleteTextView.textSize = newSize.toFloat()
             (it as ArrayAdapter<String>).notifyDataSetChanged()
         }
 
@@ -813,9 +786,9 @@ class VerseDetailActivity : AppCompatActivity() {
 
     private fun updatePlayPauseButton() {
         if (isPlaying) {
-            binding.fabPlay.setImageResource(R.drawable.ic_pause)
+            binding.fabPlay.setIconResource(R.drawable.ic_pause)
         } else {
-            binding.fabPlay.setImageResource(R.drawable.ic_play)
+            binding.fabPlay.setIconResource(R.drawable.ic_play)
         }
     }
 

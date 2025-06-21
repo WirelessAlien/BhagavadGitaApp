@@ -33,7 +33,6 @@ class CommentaryAdapter(private val commentary: List<Commentary>, private var te
     RecyclerView.Adapter<CommentaryAdapter.CommentaryViewHolder>() {
 
     inner class CommentaryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val authorNameTextView: TextView = itemView.findViewById(R.id.authorNameTextView)
         val commentaryTextView: TextView = itemView.findViewById(R.id.tversedescriptionTextView)
     }
 
@@ -47,9 +46,7 @@ class CommentaryAdapter(private val commentary: List<Commentary>, private var te
         val commentaryItem = commentary[position]
 
         // Bind data to the views
-        holder.authorNameTextView.text = commentaryItem.authorName
         holder.commentaryTextView.text = commentaryItem.description
-        holder.authorNameTextView.textSize = textSize.toFloat()
         holder.commentaryTextView.textSize = textSize.toFloat()
     }
 

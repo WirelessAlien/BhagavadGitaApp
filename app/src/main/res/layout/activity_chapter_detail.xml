@@ -24,11 +24,10 @@
     xmlns:tools="http://schemas.android.com/tools">
 
 
-    <androidx.appcompat.widget.Toolbar
+    <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:elevation="4dp"/>
+        android:layout_height="?attr/actionBarSize"/>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
@@ -152,8 +151,7 @@
                             android:layout_marginStart="5dp"/>
                     </RelativeLayout>
 
-                    <!-- Audio Controls -->
-                    <LinearLayout
+                    <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
@@ -163,21 +161,41 @@
                         android:paddingBottom="8dp"
                         android:gravity="center_vertical">
 
-                        <androidx.appcompat.widget.AppCompatSpinner
-                            android:id="@+id/audioSourceSpinnerChapter"
-                            android:layout_width="0dp"
-                            android:layout_height="48dp"
-                            android:layout_weight="1"
-                            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck"/>
-
-                        <ImageButton
-                            android:id="@+id/playPauseButtonChapter"
-                            style="?attr/materialIconButtonStyle"
+                        <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
+                            app:boxCornerRadiusTopStart="10dp"
+                            app:boxCornerRadiusTopEnd="10dp"
+                            app:boxCornerRadiusBottomStart="10dp"
+                            app:boxCornerRadiusBottomEnd="10dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:layout_toStartOf="@id/fabPlayPauseChapter"
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu">
+
+                            <AutoCompleteTextView
+                                android:id="@+id/audioSourceAutoCompleteTextViewChapter"
+                                android:layout_width="match_parent"
+                                android:layout_height="48dp"
+                                android:hint="@string/select_audio_source"
+                                android:inputType="none"
+                                android:padding="8dp"
+                                style="@style/Widget.Material3.AutoCompleteTextView.OutlinedBox.Dense"
+                                tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/fabPlayPauseChapter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            app:cornerRadius="10dp"
+                            android:layout_centerVertical="true"
+                            android:layout_alignParentEnd="true"
+                            style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
                             android:contentDescription="@string/play_chapter_audio"
-                            android:src="@drawable/ic_play" />
+                            app:icon="@drawable/ic_play"
+                            app:fabSize="mini" />
 
                         <ProgressBar
                             android:id="@+id/audioLoadingProgressBarChapter"
@@ -185,8 +203,7 @@
                             android:layout_height="24dp"
                             android:layout_marginStart="8dp"
                             android:visibility="gone" />
-                    </LinearLayout>
-
+                    </RelativeLayout>
                 </LinearLayout>
             </com.google.android.material.appbar.CollapsingToolbarLayout>
         </com.google.android.material.appbar.AppBarLayout>
@@ -197,6 +214,5 @@
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             tools:listitem="@layout/verse_cardview_item"/>
-
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </RelativeLayout>

@@ -75,41 +75,66 @@
                 android:visibility="gone"
                 android:layout_gravity="center" />
 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:boxCornerRadiusTopStart="10dp"
+                    app:boxCornerRadiusTopEnd="10dp"
+                    app:boxCornerRadiusBottomStart="10dp"
+                    app:boxCornerRadiusBottomEnd="10dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_toStartOf="@id/fab_play"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/audioSourceDropdown"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:hint="@string/select_audio_source"
+                        android:inputType="none"
+                        android:padding="8dp"
+                        style="@style/Widget.Material3.AutoCompleteTextView.OutlinedBox.Dense"
+                        tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/fab_play"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="10dp"
+                    app:cornerRadius="10dp"
+                    android:contentDescription="@string/play"
+                    app:icon="@drawable/ic_play" />
+            </RelativeLayout>
+
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
-                app:boxCornerRadiusTopStart="5dp"
-                app:boxCornerRadiusTopEnd="5dp"
-                app:boxCornerRadiusBottomStart="5dp"
-                app:boxCornerRadiusBottomEnd="5dp"
+                app:boxCornerRadiusTopStart="10dp"
+                app:boxCornerRadiusTopEnd="10dp"
+                app:boxCornerRadiusBottomStart="10dp"
+                app:boxCornerRadiusBottomEnd="10dp"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu">
 
                 <AutoCompleteTextView
-                    android:id="@+id/audioSourceDropdown"
+                    android:id="@+id/authorAutoCompleteTextView"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
-                    android:hint="@string/select_audio_source"
+                    android:hint="@string/select_author"
                     android:inputType="none"
                     android:padding="8dp"
                     style="@style/Widget.Material3.AutoCompleteTextView.OutlinedBox.Dense"
                     tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
             </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                style="@style/Widget.Material3.CardView.Outlined"
-                app:cardCornerRadius="5dp">
-
-                <androidx.appcompat.widget.AppCompatSpinner
-                    android:id="@+id/authorSpinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:padding="10dp"
-                    tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
-            </com.google.android.material.card.MaterialCardView>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/translationRecyclerView"
@@ -120,20 +145,26 @@
                 tools:listitem="@layout/translation_cardview_item"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
 
-            <com.google.android.material.card.MaterialCardView
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                style="@style/Widget.Material3.CardView.Outlined"
-                app:cardCornerRadius="5dp">
+                android:layout_margin="16dp"
+                app:boxCornerRadiusTopStart="10dp"
+                app:boxCornerRadiusTopEnd="10dp"
+                app:boxCornerRadiusBottomStart="10dp"
+                app:boxCornerRadiusBottomEnd="10dp"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu">
 
-                <androidx.appcompat.widget.AppCompatSpinner
-                    android:id="@+id/cAuthorSpinner"
+                <AutoCompleteTextView
+                    android:id="@+id/cAuthorAutoCompleteTextView"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
-                    android:padding="10dp"
+                    android:hint="@string/select_commentary_author"
+                    android:inputType="none"
+                    android:padding="8dp"
+                    style="@style/Widget.Material3.AutoCompleteTextView.OutlinedBox.Dense"
                     tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
-            </com.google.android.material.card.MaterialCardView>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/commentaryRecyclerView"
@@ -174,7 +205,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/action_button_previous"
                     style="?attr/materialIconButtonStyle"
                     android:layout_width="wrap_content"
@@ -189,7 +220,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/action_button_next"
                     style="?attr/materialIconButtonStyle"
                     android:layout_width="wrap_content"
@@ -204,7 +235,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/action_button_favorite"
                     style="?attr/materialIconButtonStyle"
                     android:layout_width="wrap_content"
@@ -219,7 +250,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/action_mark_as_read"
                     style="?attr/materialIconButtonStyle"
                     android:layout_width="wrap_content"
@@ -233,7 +264,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/action_button_share"
                     style="?attr/materialIconButtonStyle"
                     android:layout_width="wrap_content"
@@ -244,15 +275,4 @@
             </FrameLayout>
         </LinearLayout>
     </com.google.android.material.dockedtoolbar.DockedToolbarLayout>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_play"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_play"
-        app:layout_anchor="@id/docked_toolbar_layout"
-        app:layout_behavior="com.google.android.material.behavior.HideViewOnScrollBehavior"
-        app:layout_anchorGravity="center"
-        android:contentDescription="@string/play"
-        app:elevation="6dp"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

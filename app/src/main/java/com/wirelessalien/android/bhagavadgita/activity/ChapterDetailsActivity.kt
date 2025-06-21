@@ -27,16 +27,16 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.widget.AdapterView
-import android.widget.ImageButton
+import android.widget.ArrayAdapter // Added for AutoCompleteTextView
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.AppCompatSpinner
+// import androidx.appcompat.widget.AppCompatSpinner // No longer needed for audio source
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.wirelessalien.android.bhagavadgita.R
-import com.wirelessalien.android.bhagavadgita.adapter.CustomSpinnerAdapter
+// import com.wirelessalien.android.bhagavadgita.adapter.CustomSpinnerAdapter // No longer needed for audio source
 import com.wirelessalien.android.bhagavadgita.adapter.VerseAdapter
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityChapterDetailBinding
@@ -169,28 +169,28 @@ class ChapterDetailsActivity : AppCompatActivity() {
 
 
 
-        // Populate audio spinner
-        val audioSpinnerAdapter = CustomSpinnerAdapter(
+        // Populate audio dropdown
+        val audioSourceAdapter = ArrayAdapter(
             this,
-            android.R.layout.simple_spinner_item,
-            audioTypes.map { it.displayName },
-            currentTextSize // Use current text size for spinner
+            android.R.layout.simple_dropdown_item_1line,
+            audioTypes.map { it.displayName }
         )
-        audioSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.audioSourceSpinnerChapter.adapter = audioSpinnerAdapter
-        binding.audioSourceSpinnerChapter.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                selectedAudioType = audioTypes[position]
-                if (isChapterPlaying) {
-                    stopChapterAudio() // Stop and reset if source changes
-                }
-                currentTrackIndex = 0 // Reset track index
-            }
+        binding.audioSourceAutoCompleteTextViewChapter.setAdapter(audioSourceAdapter)
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        // Set initial selection if needed or saved preference
+        // For now, defaults to the first item in audioTypes as per selectedAudioType initialization
+        binding.audioSourceAutoCompleteTextViewChapter.setText(selectedAudioType.displayName, false)
+
+
+        binding.audioSourceAutoCompleteTextViewChapter.setOnItemClickListener { _, _, position, _ ->
+            selectedAudioType = audioTypes[position]
+            if (isChapterPlaying) {
+                stopChapterAudio() // Stop and reset if source changes
+            }
+            currentTrackIndex = 0 // Reset track index
         }
 
-        binding.playPauseButtonChapter.setOnClickListener {
+        binding.fabPlayPauseChapter.setOnClickListener {
             if (isChapterPlaying) {
                 pauseChapterAudio()
             } else {
@@ -258,9 +258,10 @@ class ChapterDetailsActivity : AppCompatActivity() {
         val adapterC = recyclerViewC.adapter as? VerseAdapter
         adapterC?.updateTextSize(newSize)
 
-        val customAdapterAudio = binding.audioSourceSpinnerChapter.adapter as? CustomSpinnerAdapter
-        customAdapterAudio?.textSize = newSize
-        customAdapterAudio?.notifyDataSetChanged()
+        // Update text size for the AutoCompleteTextView if needed, though often handled by style
+        binding.audioSourceAutoCompleteTextViewChapter.textSize = newSize.toFloat()
+        // No need to notify adapter for text size change of the AutoCompleteTextView itself,
+        // but if dropdown item text size needed changing, a custom adapter would be required.
     }
 
     private fun playChapterAudio() {
@@ -306,7 +307,7 @@ class ChapterDetailsActivity : AppCompatActivity() {
 
             withContext(Dispatchers.Main) {
                 binding.audioLoadingProgressBarChapter.visibility = View.VISIBLE
-                binding.playPauseButtonChapter.isEnabled = false // Disable while loading
+                binding.fabPlayPauseChapter.isEnabled = false // Disable while loading
             }
 
             try {
@@ -336,7 +337,7 @@ class ChapterDetailsActivity : AppCompatActivity() {
 
                     mediaPlayer.setOnPreparedListener { mp ->
                         binding.audioLoadingProgressBarChapter.visibility = View.GONE
-                        binding.playPauseButtonChapter.isEnabled = true
+                        binding.fabPlayPauseChapter.isEnabled = true
                         mp.start()
                         isChapterPlaying = true
                         updatePlayPauseChapterButton()
@@ -354,7 +355,7 @@ class ChapterDetailsActivity : AppCompatActivity() {
 
                     mediaPlayer.setOnErrorListener { mp, what, extra ->
                         binding.audioLoadingProgressBarChapter.visibility = View.GONE
-                        binding.playPauseButtonChapter.isEnabled = true
+                        binding.fabPlayPauseChapter.isEnabled = true
                         Toast.makeText(this@ChapterDetailsActivity, "Error playing audio.", Toast.LENGTH_SHORT).show()
                         stopChapterAudio() // Stop on error
                         true // Error handled
@@ -363,7 +364,7 @@ class ChapterDetailsActivity : AppCompatActivity() {
             } catch (e: IOException) {
                 withContext(Dispatchers.Main) {
                     binding.audioLoadingProgressBarChapter.visibility = View.GONE
-                    binding.playPauseButtonChapter.isEnabled = true
+                    binding.fabPlayPauseChapter.isEnabled = true
                     Toast.makeText(applicationContext, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
                     // Try next track on error
                     currentTrackIndex++
@@ -390,15 +391,15 @@ class ChapterDetailsActivity : AppCompatActivity() {
         currentTrackIndex = 0
         updatePlayPauseChapterButton()
         binding.audioLoadingProgressBarChapter.visibility = View.GONE
-        binding.playPauseButtonChapter.isEnabled = true
+        binding.fabPlayPauseChapter.isEnabled = true
     }
 
 
     private fun updatePlayPauseChapterButton() {
         if (isChapterPlaying) {
-            binding.playPauseButtonChapter.setImageResource(R.drawable.ic_pause)
+            binding.fabPlayPauseChapter.setIconResource(R.drawable.ic_pause)
         } else {
-            binding.playPauseButtonChapter.setImageResource(R.drawable.ic_play)
+            binding.fabPlayPauseChapter.setIconResource(R.drawable.ic_play)
         }
     }
 

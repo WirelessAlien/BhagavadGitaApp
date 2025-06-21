@@ -32,7 +32,6 @@ class TranslationAdapter(private val translations: List<Translation>, private va
     RecyclerView.Adapter<TranslationAdapter.TranslationViewHolder>() {
 
     inner class TranslationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val authorNameTextView: TextView = itemView.findViewById(R.id.authorNameTextView)
         val translationTextView: TextView = itemView.findViewById(R.id.tversedescriptionTextView)
     }
 
@@ -45,12 +44,9 @@ class TranslationAdapter(private val translations: List<Translation>, private va
     override fun onBindViewHolder(holder: TranslationViewHolder, position: Int) {
         val translation = translations[position]
 
-        holder.authorNameTextView.text = translation.authorName
         holder.translationTextView.text = translation.description
-        holder.authorNameTextView.textSize = textSize.toFloat()
         holder.translationTextView.textSize = textSize.toFloat()
     }
-
 
     override fun getItemCount(): Int {
         return translations.size
