@@ -43,6 +43,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import com.wirelessalien.android.bhagavadgita.R
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.wirelessalien.android.bhagavadgita.adapter.RamcharitmanasAdapter
@@ -54,12 +56,20 @@ import com.wirelessalien.android.bhagavadgita.utils.Themes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import android.content.Context
+import android.util.Log
 
 class RamcharitmanasActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRamcharitmanasBinding
     private lateinit var ramcharitmanasAdapter: RamcharitmanasAdapter
     private val versesList = mutableListOf<RamcharitmanasVerse>()
+
+    companion object {
+        private const val PREFS_NAME = "RamcharitmanasPrefs"
+        private const val KEY_LAST_SCROLL_POSITION = "last_scroll_position"
+        private const val TAG = "RamcharitmanasActivity"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -200,6 +210,7 @@ class RamcharitmanasActivity : AppCompatActivity() {
                 versesList.clear()
                 versesList.addAll(loadedVerses)
                 ramcharitmanasAdapter.updateData(loadedVerses) // Or notifyItemRangeInserted
+                checkAndRestoreScrollPosition() // Check for saved scroll position after data is loaded
             } else {
                 binding.ramcharitmanasRecyclerView.visibility = View.GONE
                 binding.textViewEmptyState.visibility = View.VISIBLE
@@ -211,5 +222,63 @@ class RamcharitmanasActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         onBackPressedDispatcher.onBackPressed()
         return true
+    }
+
+    override fun onPause() {
+        super.onPause()
+        saveScrollPosition()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        // Consider if saving here is redundant if already saved in onPause,
+        // but can be a fallback.
+        // saveScrollPosition()
+    }
+
+    private fun saveScrollPosition() {
+        val layoutManager = binding.ramcharitmanasRecyclerView.layoutManager as? LinearLayoutManager
+        if (layoutManager != null) {
+            val firstVisibleItemPosition = layoutManager.findFirstCompletelyVisibleItemPosition()
+            if (firstVisibleItemPosition != RecyclerView.NO_POSITION) {
+                val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                prefs.edit().putInt(KEY_LAST_SCROLL_POSITION, firstVisibleItemPosition).apply()
+                Log.d(TAG, "Saved scroll position: $firstVisibleItemPosition")
+            } else {
+                // If no item is completely visible, perhaps save the first visible one.
+                val firstPartiallyVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
+                if (firstPartiallyVisibleItemPosition != RecyclerView.NO_POSITION) {
+                    val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                    prefs.edit().putInt(KEY_LAST_SCROLL_POSITION, firstPartiallyVisibleItemPosition).apply()
+                    Log.d(TAG, "Saved partially scroll position: $firstPartiallyVisibleItemPosition")
+                }
+            }
+        }
+    }
+
+    private fun checkAndRestoreScrollPosition() {
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val savedPosition = prefs.getInt(KEY_LAST_SCROLL_POSITION, -1)
+
+        if (savedPosition != -1 && savedPosition < versesList.size) {
+            Snackbar.make(binding.root, R.string.continue_where_you_left_off, Snackbar.LENGTH_LONG)
+                .setAction(R.string.scroll) {
+                    binding.ramcharitmanasRecyclerView.smoothScrollToPosition(savedPosition)
+                    clearSavedScrollPosition(prefs)
+                }
+                .addCallback(object : Snackbar.Callback() {
+                    override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                        if (event == DISMISS_EVENT_TIMEOUT || event == DISMISS_EVENT_SWIPE || event == DISMISS_EVENT_CONSECUTIVE) {
+                            clearSavedScrollPosition(prefs)
+                        }
+                    }
+                })
+                .show()
+        }
+    }
+
+    private fun clearSavedScrollPosition(prefs: android.content.SharedPreferences) {
+        prefs.edit().remove(KEY_LAST_SCROLL_POSITION).apply()
+        Log.d(TAG, "Cleared saved scroll position.")
     }
 }

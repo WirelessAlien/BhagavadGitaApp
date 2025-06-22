@@ -64,6 +64,17 @@
     <string name="favorite_verse_title">Favorite Verse</string>
     <string name="about_gita_card_title">About Gita</string>
     <string name="ramcharitmanas">Ramcharitmanas</string>
+    <string name="continue_where_you_left_off">Continue where you left off?</string>
+    <string name="scroll">Scroll</string>
+    <string name="customize_view">Customize View</string>
+    <string name="customize_view_dialog_title">Customize Text Visibility</string>
+    <string name="show_kanda_title">Show Kanda/Sarga/Shloka Number</string>
+    <string name="show_shloka_text_title">Show Shloka Text</string>
+    <string name="show_translation_title">Show Translation</string>
+    <string name="show_explanation_title">Show Explanation</string>
+    <string name="apply">Apply</string>
+    <string name="cancel">Cancel</string>
+    <string name="no_translation_available">No translation available.</string>
     <string-array name="theme_entries">
         <item>System Default</item>
         <item>Light</item>
