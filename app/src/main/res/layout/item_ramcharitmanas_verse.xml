@@ -16,56 +16,49 @@
   ~ You should have received a copy of the GNU General Public License
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   -->
-<com.google.android.material.card.MaterialCardView
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardElevation="4dp"
-    app:cardCornerRadius="8dp">
+    android:orientation="vertical"
+    android:padding="16dp">
 
-    <LinearLayout
+
+    <TextView
+        android:id="@+id/textViewKanda"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?attr/textAppearanceBody2"
+        android:textStyle="bold"
+        android:layout_gravity="center"
+        tools:text="Bala Kanda - Sarga 1, Shloka 1" />
+
+    <TextView
+        android:id="@+id/textViewShlokaText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_marginTop="8dp"
+        android:textAlignment="center"
+        android:textAppearance="?attr/textAppearanceBody2"
+        android:textSize="18sp"
+        tools:text="तपस्स्वाध्यायनिरतं तपस्वी वाग्विदां वरम् । नारदं परिपप्रच्छ वाल्मीकिर्मुनिपुङ्गवम् ।।1.1.1।।"/>
 
-        <TextView
-            android:id="@+id/textViewKanda"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?attr/textAppearanceHeadline6"
-            tools:text="Bala Kanda - Sarga 1, Shloka 1" />
+    <TextView
+        android:id="@+id/textViewTranslation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textAppearance="?attr/textAppearanceBody2"
+        tools:text="Ascetic Valmiki enquired of Narada, preeminent among the sages ever engaged in the practice of religious austerities or study of the Vedas and best among the eloquent."/>
 
-        <TextView
-            android:id="@+id/textViewShlokaText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textAppearance="?attr/textAppearanceBody1"
-            android:textSize="18sp"
-            tools:text="तपस्स्वाध्यायनिरतं तपस्वी वाग्विदां वरम् । नारदं परिपप्रच्छ वाल्मीकिर्मुनिपुङ्गवम् ।।1.1.1।।"/>
-
-        <TextView
-            android:id="@+id/textViewTranslation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textAppearance="?attr/textAppearanceBody2"
-            tools:text="Ascetic Valmiki enquired of Narada, preeminent among the sages ever engaged in the practice of religious austerities or study of the Vedas and best among the eloquent."/>
-
-        <TextView
-            android:id="@+id/textViewExplanation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:visibility="gone"
-            android:textAppearance="?attr/textAppearanceCaption"
-            tools:text="Detailed explanation here."
-            tools:visibility="visible"/>
-
-    </LinearLayout>
-
-</com.google.android.material.card.MaterialCardView>
+    <TextView
+        android:id="@+id/textViewExplanation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:visibility="gone"
+        android:textAppearance="?attr/textAppearanceBody2"
+        tools:text="Detailed explanation here."
+        tools:visibility="visible"/>
+</LinearLayout>

@@ -31,7 +31,7 @@
     <item
         android:id="@+id/nav_theme"
         android:title="Theme"
-        android:icon="@drawable/ic_dark_mode"
+        android:icon="@drawable/ic_settings"
         android:visible="true"
         app:showAsAction="ifRoom"/>
     <item

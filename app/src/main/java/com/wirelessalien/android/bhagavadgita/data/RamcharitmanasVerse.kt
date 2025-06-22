@@ -43,5 +43,10 @@ data class RamcharitmanasVerse(
     val explanation: String?, // Made explanation nullable
 
     @SerializedName("comments")
-    val comments: String?
+    val comments: String?,
+
+    var showKanda: Boolean = true,
+    var showShlokaText: Boolean = true,
+    var showTranslation: Boolean = true,
+    var showExplanation: Boolean = true
 )

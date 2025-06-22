@@ -44,7 +44,7 @@ class RamcharitmanasAdapter(private var verses: List<RamcharitmanasVerse>) :
 
     fun updateData(newVerses: List<RamcharitmanasVerse>) {
         verses = newVerses
-        notifyDataSetChanged() // Consider using DiffUtil for better performance later
+        notifyDataSetChanged()
     }
 
     inner class VerseViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
