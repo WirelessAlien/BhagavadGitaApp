@@ -60,6 +60,9 @@
     <string name="select_audio_source">Audio Source</string>
     <string name="select_author">Translation Author</string>
     <string name="select_commentary_author">Commentary Language</string>
+    <string name="ramcharitmanas_title">Ramcharitmanas</string>
+    <string name="favorite_verse_title">Favorite Verse</string>
+    <string name="about_gita_card_title">About Gita</string>
     <string-array name="theme_entries">
         <item>System Default</item>
         <item>Light</item>

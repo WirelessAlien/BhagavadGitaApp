@@ -196,14 +196,24 @@ class MainActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
 
-        binding.hanumanChalisaText.setOnClickListener {
-            val intent = Intent(this, HanumanChalisaActivity::class.java)
-            startActivity(intent)
+        // Removed old button listeners for hanumanChalisaText and btnAllVerse
+
+        // Add new CardView listeners
+        binding.cardHanumanChalisa.setOnClickListener {
+            startActivity(Intent(this, HanumanChalisaActivity::class.java))
         }
 
-        binding.btnAllVerse.setOnClickListener {
-            val intent = Intent(this, AllVerseActivity::class.java)
-            startActivity(intent)
+//        binding.cardRamcharitmanas.setOnClickListener {
+//            // Placeholder for RamcharitmanasActivity - will be created in next step
+//            startActivity(Intent(this, RamcharitmanasActivity::class.java))
+//        }
+
+        binding.cardFavoriteVerse.setOnClickListener {
+            startActivity(Intent(this, FavouriteActivity::class.java))
+        }
+
+        binding.cardAboutGita.setOnClickListener {
+            startActivity(Intent(this, AboutGitaActivity::class.java))
         }
     }
 
