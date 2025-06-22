@@ -42,6 +42,7 @@ import com.wirelessalien.android.bhagavadgita.activity.AllVerseActivity
 import com.wirelessalien.android.bhagavadgita.activity.ChapterDetailsActivity
 import com.wirelessalien.android.bhagavadgita.activity.FavouriteActivity
 import com.wirelessalien.android.bhagavadgita.activity.HanumanChalisaActivity
+import com.wirelessalien.android.bhagavadgita.activity.RamcharitmanasActivity
 import com.wirelessalien.android.bhagavadgita.activity.SettingsActivity
 import com.wirelessalien.android.bhagavadgita.activity.VerseDetailActivity
 import com.wirelessalien.android.bhagavadgita.adapter.ChapterAdapter
@@ -203,10 +204,10 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, HanumanChalisaActivity::class.java))
         }
 
-//        binding.cardRamcharitmanas.setOnClickListener {
-//            // Placeholder for RamcharitmanasActivity - will be created in next step
-//            startActivity(Intent(this, RamcharitmanasActivity::class.java))
-//        }
+        binding.cardRamcharitmanas.setOnClickListener {
+            // Placeholder for RamcharitmanasActivity - will be created in next step
+            startActivity(Intent(this, RamcharitmanasActivity::class.java))
+        }
 
         binding.cardFavoriteVerse.setOnClickListener {
             startActivity(Intent(this, FavouriteActivity::class.java))

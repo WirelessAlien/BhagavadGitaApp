@@ -63,6 +63,7 @@
     <string name="ramcharitmanas_title">Ramcharitmanas</string>
     <string name="favorite_verse_title">Favorite Verse</string>
     <string name="about_gita_card_title">About Gita</string>
+    <string name="ramcharitmanas">Ramcharitmanas</string>
     <string-array name="theme_entries">
         <item>System Default</item>
         <item>Light</item>
