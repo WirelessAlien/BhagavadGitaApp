@@ -33,7 +33,7 @@
         android:title="Theme"
         android:icon="@drawable/ic_dark_mode"
         android:visible="true"
-        app:showAsAction="always"/>
+        app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/nav_about"
         android:title="About"
@@ -42,6 +42,6 @@
     <item
         android:id="@+id/nav_fav"
         android:title="Favourite"
-        android:icon="@drawable/ic_favorite_line"
+        android:icon="@drawable/ic_star_2"
         app:showAsAction="always"/>
 </menu>

@@ -40,13 +40,15 @@ class VerseAdapter(private val verses: List<Verse>, private var textSize: Int) :
         fun bind(verse: Verse) {
             binding.verseTitleTextView.text = verse.title
             binding.verseTitleTextView.textSize = textSize.toFloat()
+            binding.verseTextView.text = verse.text
+            binding.verseTextView.textSize = textSize.toFloat()
 
             val sharedPreferences = binding.root.context.getSharedPreferences("read_verses", Context.MODE_PRIVATE)
             val verseId = verse.verse_id
             val isVerseRead = sharedPreferences.getBoolean("$verseId", false)
 
            if (isVerseRead) {
-               binding.cardviewVerseItem.strokeColor = ContextCompat.getColor(binding.root.context, R.color.md_theme_light_primary)
+               binding.cardviewVerseItem.strokeColor = ContextCompat.getColor(binding.root.context, R.color.md_theme_primary)
            } else {
                //do nothing
            }

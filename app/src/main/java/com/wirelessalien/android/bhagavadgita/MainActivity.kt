@@ -31,6 +31,7 @@ import android.util.Log
 import android.view.View
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.color.DynamicColors
@@ -70,19 +71,17 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        DynamicColors.applyToActivityIfAvailable(this)
         Themes.loadTheme(this)
-
-        val sharedPrefTextSize = PreferenceManager.getDefaultSharedPreferences(this)
-        currentTextSize = sharedPrefTextSize.getInt("text_size_preference", 16) // Get the saved text size
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        DynamicColors.applyToActivityIfAvailable(this)
-
-        allVersesForSearch = loadVersesFromJson() // Load all verses for search
-        initialVerseList = allVersesForSearch.shuffled(Random(System.currentTimeMillis())) // Shuffled list for slider
+        val sharedPrefTextSize = PreferenceManager.getDefaultSharedPreferences(this)
+        currentTextSize = sharedPrefTextSize.getInt("text_size_preference", 16)
+        allVersesForSearch = loadVersesFromJson()
+        initialVerseList = allVersesForSearch.shuffled(Random(System.currentTimeMillis()))
 
         // Load JSON data from assets for chapters
         val jsonString = applicationContext.assets.open("chapters.json").bufferedReader().use {

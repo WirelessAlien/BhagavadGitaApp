@@ -21,6 +21,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     xmlns:tools="http://schemas.android.com/tools">
 
 
@@ -212,6 +213,7 @@
             android:id="@+id/verseRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_margin="11dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             tools:listitem="@layout/verse_cardview_item"/>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

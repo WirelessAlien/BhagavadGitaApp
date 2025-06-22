@@ -202,7 +202,7 @@ class VerseDetailActivity : AppCompatActivity() {
             currentVerseIndex = selectedVerseIndex
         }
         // Update favorite button status after verses are loaded and currentVerseIndex is set
-        // updateFavoriteButtonStatus() // Removed this call
+         updateFavoriteButtonStatus() // Removed this call
 
         binding.nextChapterButton.setOnClickListener {
             val nextChapterNumber = chapterNumber + 1
@@ -327,9 +327,11 @@ class VerseDetailActivity : AppCompatActivity() {
         if (isVerseRead()) {
             markVerseAsUnread()
             Toast.makeText(this, "Marked as Unread", Toast.LENGTH_SHORT).show()
+            binding.actionMarkAsRead.setIconResource(R.drawable.ic_check_2)
         } else {
             markVerseAsRead()
             Toast.makeText(this, "Marked as Read", Toast.LENGTH_SHORT).show()
+            binding.actionMarkAsRead.setIconResource(R.drawable.ic_check)
         }
         updateFabReadStatus()
     }
@@ -339,9 +341,11 @@ class VerseDetailActivity : AppCompatActivity() {
             // Consider changing icon or tint if you have different icons for read/unread states
             // For now, we just use the single 'ic_check'
             binding.actionMarkAsRead.isSelected = true // Example: use isSelected state
+            binding.actionMarkAsRead.setIconResource(R.drawable.ic_check_2)
             // binding.fabMarkAsRead.setImageResource(R.drawable.ic_check_circle) // If you have a filled check
         } else {
             binding.actionMarkAsRead.isSelected = false
+            binding.actionMarkAsRead.setIconResource(R.drawable.ic_check)
             // binding.fabMarkAsRead.setImageResource(R.drawable.ic_check) // Default check
         }
     }
@@ -402,7 +406,7 @@ class VerseDetailActivity : AppCompatActivity() {
             val result = dbHelper.addFavorite(chapterId, verseId, verseText)
             if (result != -1L) {
                 Toast.makeText(this, "Added to Favorites", Toast.LENGTH_SHORT).show()
-                // binding.favButton.setIconResource(R.drawable.ic_favorite_filled) // Update FAB/menu icon if dynamic
+                 binding.actionButtonFavorite.setIconResource(R.drawable.ic_star_2) // Update FAB/menu icon if dynamic
             } else {
                 Toast.makeText(this, "Failed to add to Favorites", Toast.LENGTH_SHORT).show()
             }
@@ -411,7 +415,7 @@ class VerseDetailActivity : AppCompatActivity() {
             val result = dbHelper.removeFavorite(verseId)
             if (result > 0) {
                 Toast.makeText(this, "Removed from Favorites", Toast.LENGTH_SHORT).show()
-                // binding.favButton.setIconResource(R.drawable.ic_favorite_border) // Update FAB/menu icon if dynamic
+                binding.actionButtonFavorite.setIconResource(R.drawable.ic_star) // Update FAB/menu icon if dynamic
             } else {
                 Toast.makeText(this, "Failed to remove from Favorites", Toast.LENGTH_SHORT).show()
             }
@@ -425,9 +429,9 @@ class VerseDetailActivity : AppCompatActivity() {
              val dbHelper = FavoriteDbHelper(this)
              val isFavorite = dbHelper.getFavoriteByVerseId(currentVerse.verse_id) != null
              if (isFavorite) {
-                 binding.actionButtonFavorite.setIconResource(android.R.drawable.btn_star_big_on) // Placeholder for filled icon
+                 binding.actionButtonFavorite.setIconResource(R.drawable.ic_star_2)
              } else {
-                 binding.actionButtonFavorite.setIconResource(android.R.drawable.btn_star_big_off) // Placeholder for line icon
+                 binding.actionButtonFavorite.setIconResource(R.drawable.ic_star)
              }
          }
      }
@@ -579,7 +583,7 @@ class VerseDetailActivity : AppCompatActivity() {
         updateAdapterTextSize(currentTextSize)
         updateFabReadStatus() // Ensure FAB updates when verse changes
         // binding.readMRadioBtn.isChecked = isVerseRead() // Handled by FAB now
-        // updateFavoriteButtonStatus() // Update favorite button when verse changes - Removed
+         updateFavoriteButtonStatus() // Update favorite button when verse changes - Removed
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             binding.root.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
