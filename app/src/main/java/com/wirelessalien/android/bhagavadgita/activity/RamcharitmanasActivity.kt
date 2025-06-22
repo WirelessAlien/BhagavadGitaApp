@@ -37,6 +37,8 @@
 package com.wirelessalien.android.bhagavadgita.activity
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -44,6 +46,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.wirelessalien.android.bhagavadgita.R
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -69,6 +72,12 @@ class RamcharitmanasActivity : AppCompatActivity() {
         private const val PREFS_NAME = "RamcharitmanasPrefs"
         private const val KEY_LAST_SCROLL_POSITION = "last_scroll_position"
         private const val TAG = "RamcharitmanasActivity"
+
+        // Keys for text visibility preferences
+        const val KEY_SHOW_KANDA = "show_kanda"
+        const val KEY_SHOW_SHLOKA_TEXT = "show_shloka_text"
+        const val KEY_SHOW_TRANSLATION = "show_translation"
+        const val KEY_SHOW_EXPLANATION = "show_explanation"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -209,7 +218,8 @@ class RamcharitmanasActivity : AppCompatActivity() {
                 binding.textViewEmptyState.visibility = View.GONE
                 versesList.clear()
                 versesList.addAll(loadedVerses)
-                ramcharitmanasAdapter.updateData(loadedVerses) // Or notifyItemRangeInserted
+                // ramcharitmanasAdapter.updateData(loadedVerses) // Will be handled by updateVerseVisibility
+                updateVerseVisibility() // Apply initial visibility preferences
                 checkAndRestoreScrollPosition() // Check for saved scroll position after data is loaded
             } else {
                 binding.ramcharitmanasRecyclerView.visibility = View.GONE
@@ -223,6 +233,81 @@ class RamcharitmanasActivity : AppCompatActivity() {
         onBackPressedDispatcher.onBackPressed()
         return true
     }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_ramcharitmanas, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_customize_view -> {
+                showCustomizeViewDialog()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun showCustomizeViewDialog() {
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val items = arrayOf(
+            getString(R.string.show_kanda_title),
+            getString(R.string.show_shloka_text_title),
+            getString(R.string.show_translation_title),
+            getString(R.string.show_explanation_title)
+        )
+        val checkedItems = booleanArrayOf(
+            prefs.getBoolean(KEY_SHOW_KANDA, true),
+            prefs.getBoolean(KEY_SHOW_SHLOKA_TEXT, true),
+            prefs.getBoolean(KEY_SHOW_TRANSLATION, true),
+            prefs.getBoolean(KEY_SHOW_EXPLANATION, true)
+        )
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.customize_view_dialog_title)
+            .setMultiChoiceItems(items, checkedItems) { _, which, isChecked ->
+                checkedItems[which] = isChecked
+            }
+            .setPositiveButton(R.string.apply) { dialog, _ ->
+                prefs.edit().apply {
+                    putBoolean(KEY_SHOW_KANDA, checkedItems[0])
+                    putBoolean(KEY_SHOW_SHLOKA_TEXT, checkedItems[1])
+                    putBoolean(KEY_SHOW_TRANSLATION, checkedItems[2])
+                    putBoolean(KEY_SHOW_EXPLANATION, checkedItems[3])
+                    apply()
+                }
+                // Reload data or update adapter to reflect changes
+                updateVerseVisibility()
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.cancel) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    private fun updateVerseVisibility() {
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val showKanda = prefs.getBoolean(KEY_SHOW_KANDA, true)
+        val showShlokaText = prefs.getBoolean(KEY_SHOW_SHLOKA_TEXT, true)
+        val showTranslation = prefs.getBoolean(KEY_SHOW_TRANSLATION, true)
+        val showExplanation = prefs.getBoolean(KEY_SHOW_EXPLANATION, true)
+
+        val updatedVerses = versesList.map { verse ->
+            verse.copy(
+                showKanda = showKanda,
+                showShlokaText = showShlokaText,
+                showTranslation = showTranslation,
+                showExplanation = showExplanation
+            )
+        }
+        versesList.clear()
+        versesList.addAll(updatedVerses)
+        ramcharitmanasAdapter.updateData(updatedVerses) // Assuming this notifies the adapter
+        Log.d(TAG, "Verse visibility updated. Kanda: $showKanda, Text: $showShlokaText, Translation: $showTranslation, Explanation: $showExplanation")
+    }
+
 
     override fun onPause() {
         super.onPause()

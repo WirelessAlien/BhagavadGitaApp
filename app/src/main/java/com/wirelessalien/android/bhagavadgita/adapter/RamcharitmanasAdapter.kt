@@ -54,22 +54,38 @@ class RamcharitmanasAdapter(private var verses: List<RamcharitmanasVerse>) :
         private val textViewExplanation: TextView = itemView.findViewById(R.id.textViewExplanation)
 
         fun bind(verse: RamcharitmanasVerse) {
-            val kandaTitle = "${verse.kanda} - Sarga ${verse.sarga}, Shloka ${verse.shloka}"
-            textViewKanda.text = kandaTitle
-            textViewShlokaText.text = verse.shlokaText
-            textViewTranslation.text = verse.translation ?: "No translation available."
-
-            if (verse.explanation.isNullOrEmpty()) {
-                textViewExplanation.visibility = View.GONE
+            // Kanda Title (Kanda, Sarga, Shloka number)
+            if (verse.showKanda) {
+                val kandaTitle = "${verse.kanda} - Sarga ${verse.sarga}, Shloka ${verse.shloka}"
+                textViewKanda.text = kandaTitle
+                textViewKanda.visibility = View.VISIBLE
             } else {
-                textViewExplanation.text = verse.explanation
-                textViewExplanation.visibility = View.VISIBLE // Default to visible if explanation exists
+                textViewKanda.visibility = View.GONE
             }
 
-            // Optional: Add an OnClickListener to toggle explanation visibility or navigate to a detail view
-            // itemView.setOnClickListener {
-            //     textViewExplanation.visibility = if (textViewExplanation.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-            // }
+            // Shloka Text
+            if (verse.showShlokaText) {
+                textViewShlokaText.text = verse.shlokaText
+                textViewShlokaText.visibility = View.VISIBLE
+            } else {
+                textViewShlokaText.visibility = View.GONE
+            }
+
+            // Translation
+            if (verse.showTranslation) {
+                textViewTranslation.text = verse.translation ?: itemView.context.getString(R.string.no_translation_available)
+                textViewTranslation.visibility = View.VISIBLE
+            } else {
+                textViewTranslation.visibility = View.GONE
+            }
+
+            // Explanation
+            if (verse.showExplanation && !verse.explanation.isNullOrEmpty()) {
+                textViewExplanation.text = verse.explanation
+                textViewExplanation.visibility = View.VISIBLE
+            } else {
+                textViewExplanation.visibility = View.GONE
+            }
         }
     }
 }
