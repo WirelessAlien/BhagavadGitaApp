@@ -202,6 +202,7 @@ class VerseDetailActivity : AppCompatActivity() {
                     putExtra("name_meaning", nextChapterDetails?.name_meaning)
                     putExtra("chapter_summary", nextChapterDetails?.chapter_summary)
                     putExtra("chapter_summary_hindi", nextChapterDetails?.chapter_summary_hindi)
+                    putExtra("verses_count", nextChapterDetails?.verses_count ?: 0)
                 }
                 startActivity(intent)
                 finish()

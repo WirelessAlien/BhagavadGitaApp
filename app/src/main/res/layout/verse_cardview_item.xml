@@ -25,8 +25,9 @@
     android:layout_margin="5dp"
     android:clickable="true"
     android:focusable="true"
+    android:elevation="10dp"
     android:id="@+id/cardviewVerseItem"
-    style="@style/Widget.Material3.CardView.Outlined"
+    style="@style/Widget.Material3.CardView.Elevated"
     app:cardCornerRadius="10dp">
 
     <LinearLayout
@@ -51,5 +52,4 @@
             android:layout_marginTop="10dp"
             android:text="Verse 1"/>
     </LinearLayout>
-
 </com.google.android.material.card.MaterialCardView>

@@ -1,10 +1,11 @@
 package com.wirelessalien.android.bhagavadgita.fragment
 
-import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.ListPreference
+import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SeekBarPreference
 import com.wirelessalien.android.bhagavadgita.R
@@ -28,7 +29,6 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
                 val textSizePreference = findPreference<SeekBarPreference>(key)
                 val textSizeValue = textSizePreference?.value ?: 16
                 applyTextSize(textSizeValue)
-                activity?.recreate()
             }
         }
     }
@@ -51,6 +51,9 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
     private fun applyTextSize(textSize: Int) {
         val sharedPrefs = preferenceScreen.sharedPreferences
         sharedPrefs?.edit()?.putInt("text_size_preference", textSize)?.apply()
+
+        val sampleTextView = activity?.findViewById<TextView>(R.id.sample_text)
+        sampleTextView?.textSize = textSize.toFloat()
     }
 
     override fun onDestroy() {

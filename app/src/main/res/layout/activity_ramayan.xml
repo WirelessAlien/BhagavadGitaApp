@@ -28,15 +28,13 @@
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        android:layout_height="wrap_content">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:title="@string/ramcharitmanas" />
-
     </com.google.android.material.appbar.AppBarLayout>
 
     <FrameLayout
@@ -57,7 +55,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="No Ramayana data available."
+            android:text="@string/no_ramayana_data_available"
             android:textAppearance="?attr/textAppearanceSubtitle1"
             android:visibility="gone"
             tools:visibility="gone"/>
@@ -69,7 +67,6 @@
             android:layout_gravity="center"
             android:visibility="gone"
             tools:visibility="visible"/>
-
     </FrameLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -78,6 +75,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:contentDescription="Navigate to verse"
+        android:contentDescription="@string/navigate_to_verse"
         app:srcCompat="@drawable/ic_filter_list" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -143,9 +143,9 @@ class RamayanActivity : AppCompatActivity() {
                     it.kanda == selectedKanda && it.sarga == selectedSarga && it.shloka == selectedShloka
                 }
                 if (position != -1) {
-                    binding.ramcharitmanasRecyclerView.scrollToPosition(position)
+//                    binding.ramcharitmanasRecyclerView.scrollToPosition(position)
                     // Optionally, add a smooth scroll or highlight for better UX
-                    // (binding.ramcharitmanasRecyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, 0)
+                     (binding.ramcharitmanasRecyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(position, 0)
                     bottomSheetDialog.dismiss()
                 } else {
                     Toast.makeText(this, "Selected verse not found.", Toast.LENGTH_SHORT).show()
@@ -188,7 +188,7 @@ class RamayanActivity : AppCompatActivity() {
     private fun setupToolbar() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = getString(R.string.ramcharitmanas) // Ensure this string exists
+        supportActionBar?.title = getString(R.string.ramcharitmanas)
     }
 
     private fun setupRecyclerView() {
@@ -207,7 +207,6 @@ class RamayanActivity : AppCompatActivity() {
                     JsonParserHelper.parseRamcharitmanasJson(applicationContext, "Ramayan.json")
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    // Return empty list or handle error appropriately
                     emptyList()
                 }
             }
@@ -218,9 +217,8 @@ class RamayanActivity : AppCompatActivity() {
                 binding.textViewEmptyState.visibility = View.GONE
                 versesList.clear()
                 versesList.addAll(loadedVerses)
-                // ramayanAdapter.updateData(loadedVerses) // Will be handled by updateVerseVisibility
-                updateVerseVisibility() // Apply initial visibility preferences
-                checkAndRestoreScrollPosition() // Check for saved scroll position after data is loaded
+                updateVerseVisibility()
+                checkAndRestoreScrollPosition()
             } else {
                 binding.ramcharitmanasRecyclerView.visibility = View.GONE
                 binding.textViewEmptyState.visibility = View.VISIBLE
@@ -277,7 +275,6 @@ class RamayanActivity : AppCompatActivity() {
                     putBoolean(KEY_SHOW_EXPLANATION, checkedItems[3])
                     apply()
                 }
-                // Reload data or update adapter to reflect changes
                 updateVerseVisibility()
                 dialog.dismiss()
             }
@@ -304,8 +301,7 @@ class RamayanActivity : AppCompatActivity() {
         }
         versesList.clear()
         versesList.addAll(updatedVerses)
-        ramayanAdapter.updateData(updatedVerses) // Assuming this notifies the adapter
-        Log.d(TAG, "Verse visibility updated. Kanda: $showKanda, Text: $showShlokaText, Translation: $showTranslation, Explanation: $showExplanation")
+        ramayanAdapter.updateData(updatedVerses)
     }
 
 
@@ -314,12 +310,12 @@ class RamayanActivity : AppCompatActivity() {
         saveScrollPosition()
     }
 
-    override fun onStop() {
-        super.onStop()
-        // Consider if saving here is redundant if already saved in onPause,
-        // but can be a fallback.
-        // saveScrollPosition()
-    }
+//    override fun onStop() {
+//        super.onStop()
+//        // Consider if saving here is redundant if already saved in onPause,
+//        // but can be a fallback.
+//        // saveScrollPosition()
+//    }
 
     private fun saveScrollPosition() {
         val layoutManager = binding.ramcharitmanasRecyclerView.layoutManager as? LinearLayoutManager

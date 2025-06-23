@@ -16,8 +16,8 @@
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ListPreference
         android:key="theme_preference"
@@ -32,6 +32,14 @@
         android:title="Text Size"
         android:summary="Adjust the text size"
         android:defaultValue="16"
-        android:max="32"/>
+        app:min="16"
+        app:showSeekBarValue="true"
+        android:max="32" />
+
+    <Preference
+        android:key="sample_text_preference"
+        android:title="Sample Text"
+        android:layout="@layout/sample_text_preference"
+        android:enabled="false" />
 
 </PreferenceScreen>

@@ -20,7 +20,6 @@
 
 package com.wirelessalien.android.bhagavadgita
 
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -30,7 +29,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
-import android.widget.SeekBar
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.preference.PreferenceManager
@@ -46,7 +45,7 @@ import com.wirelessalien.android.bhagavadgita.activity.RamayanActivity
 import com.wirelessalien.android.bhagavadgita.activity.SettingsActivity
 import com.wirelessalien.android.bhagavadgita.activity.VerseDetailActivity
 import com.wirelessalien.android.bhagavadgita.adapter.ChapterAdapter
-import com.wirelessalien.android.bhagavadgita.adapter.SearchResultsAdapter // Added import
+import com.wirelessalien.android.bhagavadgita.adapter.SearchResultsAdapter
 import com.wirelessalien.android.bhagavadgita.adapter.SliderVerseAdapter
 import com.wirelessalien.android.bhagavadgita.data.Chapter
 import com.wirelessalien.android.bhagavadgita.data.Verse
@@ -111,13 +110,31 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
+        val callback = object : OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() {
+                binding.searchView.hide()
+            }
+        }
+
+        onBackPressedDispatcher.addCallback(this, callback)
+
+        binding.searchView.addTransitionListener { _, _, newState ->
+            if (newState === com.google.android.material.search.SearchView.TransitionState.SHOWING) {
+                callback.isEnabled = true
+            } else if (newState === com.google.android.material.search.SearchView.TransitionState.HIDING) {
+                callback.isEnabled = false
+                binding.searchView.editText.text?.clear()
+            }
+        }
+
+
         binding.searchView.editText.setOnEditorActionListener { v, actionId, event ->
             binding.searchBar.setText(binding.searchView.text)
 
             true
         }
 
-        binding.searchBar.inflateMenu(R.menu.main);
+        binding.searchBar.inflateMenu(R.menu.main)
         binding.searchBar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.nav_about_gita -> {
@@ -164,37 +181,37 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-        val progressValue = when (currentTextSize) {
-            16 -> 0
-            20 -> 1
-            24 -> 2
-            28 -> 3
-            32 -> 4
-            else -> 1 // Default text size
-        }
+//        val progressValue = when (currentTextSize) {
+//            16 -> 0
+//            20 -> 1
+//            24 -> 2
+//            28 -> 3
+//            32 -> 4
+//            else -> 1 // Default text size
+//        }
 
-        binding.textSizeSeekBar.progress = progressValue
-
-        val textSizeSeekBar = binding.textSizeSeekBar
-        textSizeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                // Update the text size when the SeekBar progress changes
-                val newSize = when (progress) {
-                    0 -> 16
-                    1 -> 20
-                    2 -> 24
-                    3 -> 28
-                    4 -> 32
-                    else -> 16 // Default text size
-                }
-
-                updateAdapterTextSize(newSize)
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-        })
+//        binding.textSizeSeekBar.progress = progressValue
+//
+//        val textSizeSeekBar = binding.textSizeSeekBar
+//        textSizeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+//            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+//                // Update the text size when the SeekBar progress changes
+//                val newSize = when (progress) {
+//                    0 -> 16
+//                    1 -> 20
+//                    2 -> 24
+//                    3 -> 28
+//                    4 -> 32
+//                    else -> 16 // Default text size
+//                }
+//
+//                updateAdapterTextSize(newSize)
+//            }
+//
+//            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+//
+//            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+//        })
 
 
         // Add new CardView listeners

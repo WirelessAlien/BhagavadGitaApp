@@ -63,6 +63,7 @@ class ChapterDetailsActivity : AppCompatActivity() {
     private lateinit var audioTypes: List<AudioUrlHelper.AudioType>
     private lateinit var selectedAudioType: AudioUrlHelper.AudioType
     private var chapterNumber: Int = 0
+    private var versesCount: Int = 0
 
 
     @DelicateCoroutinesApi
@@ -87,7 +88,7 @@ class ChapterDetailsActivity : AppCompatActivity() {
         val chapterNameMeaning = intent.getStringExtra("name_meaning")
         val chapterSummary = intent.getStringExtra("chapter_summary")
         val chapterSummaryHindi = intent.getStringExtra("chapter_summary_hindi")
-        val versesCount = intent.getIntExtra("verses_count", 0)
+        versesCount = intent.getIntExtra("verses_count", 0)
 
         binding.progressBar.visibility = View.VISIBLE
 
@@ -144,16 +145,6 @@ class ChapterDetailsActivity : AppCompatActivity() {
         binding.verseRecyclerView.layoutManager = LinearLayoutManager(this)
         binding.verseRecyclerView.adapter = VerseAdapter(verseList, 16)
 
-        // Calculate the number of read verses
-        val sharedPreferences = binding.root.context.getSharedPreferences("read_verses", Context.MODE_PRIVATE)
-        val readVerses = sharedPreferences.all.keys.count {
-            it.endsWith("-chapter") && sharedPreferences.getInt(it, 0) == chapterNumber && sharedPreferences.getBoolean(it.removeSuffix("-chapter"), false)            }
-
-        val progress = (readVerses.toDouble() / versesCount.toDouble()) * 100
-
-        binding.progressBarReadCount.progress = progress.toInt()
-        binding.progressTextView.text = String.format(Locale.getDefault(),"%.2f%%", progress)
-
         mediaPlayer = MediaPlayer()
         audioTypes = AudioUrlHelper.audioOptions
 
@@ -188,6 +179,8 @@ class ChapterDetailsActivity : AppCompatActivity() {
                 playChapterAudio()
             }
         }
+
+        countReadVerses(chapterNumber)
     }
 
     override fun onResume() {
@@ -195,6 +188,7 @@ class ChapterDetailsActivity : AppCompatActivity() {
         val adapter = binding.verseRecyclerView.adapter as? VerseAdapter
         adapter?.updateProgressData()
         adapter?.notifyDataSetChanged()
+        countReadVerses(chapterNumber)
     }
 
     private fun getEllipsizedText(text: String, maxLines: Int, maxCharactersPerLine: Int): String {
@@ -204,6 +198,17 @@ class ChapterDetailsActivity : AppCompatActivity() {
         } else {
             text
         }
+    }
+
+    private fun countReadVerses(chapterNumber: Int) {
+        val sharedPreferences = binding.root.context.getSharedPreferences("read_verses", Context.MODE_PRIVATE)
+        val readVerses = sharedPreferences.all.keys.count {
+            it.endsWith("-chapter") && sharedPreferences.getInt(it, 0) == chapterNumber && sharedPreferences.getBoolean(it.removeSuffix("-chapter"), false)            }
+
+        val progress = (readVerses.toDouble() / versesCount.toDouble()) * 100
+
+        binding.progressBarReadCount.progress = progress.toInt()
+        binding.progressTextView.text = String.format(Locale.getDefault(),"%.2f%%", progress)
     }
 
     private fun loadJsonFromAsset(fileName: String): String? {

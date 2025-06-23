@@ -48,7 +48,9 @@ class VerseAdapter(private val verses: List<Verse>, private var textSize: Int) :
             val isVerseRead = sharedPreferences.getBoolean("$verseId", false)
 
            if (isVerseRead) {
-               binding.cardviewVerseItem.strokeColor = ContextCompat.getColor(binding.root.context, R.color.md_theme_primary)
+               binding.cardviewVerseItem.setCardBackgroundColor(
+                   ContextCompat.getColor(binding.root.context, R.color.md_theme_primaryContainer)
+               )
            } else {
                //do nothing
            }
