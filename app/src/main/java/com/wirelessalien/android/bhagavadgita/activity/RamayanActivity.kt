@@ -151,7 +151,7 @@ class RamayanActivity : AppCompatActivity() {
                     Toast.makeText(this, "Selected verse not found.", Toast.LENGTH_SHORT).show()
                 }
             } else {
-                Toast.makeText(this, "Please select Kanda, Sarga, and Shloka.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.please_select_kanda_sarga_and_shloka), Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -344,7 +344,7 @@ class RamayanActivity : AppCompatActivity() {
         if (savedPosition != -1 && savedPosition < versesList.size) {
             Snackbar.make(binding.root, R.string.continue_where_you_left_off, Snackbar.LENGTH_LONG)
                 .setAction(R.string.scroll) {
-                    binding.ramcharitmanasRecyclerView.smoothScrollToPosition(savedPosition)
+                    (binding.ramcharitmanasRecyclerView.layoutManager as LinearLayoutManager).scrollToPositionWithOffset(savedPosition, 0)
                     clearSavedScrollPosition(prefs)
                 }
                 .addCallback(object : Snackbar.Callback() {

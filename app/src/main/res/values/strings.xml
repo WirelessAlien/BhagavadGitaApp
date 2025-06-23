@@ -82,6 +82,11 @@
     <string name="settings">Settings</string>
     <string name="no_ramayana_data_available">No Ramayana data available.</string>
     <string name="navigate_to_verse">Navigate to verse</string>
+    <string name="continue_from_verse">Continue from Verse %1$d?</string>
+    <string name="continue_">CONTINUE</string>
+    <string name="please_select_kanda_sarga_and_shloka">Please select Kanda, Sarga, and Shloka.</string>
+    <string name="navigate_to">Navigate To</string>
+    <string name="go">Go</string>
     <string-array name="theme_entries">
         <item>System Default</item>
         <item>Light</item>

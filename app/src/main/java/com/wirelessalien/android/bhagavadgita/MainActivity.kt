@@ -285,7 +285,7 @@ class MainActivity : AppCompatActivity() {
                     putExtra("verse_title", item.title)
                     putExtra("verse_text", item.text)
                     putExtra("text", item.text)
-                    putExtra("transliteration", item.transliteration)
+                    putExtra("verse_transliteration", item.transliteration)
                     putExtra("meaning_en", item.meaning?.en ?: "")
                     putExtra("meaning_hi", item.meaning?.hi ?: "")
 

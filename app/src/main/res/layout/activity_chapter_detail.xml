@@ -145,13 +145,20 @@
                             android:layout_marginStart="5dp"/>
                     </RelativeLayout>
 
-                    <com.google.android.material.progressindicator.LinearProgressIndicator
+                    <com.google.android.material.progressindicator.CircularProgressIndicator
                         android:id="@+id/progressBar"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="16dp"
+                        android:layout_gravity="center"
                         android:visibility="gone"/>
+
+
+                    <androidx.appcompat.widget.AppCompatSeekBar
+                        android:id="@+id/verseSeekBar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"/>
 
                     <RelativeLayout
                         android:layout_width="match_parent"
@@ -159,11 +166,11 @@
                         android:orientation="horizontal"
                         android:paddingStart="16dp"
                         android:paddingEnd="16dp"
-                        android:paddingTop="8dp"
-                        android:paddingBottom="8dp"
+                        android:layout_marginTop="8dp"
                         android:gravity="center_vertical">
 
                         <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/audioSourceLayout"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             app:boxCornerRadiusTopStart="10dp"
@@ -196,15 +203,14 @@
                             android:layout_alignParentEnd="true"
                             style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
                             android:contentDescription="@string/play_chapter_audio"
-                            app:icon="@drawable/ic_play"
-                            app:fabSize="mini" />
+                            app:icon="@drawable/ic_play"/>
 
-                        <ProgressBar
+                        <com.google.android.material.progressindicator.LinearProgressIndicator
                             android:id="@+id/audioLoadingProgressBarChapter"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_marginStart="8dp"
-                            android:visibility="gone" />
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentBottom="true"
+                            android:visibility="gone"/>
                     </RelativeLayout>
                 </LinearLayout>
             </com.google.android.material.appbar.CollapsingToolbarLayout>

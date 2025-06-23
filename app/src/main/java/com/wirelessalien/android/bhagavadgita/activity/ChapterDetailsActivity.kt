@@ -25,10 +25,12 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.View
 import android.widget.ArrayAdapter
+import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.wirelessalien.android.bhagavadgita.R
@@ -65,6 +67,10 @@ class ChapterDetailsActivity : AppCompatActivity() {
     private var chapterNumber: Int = 0
     private var versesCount: Int = 0
 
+    companion object {
+        private const val PREF_LAST_PLAYED_CHAPTER = "last_played_chapter"
+        private const val PREF_LAST_PLAYED_VERSE_INDEX = "last_played_verse_index"
+    }
 
     @DelicateCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -110,8 +116,7 @@ class ChapterDetailsActivity : AppCompatActivity() {
                 binding.verseRecyclerView.adapter = VerseAdapter(verseList, currentTextSize)
 
                 supportActionBar?.title = "Chapter $chapterNumber"
-
-                // Hide the ProgressBar once the verses are loaded
+                setupVerseSeekBar()
                 binding.progressBar.visibility = View.GONE
             }
         }
@@ -176,11 +181,99 @@ class ChapterDetailsActivity : AppCompatActivity() {
             if (isChapterPlaying) {
                 pauseChapterAudio()
             } else {
-                playChapterAudio()
+                // Check for resume only if not already playing and currentTrackIndex is at the beginning
+                if (currentTrackIndex == 0) {
+                    checkAndOfferResume { shouldPlay, fromVerse ->
+                        if (shouldPlay) {
+                            if (fromVerse != null) {
+                                currentTrackIndex = fromVerse
+                            }
+                            playChapterAudio()
+                        }
+                    }
+                } else {
+                    playChapterAudio()
+                }
             }
         }
 
         countReadVerses(chapterNumber)
+    }
+
+    private fun setupVerseSeekBar() {
+        if (verseList.isEmpty()) {
+            binding.verseSeekBar.visibility = View.GONE
+            return
+        }
+        binding.verseSeekBar.visibility = View.VISIBLE
+        binding.verseSeekBar.max = verseList.size - 1
+        binding.verseSeekBar.progress = currentTrackIndex
+
+        binding.verseSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) {
+                   // If the user is changing the SeekBar, we stop the current playback
+                    if (isChapterPlaying) {
+                        mediaPlayer.stop()
+                        mediaPlayer.reset()
+                    }
+                    currentTrackIndex = progress
+                    binding.fabPlayPauseChapter.setIconResource(R.drawable.ic_play) // Reset to play icon
+                    isChapterPlaying = false // Reset playing state
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                // No action needed here
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                seekBar?.let {
+                    if (isChapterPlaying) {
+                        mediaPlayer.stop()
+                        mediaPlayer.reset()
+                    }
+                    currentTrackIndex = it.progress
+                    playTrack(currentTrackIndex)
+                }
+            }
+        })
+    }
+
+    private fun checkAndOfferResume(playAction: (shouldPlay: Boolean, fromVerse: Int?) -> Unit) {
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
+        val savedChapter = sharedPref.getInt(PREF_LAST_PLAYED_CHAPTER, -1)
+        val savedVerseIndex = sharedPref.getInt(PREF_LAST_PLAYED_VERSE_INDEX, -1)
+
+        if (savedChapter == this.chapterNumber && savedVerseIndex > 0 && savedVerseIndex < verseList.size) {
+            // Verse number is index + 1 for display
+            Snackbar.make(binding.root,
+                getString(R.string.continue_from_verse, savedVerseIndex + 1), Snackbar.LENGTH_LONG)
+                .setAction(getString(R.string.continue_)) {
+                    // Clear the saved progress once user decides to resume or not
+                    sharedPref.edit()
+                        .remove(PREF_LAST_PLAYED_CHAPTER)
+                        .remove(PREF_LAST_PLAYED_VERSE_INDEX)
+                        .apply()
+                    playAction(true, savedVerseIndex)
+                }
+                .addCallback(object : Snackbar.Callback() {
+                    override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                        if (event == DISMISS_EVENT_TIMEOUT || event == DISMISS_EVENT_SWIPE || event == DISMISS_EVENT_MANUAL) {
+                            // Clear the saved progress if user dismisses
+                            sharedPref.edit()
+                                .remove(PREF_LAST_PLAYED_CHAPTER)
+                                .remove(PREF_LAST_PLAYED_VERSE_INDEX)
+                                .apply()
+                            currentTrackIndex = 0 // Start from beginning
+                            playAction(true, null) // Proceed to play from beginning
+                        }
+                    }
+                })
+                .show()
+        } else {
+            playAction(true, null) // No saved progress or invalid, play from beginning
+        }
     }
 
     override fun onResume() {
@@ -305,7 +398,6 @@ class ChapterDetailsActivity : AppCompatActivity() {
                 if (!file.exists()) {
                     withContext(Dispatchers.IO) {
                         val urlConnection = URL(audioUrl).openConnection()
-                        val contentLength = urlConnection.contentLength
                         val inputStream = urlConnection.getInputStream()
                         val outputStream = FileOutputStream(file)
                         val buffer = ByteArray(1024)
@@ -331,15 +423,17 @@ class ChapterDetailsActivity : AppCompatActivity() {
                         binding.fabPlayPauseChapter.isEnabled = true
                         mp.start()
                         isChapterPlaying = true
+                        binding.verseSeekBar.progress = currentTrackIndex // Update SeekBar
                         updatePlayPauseChapterButton()
                     }
 
                     mediaPlayer.setOnCompletionListener {
                         currentTrackIndex++
                         if (currentTrackIndex < verseList.size) {
+                            binding.verseSeekBar.progress = currentTrackIndex // Update SeekBar before playing next
                             playTrack(currentTrackIndex)
                         } else {
-                            stopChapterAudio()
+                            stopChapterAudio() // This will reset currentTrackIndex and update SeekBar
                             Toast.makeText(this@ChapterDetailsActivity, "Finished playing chapter.", Toast.LENGTH_SHORT).show()
                         }
                     }
@@ -370,6 +464,8 @@ class ChapterDetailsActivity : AppCompatActivity() {
             mediaPlayer.pause()
         }
         isChapterPlaying = false
+        savePlaybackProgress() // Saves currentTrackIndex
+        binding.verseSeekBar.progress = currentTrackIndex // Reflect paused state
         updatePlayPauseChapterButton()
     }
 
@@ -379,12 +475,27 @@ class ChapterDetailsActivity : AppCompatActivity() {
         }
         mediaPlayer.reset()
         isChapterPlaying = false
+        // Don't save progress here if we are stopping due to completion or error,
+        // as currentTrackIndex might be reset or at the end.
+        // Progress should be saved when user explicitly pauses or navigates away.
+        if (currentTrackIndex < verseList.size && currentTrackIndex > 0) { // Save only if stopped mid-way
+            // currentTrackIndex here is the one that just finished or where it was stopped.
+            savePlaybackProgress()
+        }
         currentTrackIndex = 0
+        binding.verseSeekBar.progress = currentTrackIndex // Reset SeekBar to beginning
         updatePlayPauseChapterButton()
         binding.audioLoadingProgressBarChapter.visibility = View.GONE
         binding.fabPlayPauseChapter.isEnabled = true
     }
 
+    private fun savePlaybackProgress() {
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
+        sharedPref.edit()
+            .putInt(PREF_LAST_PLAYED_CHAPTER, chapterNumber)
+            .putInt(PREF_LAST_PLAYED_VERSE_INDEX, currentTrackIndex)
+            .apply()
+    }
 
     private fun updatePlayPauseChapterButton() {
         if (isChapterPlaying) {
@@ -397,11 +508,7 @@ class ChapterDetailsActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         if (::mediaPlayer.isInitialized && isChapterPlaying) {
-            // Keep playing if activity is just stopped but not destroyed,
-            // or pause if that's the desired behavior.
-            // For continuous chapter play, typically you might want it to continue if background play is intended.
-            // However, for simplicity and standard behavior, we'll pause it.
-            pauseChapterAudio()
+            savePlaybackProgress()
         }
     }
 
