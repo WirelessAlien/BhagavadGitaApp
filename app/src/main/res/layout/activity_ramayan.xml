@@ -23,7 +23,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".activity.RamcharitmanasActivity">
+    tools:context=".activity.RamayanActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_layout"
@@ -50,14 +50,14 @@
             android:layout_height="match_parent"
             android:padding="8dp"
             android:clipToPadding="false"
-            tools:listitem="@layout/item_ramcharitmanas_verse" />
+            tools:listitem="@layout/item_ramayan_verse" />
 
         <TextView
             android:id="@+id/textViewEmptyState"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="No Ramcharitmanas data available."
+            android:text="No Ramayana data available."
             android:textAppearance="?attr/textAppearanceSubtitle1"
             android:visibility="gone"
             tools:visibility="gone"/>
@@ -79,5 +79,5 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:contentDescription="Navigate to verse"
-        app:srcCompat="@drawable/read_more" />
+        app:srcCompat="@drawable/ic_filter_list" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

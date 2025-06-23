@@ -22,6 +22,7 @@ package com.wirelessalien.android.bhagavadgita
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -38,11 +39,10 @@ import com.google.android.material.color.DynamicColors
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.wirelessalien.android.bhagavadgita.activity.AboutGitaActivity
-import com.wirelessalien.android.bhagavadgita.activity.AllVerseActivity
 import com.wirelessalien.android.bhagavadgita.activity.ChapterDetailsActivity
 import com.wirelessalien.android.bhagavadgita.activity.FavouriteActivity
 import com.wirelessalien.android.bhagavadgita.activity.HanumanChalisaActivity
-import com.wirelessalien.android.bhagavadgita.activity.RamcharitmanasActivity
+import com.wirelessalien.android.bhagavadgita.activity.RamayanActivity
 import com.wirelessalien.android.bhagavadgita.activity.SettingsActivity
 import com.wirelessalien.android.bhagavadgita.activity.VerseDetailActivity
 import com.wirelessalien.android.bhagavadgita.adapter.ChapterAdapter
@@ -68,6 +68,7 @@ class MainActivity : AppCompatActivity() {
     private var currentTextSize: Int = 16 // Default text size
     private lateinit var searchResultsAdapter: SearchResultsAdapter
     private val searchResults = mutableListOf<Any>()
+    private lateinit var preference: SharedPreferences
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,8 +80,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        val sharedPrefTextSize = PreferenceManager.getDefaultSharedPreferences(this)
-        currentTextSize = sharedPrefTextSize.getInt("text_size_preference", 16)
+        preference = PreferenceManager.getDefaultSharedPreferences(this)
+        currentTextSize = preference.getInt("text_size_preference", 16)
         allVersesForSearch = loadVersesFromJson()
         initialVerseList = allVersesForSearch.shuffled(Random(System.currentTimeMillis()))
 
@@ -90,7 +91,6 @@ class MainActivity : AppCompatActivity() {
         }
         chapterList = parseJson(jsonString)
 
-        // Setup main RecyclerView for chapters
         val chapterAdapter = ChapterAdapter(chapterList, currentTextSize)
         binding.recyclerView.adapter = chapterAdapter
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
@@ -146,7 +146,6 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-        // Setup ViewPager for initial verses
         val sliderAdapter = SliderVerseAdapter(initialVerseList)
         binding.viewPager.adapter = sliderAdapter
 
@@ -197,16 +196,14 @@ class MainActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
 
-        // Removed old button listeners for hanumanChalisaText and btnAllVerse
 
         // Add new CardView listeners
         binding.cardHanumanChalisa.setOnClickListener {
             startActivity(Intent(this, HanumanChalisaActivity::class.java))
         }
 
-        binding.cardRamcharitmanas.setOnClickListener {
-            // Placeholder for RamcharitmanasActivity - will be created in next step
-            startActivity(Intent(this, RamcharitmanasActivity::class.java))
+        binding.cardRamayan.setOnClickListener {
+            startActivity(Intent(this, RamayanActivity::class.java))
         }
 
         binding.cardFavoriteVerse.setOnClickListener {
@@ -267,6 +264,9 @@ class MainActivity : AppCompatActivity() {
                     putExtra("verse_id", item.id)
                     putExtra("chapter_number", item.chapter_number)
                     putExtra("verse_number", item.verse_number)
+                    putExtra("verse_id", item.id)
+                    putExtra("verse_title", item.title)
+                    putExtra("verse_text", item.text)
                     putExtra("text", item.text)
                     putExtra("transliteration", item.transliteration)
                     putExtra("meaning_en", item.meaning?.en ?: "")
@@ -287,8 +287,10 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         val adapterC = binding.recyclerView.adapter as? ChapterAdapter
         adapterC?.updateProgressData()
-    }
+        val textSize = preference.getInt("text_size_preference", 16)
+        updateAdapterTextSize(textSize)
 
+    }
     private fun updateAdapterTextSize(newSize: Int) {
 
         val recyclerViewC = binding.recyclerView
@@ -296,8 +298,7 @@ class MainActivity : AppCompatActivity() {
         adapterC?.updateTextSize(newSize)
         // TODO: Update text size for search results adapter if needed
 
-        val sharedPrefTextSize= getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
-        sharedPrefTextSize.edit().putInt("text_size", newSize).apply()
+        preference.edit().putInt("text_size_preference", newSize).apply()
     }
     private fun loadVersesFromJson(): List<Verse> {
         val json: String?

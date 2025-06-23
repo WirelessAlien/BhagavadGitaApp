@@ -48,7 +48,7 @@ class SearchResultsAdapter(
 
     fun updateData(newResults: List<Any>) {
         results = newResults
-        notifyDataSetChanged() // Consider using DiffUtil for better performance
+        notifyDataSetChanged()
     }
 
     class SearchResultViewHolder(

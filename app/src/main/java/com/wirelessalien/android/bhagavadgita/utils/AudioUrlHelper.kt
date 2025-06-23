@@ -32,20 +32,14 @@ object AudioUrlHelper {
         return when (audioType.typeCode) {
             "verse" -> {
                 // Format: https://www.gitasupersite.iitk.ac.in/sites/default/files/audio/CHAP1/1-1.MP3
-                // Chapter number might need padding if it's single digit, but the example shows CHAP1 for chapter 1.
-                // Verse number also seems to be part of a combined string like "1-1".
-                // The existing code uses: "https://github.com/WirelessAlien/gita/raw/main/data/verse_recitation/${verses[currentVerseIndex].chapter_number}/${verses[currentVerseIndex].verse_number}.mp3"
-                // For now, I'll stick to the new requirement's URL structure.
                 "https://www.gitasupersite.iitk.ac.in/sites/default/files/audio/CHAP$chapterNumber/$chapterNumber-$verseNumber.MP3"
             }
             "translation_en" -> {
                 // Format: https://www.gitasupersite.iitk.ac.in/sites/default/files/audio/Purohit/1.1.mp3
-                // This seems to be chapter.verse
                 "https://www.gitasupersite.iitk.ac.in/sites/default/files/audio/Purohit/$chapterNumber.$verseNumber.mp3"
             }
             "translation_hi" -> {
                 // Format: https://www.gitasupersite.iitk.ac.in/sites/default/files/audio/Tejomayananda/chapter/C1-H-01.mp3
-                // Verse number needs padding (e.g., 01)
                 val paddedVerseNumber = String.format("%02d", verseNumber)
                 "https://www.gitasupersite.iitk.ac.in/sites/default/files/audio/Tejomayananda/chapter/C$chapterNumber-H-$paddedVerseNumber.mp3"
             }
@@ -54,8 +48,7 @@ object AudioUrlHelper {
     }
 
     fun getFileNameFromUrl(audioUrl: String, audioType: AudioType, chapterNumber: Int, verseNumber: Int): String {
-        // Generate a more structured filename for caching to avoid conflicts if URLs are too similar
-        // e.g., type_chap_verse.mp3
+
         return "${audioType.typeCode}_${chapterNumber}_${verseNumber}.mp3"
     }
 }

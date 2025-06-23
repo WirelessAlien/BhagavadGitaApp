@@ -99,7 +99,7 @@
         </activity>
 
         <activity
-            android:name=".activity.RamcharitmanasActivity"
+            android:name=".activity.RamayanActivity"
             android:launchMode="singleTop"
             android:exported="false">
             <meta-data

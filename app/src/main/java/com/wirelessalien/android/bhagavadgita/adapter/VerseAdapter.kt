@@ -60,7 +60,6 @@ class VerseAdapter(private val verses: List<Verse>, private var textSize: Int) :
                 intent.putExtra("verse_text", verse.text)
                 intent.putExtra("verse_transliteration", verse.transliteration)
                 intent.putExtra("verse_word_meanings", verse.word_meanings)
-                // Add other verse details here if needed
                 binding.root.context.startActivity(intent)
             }
         }

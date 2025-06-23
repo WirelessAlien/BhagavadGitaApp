@@ -24,14 +24,14 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.wirelessalien.android.bhagavadgita.R
-import com.wirelessalien.android.bhagavadgita.data.RamcharitmanasVerse
+import com.wirelessalien.android.bhagavadgita.data.RamayanVerse
 
-class RamcharitmanasAdapter(private var verses: List<RamcharitmanasVerse>) :
-    RecyclerView.Adapter<RamcharitmanasAdapter.VerseViewHolder>() {
+class RamayanAdapter(private var verses: List<RamayanVerse>) :
+    RecyclerView.Adapter<RamayanAdapter.VerseViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VerseViewHolder {
         val itemView = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_ramcharitmanas_verse, parent, false)
+            .inflate(R.layout.item_ramayan_verse, parent, false)
         return VerseViewHolder(itemView)
     }
 
@@ -42,7 +42,7 @@ class RamcharitmanasAdapter(private var verses: List<RamcharitmanasVerse>) :
 
     override fun getItemCount() = verses.size
 
-    fun updateData(newVerses: List<RamcharitmanasVerse>) {
+    fun updateData(newVerses: List<RamayanVerse>) {
         verses = newVerses
         notifyDataSetChanged()
     }
@@ -53,7 +53,7 @@ class RamcharitmanasAdapter(private var verses: List<RamcharitmanasVerse>) :
         private val textViewTranslation: TextView = itemView.findViewById(R.id.textViewTranslation)
         private val textViewExplanation: TextView = itemView.findViewById(R.id.textViewExplanation)
 
-        fun bind(verse: RamcharitmanasVerse) {
+        fun bind(verse: RamayanVerse) {
             // Kanda Title (Kanda, Sarga, Shloka number)
             if (verse.showKanda) {
                 val kandaTitle = "${verse.kanda} - Sarga ${verse.sarga}, Shloka ${verse.shloka}"

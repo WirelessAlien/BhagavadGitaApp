@@ -41,7 +41,10 @@
                 android:id="@+id/viewPager"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="6dp"/>
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginEnd="6dp"
+                android:layout_marginBottom="6dp"/>
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/textSizeCard"
@@ -124,7 +127,7 @@
 
                     <!-- Ramcharitmanas Card -->
                     <androidx.cardview.widget.CardView
-                        android:id="@+id/cardRamcharitmanas"
+                        android:id="@+id/cardRamayan"
                         android:layout_width="120dp"
                         android:layout_height="120dp"
                         android:layout_margin="8dp"

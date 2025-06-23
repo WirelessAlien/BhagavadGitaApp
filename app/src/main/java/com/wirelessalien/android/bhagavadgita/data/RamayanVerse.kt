@@ -20,7 +20,7 @@ package com.wirelessalien.android.bhagavadgita.data
 
 import com.google.gson.annotations.SerializedName
 
-data class RamcharitmanasVerse(
+data class RamayanVerse(
     @SerializedName("kanda")
     val kanda: String,
 

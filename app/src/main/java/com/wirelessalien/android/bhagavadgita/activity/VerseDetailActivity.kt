@@ -23,36 +23,29 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.GestureDetector
 import android.view.HapticFeedbackConstants
-// import android.view.Menu // No longer needed
-// import android.view.MenuItem // No longer needed
 import android.view.MotionEvent
 import android.view.View
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ProgressBar
-// import android.widget.SeekBar // No longer used
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.adapter.CommentaryAdapter
-import com.wirelessalien.android.bhagavadgita.adapter.CustomSpinnerAdapter
 import com.wirelessalien.android.bhagavadgita.adapter.TranslationAdapter
 import com.wirelessalien.android.bhagavadgita.data.Chapter
 import com.wirelessalien.android.bhagavadgita.data.Commentary
-// FavouriteVerse is not directly used here for saving anymore, but might be used by other parts if not fully refactored.
-// For now, we are creating FavoriteDbHelper and using it.
 import com.wirelessalien.android.bhagavadgita.data.FavoriteDbHelper
 import com.wirelessalien.android.bhagavadgita.data.Translation
 import com.wirelessalien.android.bhagavadgita.data.Verse
@@ -62,7 +55,6 @@ import com.wirelessalien.android.bhagavadgita.utils.Frequency
 import com.wirelessalien.android.bhagavadgita.utils.Themes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -84,6 +76,7 @@ class VerseDetailActivity : AppCompatActivity() {
     private lateinit var selectedLanguageC: String
     private var currentTextSize: Int = 16
     private val frequency = Frequency()
+    private lateinit var preference: SharedPreferences
     private lateinit var audioTypes: List<AudioUrlHelper.AudioType>
     private lateinit var selectedAudioType: AudioUrlHelper.AudioType
 
@@ -96,10 +89,9 @@ class VerseDetailActivity : AppCompatActivity() {
         binding = ActivityVerseDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val sharedPref = getSharedPreferences("author_prefs", Context.MODE_PRIVATE)
+        preference = PreferenceManager.getDefaultSharedPreferences(this)
 
-        val sharedPrefTextSize = getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
-        currentTextSize = sharedPrefTextSize.getInt("text_size", 16) // Get the saved text size
+        currentTextSize = preference.getInt("text_size_preference", 16) // Get the saved text size
 
         gestureDetector = GestureDetector(this, MyGestureListener())
 
@@ -127,7 +119,6 @@ class VerseDetailActivity : AppCompatActivity() {
                     getTranslationsFromJson("translation.json")
                 }
 
-                // Find all available authors from the translations
                 val allAuthors = translations.map { it.authorName }.distinct()
                 val authorAutoComplete = binding.authorAutoCompleteTextView
 
@@ -138,16 +129,16 @@ class VerseDetailActivity : AppCompatActivity() {
                 )
                 authorAutoComplete.setAdapter(adapterA)
 
-                val savedAuthor = sharedPref.getString("selectedAuthor", "")
+                val savedAuthor = preference.getString("selectedAuthor", "")
                 if (allAuthors.contains(savedAuthor)) {
                     authorAutoComplete.setText(savedAuthor, false)
                     selectedAuthor = savedAuthor ?: ""
-                    updateTranslationList() // Load initial translation
+                    updateTranslationList()
                 }
 
                 authorAutoComplete.setOnItemClickListener { parent, _, position, _ ->
                     selectedAuthor = parent.adapter.getItem(position) as String
-                    sharedPref.edit().putString("selectedAuthor", selectedAuthor).apply()
+                    preference.edit().putString("selectedAuthor", selectedAuthor).apply()
                     updateTranslationList()
                 }
 
@@ -172,16 +163,16 @@ class VerseDetailActivity : AppCompatActivity() {
                 )
                 cAuthorAutoComplete.setAdapter(adapterL)
 
-                val savedLang = sharedPref.getString("selectedLang", "")
+                val savedLang = preference.getString("selectedLang", "")
                 if (allLanguage.contains(savedLang)) {
                     cAuthorAutoComplete.setText(savedLang, false)
-                    selectedLanguageC = savedLang ?: "" // Initialize selectedLanguageC
-                    updateCommentaryList() // Load initial commentary
+                    selectedLanguageC = savedLang ?: ""
+                    updateCommentaryList()
                 }
 
                 cAuthorAutoComplete.setOnItemClickListener { parent, _, position, _ ->
                     selectedLanguageC = parent.adapter.getItem(position) as String
-                    sharedPref.edit().putString("selectedLang", selectedLanguageC).apply()
+                    preference.edit().putString("selectedLang", selectedLanguageC).apply()
                     updateCommentaryList()
                 }
             } catch (e: Exception) {
@@ -189,20 +180,17 @@ class VerseDetailActivity : AppCompatActivity() {
             }
         }
 
-        // Update the layout with the verse details
         binding.verseTitleTextView.text = verseTitle
         binding.verseContentTextView.text = verseText
         binding.verseTransliterationTextView.text = verseTransliteration
 
         verses = getVerses(chapterNumber)
 
-        // Find the index of the selected verse in the list of verses
         val selectedVerseIndex = verses.indexOfFirst { it.title == verseTitle }
         if (selectedVerseIndex != -1) {
             currentVerseIndex = selectedVerseIndex
         }
-        // Update favorite button status after verses are loaded and currentVerseIndex is set
-         updateFavoriteButtonStatus() // Removed this call
+         updateFavoriteButtonStatus()
 
         binding.nextChapterButton.setOnClickListener {
             val nextChapterNumber = chapterNumber + 1
@@ -218,31 +206,30 @@ class VerseDetailActivity : AppCompatActivity() {
                 startActivity(intent)
                 finish()
             } else {
-                Toast.makeText(this, "No more chapters available.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.no_more_chapters_available), Toast.LENGTH_SHORT).show()
                 binding.nextChapterButton.isEnabled = false
             }
         }
 
-
-        // Initialize audio types
         audioTypes = AudioUrlHelper.audioOptions
-        selectedAudioType = audioTypes.first() // Default to first audio type
 
-        // Populate audio spinner
+        val savedAudioType = preference.getString("selectedAudioType", audioTypes.first().displayName)
+        selectedAudioType = audioTypes.find { it.displayName == savedAudioType } ?: audioTypes.first()
+
         val audioSourceAdapter = ArrayAdapter(
             this,
             android.R.layout.simple_dropdown_item_1line,
-            audioTypes.map { it.displayName } // Populate with display names
+            audioTypes.map { it.displayName }
         )
         binding.audioSourceDropdown.setAdapter(audioSourceAdapter)
+        binding.audioSourceDropdown.setText(selectedAudioType.displayName, false)
+
         binding.audioSourceDropdown.setOnItemClickListener { _, _, position, _ ->
             selectedAudioType = audioTypes[position]
-            // If audio is playing, stop it as the source has changed
+            preference.edit().putString("selectedAudioType", selectedAudioType.displayName).apply()
             if (isPlaying) {
                 pauseAudio()
             }
-            // Optionally, you could start playing the new source immediately,
-            // but for now, we'll just set it and let the user press play.
         }
 
         binding.fabPlay.setOnClickListener {
@@ -268,12 +255,10 @@ class VerseDetailActivity : AppCompatActivity() {
             }
         }
 
-        setupDockedToolbarActions() // New setup function name
+        setupDockedToolbarActions()
 
         updateFavoriteButtonStatus()
     }
-
-    // Toolbar-specific methods (setupToolbarAndFab, onCreateOptionsMenu, onOptionsItemSelected) will be removed.
 
     private fun setupDockedToolbarActions() {
         binding.actionButtonPrevious.setOnClickListener {
@@ -290,11 +275,9 @@ class VerseDetailActivity : AppCompatActivity() {
             shareText()
         }
 
-        // FAB setup remains the same as it's a separate component
         binding.actionMarkAsRead.setOnClickListener {
             toggleReadStatus()
         }
-        // Set initial FAB state based on read status
         updateFabReadStatus()
     }
 
@@ -304,7 +287,7 @@ class VerseDetailActivity : AppCompatActivity() {
             handleVerseChange()
             hapticFeedback(true)
         } else {
-            Toast.makeText(this, "You have reached the first verse of this chapter", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.you_have_reached_the_first_verse_of_this_chapter), Toast.LENGTH_SHORT).show()
             hapticFeedback(false)
         }
     }
@@ -313,12 +296,12 @@ class VerseDetailActivity : AppCompatActivity() {
         if (currentVerseIndex < verses.size - 1) {
             currentVerseIndex++
             if (currentVerseIndex == verses.size - 1) {
-                binding.nextChapterButton.visibility = View.VISIBLE // Keep this logic if next chapter button is still relevant
+                binding.nextChapterButton.visibility = View.VISIBLE
             }
             handleVerseChange()
             hapticFeedback(true)
         } else {
-            Toast.makeText(this, "You have reached the last verse of this chapter", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.you_have_reached_the_last_verse_of_this_chapter), Toast.LENGTH_SHORT).show()
             hapticFeedback(false)
         }
     }
@@ -326,11 +309,11 @@ class VerseDetailActivity : AppCompatActivity() {
     private fun toggleReadStatus() {
         if (isVerseRead()) {
             markVerseAsUnread()
-            Toast.makeText(this, "Marked as Unread", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.marked_as_unread), Toast.LENGTH_SHORT).show()
             binding.actionMarkAsRead.setIconResource(R.drawable.ic_check_2)
         } else {
             markVerseAsRead()
-            Toast.makeText(this, "Marked as Read", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.marked_as_read), Toast.LENGTH_SHORT).show()
             binding.actionMarkAsRead.setIconResource(R.drawable.ic_check)
         }
         updateFabReadStatus()
@@ -338,15 +321,9 @@ class VerseDetailActivity : AppCompatActivity() {
 
     private fun updateFabReadStatus() {
         if (isVerseRead()) {
-            // Consider changing icon or tint if you have different icons for read/unread states
-            // For now, we just use the single 'ic_check'
-            binding.actionMarkAsRead.isSelected = true // Example: use isSelected state
             binding.actionMarkAsRead.setIconResource(R.drawable.ic_check_2)
-            // binding.fabMarkAsRead.setImageResource(R.drawable.ic_check_circle) // If you have a filled check
         } else {
-            binding.actionMarkAsRead.isSelected = false
             binding.actionMarkAsRead.setIconResource(R.drawable.ic_check)
-            // binding.fabMarkAsRead.setImageResource(R.drawable.ic_check) // Default check
         }
     }
 
@@ -388,41 +365,38 @@ class VerseDetailActivity : AppCompatActivity() {
 
     private fun onFavoriteButtonClick() {
         if (verses.isEmpty() || currentVerseIndex < 0 || currentVerseIndex >= verses.size) {
-            Toast.makeText(this, "Verse data not available.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.verse_data_not_available), Toast.LENGTH_SHORT).show()
             return
         }
         val currentVerse = verses[currentVerseIndex]
         val verseId = currentVerse.verse_id
-        val verseText = currentVerse.text // Or construct as needed, e.g., title + content
+        val verseTitle = currentVerse.title
+        val verseText = currentVerse.text
 
         val dbHelper = FavoriteDbHelper(this)
 
-        // Check if the verse is already a favorite
         val existingFavorite = dbHelper.getFavoriteByVerseId(verseId)
 
         if (existingFavorite == null) {
-            // Add to favorites
-            val chapterId = currentVerse.chapter_number // Get chapter_number
-            val result = dbHelper.addFavorite(chapterId, verseId, verseText)
+            val chapterId = currentVerse.chapter_number
+            val result = dbHelper.addFavorite(chapterId, verseId, verseTitle, verseText)
             if (result != -1L) {
-                Toast.makeText(this, "Added to Favorites", Toast.LENGTH_SHORT).show()
-                 binding.actionButtonFavorite.setIconResource(R.drawable.ic_star_2) // Update FAB/menu icon if dynamic
+                Toast.makeText(this, getString(R.string.added_to_favorites), Toast.LENGTH_SHORT).show()
+                 binding.actionButtonFavorite.setIconResource(R.drawable.ic_star_2)
             } else {
-                Toast.makeText(this, "Failed to add to Favorites", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.failed_to_add_to_favorites), Toast.LENGTH_SHORT).show()
             }
         } else {
-            // Remove from favorites
             val result = dbHelper.removeFavorite(verseId)
             if (result > 0) {
-                Toast.makeText(this, "Removed from Favorites", Toast.LENGTH_SHORT).show()
-                binding.actionButtonFavorite.setIconResource(R.drawable.ic_star) // Update FAB/menu icon if dynamic
+                Toast.makeText(this, getString(R.string.removed_from_favorites), Toast.LENGTH_SHORT).show()
+                binding.actionButtonFavorite.setIconResource(R.drawable.ic_star)
             } else {
-                Toast.makeText(this, "Failed to remove from Favorites", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.failed_to_remove_from_favorites), Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    // Method to update favorite button based on whether the verse is in favorites
      private fun updateFavoriteButtonStatus() {
          if (::verses.isInitialized && verses.isNotEmpty()) {
              val currentVerse = verses[currentVerseIndex]
@@ -443,19 +417,16 @@ class VerseDetailActivity : AppCompatActivity() {
             binding.verseTitleTextView,
             binding.verseContentTextView,
             binding.verseTransliterationTextView,
-            // Add other TextViews in your layout that you want to update
         )
 
         textViewList.forEach { textView ->
             textView.textSize = newSize.toFloat()
         }
 
-        val sharedPrefTextSize = getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
-        sharedPrefTextSize.edit().putInt("text_size", newSize).apply()
+        preference.edit().putInt("text_size_preference", newSize).apply()
     }
 
     private fun updateAdapterTextSize(newSize: Int) {
-        // Notify the RecyclerView adapter to update text size
         val recyclerViewT = binding.translationRecyclerView
         val adapterT = recyclerViewT.adapter as? TranslationAdapter
         adapterT?.updateTextSize(newSize)
@@ -463,23 +434,6 @@ class VerseDetailActivity : AppCompatActivity() {
         val recyclerViewC = binding.commentaryRecyclerView
         val adapterC = recyclerViewC.adapter as? CommentaryAdapter
         adapterC?.updateTextSize(newSize)
-
-        // Removed CustomSpinnerAdapter updates for authorSpinner and cAuthorSpinner
-
-        val audioSourceAdapter = binding.audioSourceDropdown.adapter as? ArrayAdapter<*>
-        audioSourceAdapter?.let {
-            // Consider if AutoCompleteTextView text size needs dynamic updates here
-            // For now, assuming the default text size handling or theme-based size is sufficient
-            // binding.audioSourceDropdown.textSize = newSize.toFloat() // This might not be the correct way for AutoCompleteTextView
-            // It's usually controlled by the style or theme.
-            // If specific text size control is needed for the dropdown items,
-            // a custom adapter for AutoCompleteTextView might be required, or styling the dropdown items.
-            // For the input field itself, it's part of TextInputLayout and usually follows Material Design guidelines.
-            binding.authorAutoCompleteTextView.textSize = newSize.toFloat()
-            binding.cAuthorAutoCompleteTextView.textSize = newSize.toFloat()
-            (it as ArrayAdapter<String>).notifyDataSetChanged()
-        }
-
     }
 
     private fun getTranslationsFromJson(fileName: String): List<Translation> {
@@ -548,7 +502,7 @@ class VerseDetailActivity : AppCompatActivity() {
                     currentVerseIndex--
                     Triple(true, true, null)
                 } else {
-                    Triple(false, false, "You have reached the first verse of this chapter")
+                    Triple(false, false, getString(R.string.you_have_reached_the_first_verse_of_this_chapter))
                 }
             }
             SwipeDirection.LEFT -> {
@@ -559,7 +513,7 @@ class VerseDetailActivity : AppCompatActivity() {
                     }
                     Triple(true, true, null)
                 } else {
-                    Triple(false, false, "You have reached the last verse of this chapter")
+                    Triple(false, false, getString(R.string.you_have_reached_the_last_verse_of_this_chapter))
                 }
             }
         }
@@ -581,9 +535,8 @@ class VerseDetailActivity : AppCompatActivity() {
         updateTranslationList()
         updateCommentaryList()
         updateAdapterTextSize(currentTextSize)
-        updateFabReadStatus() // Ensure FAB updates when verse changes
-        // binding.readMRadioBtn.isChecked = isVerseRead() // Handled by FAB now
-         updateFavoriteButtonStatus() // Update favorite button when verse changes - Removed
+        updateFabReadStatus()
+         updateFavoriteButtonStatus()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             binding.root.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
@@ -609,7 +562,6 @@ class VerseDetailActivity : AppCompatActivity() {
             it.lang == selectedLanguageC && it.verse_id == verses[currentVerseIndex].verse_id
         }
 
-        // Set up the RecyclerView to display the filtered translations
         val commentaryRecyclerView = binding.commentaryRecyclerView
         val commentaryAdapter = CommentaryAdapter(filteredCommentary, currentTextSize)
         commentaryRecyclerView.adapter = commentaryAdapter
@@ -672,7 +624,6 @@ class VerseDetailActivity : AppCompatActivity() {
         val commentaryAdapter = commentaryRecyclerView.adapter as CommentaryAdapter
         val commentaryText = commentaryAdapter.getAllCommentaryText()
 
-        // Combine all the text content into one string
         val textToShare = """
         Verse Title: $verseTitle
         Verse Content: $verseContent
@@ -685,23 +636,22 @@ class VerseDetailActivity : AppCompatActivity() {
         $commentaryText
     """.trimIndent()
 
-        // Add your desired line of text at the end
         val additionalText =
             "Shared from - Bhagavad Gita App(https://github.com/WirelessAlien/BhagavadGitaApp)"
 
         return "$textToShare\n$additionalText"
     }
 
-    private fun copyText() {
-        val textToCopy = getAllTextContent()
-
-        val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-
-        val clipData = ClipData.newPlainText("Text to Copy", textToCopy)
-        clipboardManager.setPrimaryClip(clipData)
-
-        Toast.makeText(this, "Text copied to clipboard", Toast.LENGTH_SHORT).show()
-    }
+//    private fun copyText() {
+//        val textToCopy = getAllTextContent()
+//
+//        val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+//
+//        val clipData = ClipData.newPlainText("Text to Copy", textToCopy)
+//        clipboardManager.setPrimaryClip(clipData)
+//
+//        Toast.makeText(this, "Text copied to clipboard", Toast.LENGTH_SHORT).show()
+//    }
 
 
     private fun shareText() {
@@ -773,9 +723,7 @@ class VerseDetailActivity : AppCompatActivity() {
                 withContext(Dispatchers.Main) {
                     progressBar.visibility = View.GONE
                     Toast.makeText(
-                        applicationContext,
-                        "Unable to play the audio. Please check your internet connection.",
-                        Toast.LENGTH_SHORT
+                        applicationContext, getString(R.string.unable_to_play_the_audio_please_check_your_internet_connection), Toast.LENGTH_SHORT
                     ).show()
                 }
             }

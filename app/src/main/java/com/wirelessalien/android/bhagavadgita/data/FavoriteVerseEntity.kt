@@ -22,6 +22,7 @@ data class FavoriteVerseEntity(
     val id: Int,
     val chapterId: Int,
     val verseId: Int,
+    val verseTitle: String,
     val verseText: String,
     val userNote: String? = null
 )

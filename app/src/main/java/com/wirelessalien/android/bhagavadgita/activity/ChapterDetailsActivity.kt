@@ -23,20 +23,15 @@ package com.wirelessalien.android.bhagavadgita.activity
 import android.content.Context
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter // Added for AutoCompleteTextView
-import android.widget.ProgressBar
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-// import androidx.appcompat.widget.AppCompatSpinner // No longer needed for audio source
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.wirelessalien.android.bhagavadgita.R
-// import com.wirelessalien.android.bhagavadgita.adapter.CustomSpinnerAdapter // No longer needed for audio source
 import com.wirelessalien.android.bhagavadgita.adapter.VerseAdapter
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityChapterDetailBinding
@@ -67,7 +62,7 @@ class ChapterDetailsActivity : AppCompatActivity() {
     private var currentTrackIndex = 0
     private lateinit var audioTypes: List<AudioUrlHelper.AudioType>
     private lateinit var selectedAudioType: AudioUrlHelper.AudioType
-    private var chapterNumber: Int = 0 // To store chapter number for audio playback
+    private var chapterNumber: Int = 0
 
 
     @DelicateCoroutinesApi
@@ -79,8 +74,8 @@ class ChapterDetailsActivity : AppCompatActivity() {
         binding = ActivityChapterDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val sharedPrefTextSize = getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
-        currentTextSize = sharedPrefTextSize.getInt("text_size", 16) // Get the saved text size
+        val sharedPrefTextSize = PreferenceManager.getDefaultSharedPreferences(this)
+        currentTextSize = sharedPrefTextSize.getInt("text_size_preference", 16) // Get the saved text size
 
         updateAdapterTextSize(currentTextSize)
         updateTextSize(currentTextSize)
@@ -159,17 +154,15 @@ class ChapterDetailsActivity : AppCompatActivity() {
         binding.progressBarReadCount.progress = progress.toInt()
         binding.progressTextView.text = String.format(Locale.getDefault(),"%.2f%%", progress)
 
-        // Initialize MediaPlayer
         mediaPlayer = MediaPlayer()
         audioTypes = AudioUrlHelper.audioOptions
-        selectedAudioType = audioTypes.first() // Default to first audio type
 
-        // Store chapter number for audio playback
         this.chapterNumber = chapterNumber
 
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
+        val savedAudioType = sharedPref.getString("selectedAudioType", audioTypes.first().displayName)
+        selectedAudioType = audioTypes.find { it.displayName == savedAudioType } ?: audioTypes.first()
 
-
-        // Populate audio dropdown
         val audioSourceAdapter = ArrayAdapter(
             this,
             android.R.layout.simple_dropdown_item_1line,
@@ -177,17 +170,15 @@ class ChapterDetailsActivity : AppCompatActivity() {
         )
         binding.audioSourceAutoCompleteTextViewChapter.setAdapter(audioSourceAdapter)
 
-        // Set initial selection if needed or saved preference
-        // For now, defaults to the first item in audioTypes as per selectedAudioType initialization
         binding.audioSourceAutoCompleteTextViewChapter.setText(selectedAudioType.displayName, false)
-
 
         binding.audioSourceAutoCompleteTextViewChapter.setOnItemClickListener { _, _, position, _ ->
             selectedAudioType = audioTypes[position]
+            sharedPref.edit().putString("selectedAudioType", selectedAudioType.displayName).apply()
             if (isChapterPlaying) {
-                stopChapterAudio() // Stop and reset if source changes
+                stopChapterAudio()
             }
-            currentTrackIndex = 0 // Reset track index
+            currentTrackIndex = 0
         }
 
         binding.fabPlayPauseChapter.setOnClickListener {
@@ -257,11 +248,6 @@ class ChapterDetailsActivity : AppCompatActivity() {
         val recyclerViewC = binding.verseRecyclerView
         val adapterC = recyclerViewC.adapter as? VerseAdapter
         adapterC?.updateTextSize(newSize)
-
-        // Update text size for the AutoCompleteTextView if needed, though often handled by style
-        binding.audioSourceAutoCompleteTextViewChapter.textSize = newSize.toFloat()
-        // No need to notify adapter for text size change of the AutoCompleteTextView itself,
-        // but if dropdown item text size needed changing, a custom adapter would be required.
     }
 
     private fun playChapterAudio() {
@@ -290,7 +276,7 @@ class ChapterDetailsActivity : AppCompatActivity() {
         if (audioUrl == null) {
             Toast.makeText(this, "Audio URL not found for verse ${verse.verse_number}", Toast.LENGTH_SHORT).show()
             currentTrackIndex++
-            playChapterAudio() // Try next track
+            playChapterAudio()
             return
         }
 

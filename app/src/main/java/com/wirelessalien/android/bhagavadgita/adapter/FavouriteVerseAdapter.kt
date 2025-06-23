@@ -19,13 +19,11 @@
 
 package com.wirelessalien.android.bhagavadgita.adapter
 
-// FavoriteVerseAdapter.kt
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.activity.VerseDetailActivity
 import com.wirelessalien.android.bhagavadgita.data.FavouriteVerse
 import com.wirelessalien.android.bhagavadgita.databinding.FavVerseItemBinding
@@ -43,16 +41,6 @@ class FavouriteVerseAdapter(
             binding.combinedTitleTextView.text = favoriteItem.verseTitle
             binding.combinedContentTextView.text = favoriteItem.verseContent
 
-            // Hide fields no longer in FavouriteVerse model
-            binding.combinedTransliterationTextView.visibility = View.GONE
-            binding.combinedWordMeaningTextView.visibility = View.GONE
-            binding.combinedTranslation.visibility = View.GONE
-            binding.combinedCommentary.visibility = View.GONE
-            binding.combinedTransliterationTextViewH.visibility = View.GONE
-            binding.combinedWordMeaningTextViewH.visibility = View.GONE
-            binding.combinedTranslationH.visibility = View.GONE
-            binding.combinedCommentaryH.visibility = View.GONE
-
             // Display user note if available
             if (!favoriteItem.userNote.isNullOrEmpty()) {
                 binding.userNoteTextView.text = favoriteItem.userNote
@@ -61,22 +49,13 @@ class FavouriteVerseAdapter(
                 binding.userNoteTextView.visibility = View.GONE
             }
 
-            // Content and Note visibility based on expansion
-            binding.combinedContentTextView.visibility = if (favoriteItem.isExpanded) View.VISIBLE else View.GONE
-            binding.userNoteTextView.visibility = if (favoriteItem.isExpanded && !favoriteItem.userNote.isNullOrEmpty()) View.VISIBLE else View.GONE
-
-
             binding.readAllBtn.setOnClickListener {
                 val context = it.context
                 val intent = Intent(context, VerseDetailActivity::class.java).apply {
-                    putExtra("chapter_number", favoriteItem.chapterId) // Use the correct chapterId
+                    putExtra("chapter_number", favoriteItem.chapterId)
                     putExtra("verse_title", favoriteItem.verseTitle)
                     putExtra("verse_text", favoriteItem.verseContent)
-                    // Pass global verse_id as an extra field, if VerseDetailActivity needs it to pinpoint the exact verse
-                    // For instance, if chapter_number and verse_number (within chapter) are primary keys for lookup.
-                    // The current VerseDetailActivity seems to find the verse by title within the chapter.
-                    // If favoriteItem.verseId is the global ID, ensure VerseDetailActivity can use it.
-                    // Let's assume favoriteItem.verseTitle is unique enough within the chapter for now.
+                    putExtra("verse_id", favoriteItem.verseId)
                 }
                 context.startActivity(intent)
             }
@@ -85,26 +64,8 @@ class FavouriteVerseAdapter(
                 onDeleteClicked(favoriteItem)
             }
 
-            binding.addNoteBtn.setOnClickListener { // Assuming you add an addNoteBtn in your layout
+            binding.addNoteBtn.setOnClickListener {
                 onAddNoteClicked(favoriteItem)
-            }
-
-            if (favoriteItem.isExpanded) {
-                binding.toggleExpandBtn.check(R.id.expandBtn)
-            } else {
-                binding.toggleExpandBtn.check(R.id.collapseBtn)
-            }
-
-            binding.expandBtn.setOnClickListener {
-                onExpandClickListener?.let { click ->
-                    click(bindingAdapterPosition)
-                }
-            }
-
-            binding.collapseBtn.setOnClickListener {
-                onExpandClickListener?.let { click ->
-                    click(bindingAdapterPosition)
-                }
             }
         }
     }
@@ -123,11 +84,5 @@ class FavouriteVerseAdapter(
 
     override fun getItemCount(): Int {
         return favoriteList.size
-    }
-
-    // Keep setOnExpandClickListener as it's used by the Activity/Fragment
-    private var onExpandClickListener: ((Int) -> Unit)? = null
-    fun setOnExpandClickListener(listener: (Int) -> Unit) {
-        onExpandClickListener = listener
     }
 }

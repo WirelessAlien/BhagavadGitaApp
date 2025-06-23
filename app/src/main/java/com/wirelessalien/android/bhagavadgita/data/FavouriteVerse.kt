@@ -19,9 +19,8 @@
 
 package com.wirelessalien.android.bhagavadgita.data
 
-// FavoriteVerse.kt
 data class FavouriteVerse(
-    val chapterId: Int, // Added chapterId
+    val chapterId: Int,
     val verseId: Int,
     val verseTitle: String,
     val verseContent: String,

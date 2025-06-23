@@ -50,9 +50,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.wirelessalien.android.bhagavadgita.R
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.wirelessalien.android.bhagavadgita.adapter.RamcharitmanasAdapter
-import com.wirelessalien.android.bhagavadgita.data.RamcharitmanasVerse
-import com.wirelessalien.android.bhagavadgita.databinding.ActivityRamcharitmanasBinding
+import com.wirelessalien.android.bhagavadgita.adapter.RamayanAdapter
+import com.wirelessalien.android.bhagavadgita.data.RamayanVerse
+import com.wirelessalien.android.bhagavadgita.databinding.ActivityRamayanBinding
 import com.wirelessalien.android.bhagavadgita.databinding.BottomSheetRamcharitmanasNavBinding
 import com.wirelessalien.android.bhagavadgita.utils.JsonParserHelper
 import com.wirelessalien.android.bhagavadgita.utils.Themes
@@ -62,16 +62,16 @@ import kotlinx.coroutines.withContext
 import android.content.Context
 import android.util.Log
 
-class RamcharitmanasActivity : AppCompatActivity() {
+class RamayanActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityRamcharitmanasBinding
-    private lateinit var ramcharitmanasAdapter: RamcharitmanasAdapter
-    private val versesList = mutableListOf<RamcharitmanasVerse>()
+    private lateinit var binding: ActivityRamayanBinding
+    private lateinit var ramayanAdapter: RamayanAdapter
+    private val versesList = mutableListOf<RamayanVerse>()
 
     companion object {
         private const val PREFS_NAME = "RamcharitmanasPrefs"
         private const val KEY_LAST_SCROLL_POSITION = "last_scroll_position"
-        private const val TAG = "RamcharitmanasActivity"
+        private const val TAG = "RamayanActivity"
 
         // Keys for text visibility preferences
         const val KEY_SHOW_KANDA = "show_kanda"
@@ -83,7 +83,7 @@ class RamcharitmanasActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Themes.loadTheme(this) // Apply theme
-        binding = ActivityRamcharitmanasBinding.inflate(layoutInflater)
+        binding = ActivityRamayanBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         setupToolbar()
@@ -192,10 +192,10 @@ class RamcharitmanasActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        ramcharitmanasAdapter = RamcharitmanasAdapter(versesList)
+        ramayanAdapter = RamayanAdapter(versesList)
         binding.ramcharitmanasRecyclerView.apply {
-            layoutManager = LinearLayoutManager(this@RamcharitmanasActivity)
-            adapter = ramcharitmanasAdapter
+            layoutManager = LinearLayoutManager(this@RamayanActivity)
+            adapter = ramayanAdapter
         }
     }
 
@@ -208,7 +208,7 @@ class RamcharitmanasActivity : AppCompatActivity() {
                 } catch (e: Exception) {
                     e.printStackTrace()
                     // Return empty list or handle error appropriately
-                    emptyList<RamcharitmanasVerse>()
+                    emptyList()
                 }
             }
 
@@ -218,13 +218,13 @@ class RamcharitmanasActivity : AppCompatActivity() {
                 binding.textViewEmptyState.visibility = View.GONE
                 versesList.clear()
                 versesList.addAll(loadedVerses)
-                // ramcharitmanasAdapter.updateData(loadedVerses) // Will be handled by updateVerseVisibility
+                // ramayanAdapter.updateData(loadedVerses) // Will be handled by updateVerseVisibility
                 updateVerseVisibility() // Apply initial visibility preferences
                 checkAndRestoreScrollPosition() // Check for saved scroll position after data is loaded
             } else {
                 binding.ramcharitmanasRecyclerView.visibility = View.GONE
                 binding.textViewEmptyState.visibility = View.VISIBLE
-                Toast.makeText(this@RamcharitmanasActivity, "Failed to load Ramcharitmanas data.", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@RamayanActivity, "Failed to load Ramcharitmanas data.", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -235,7 +235,7 @@ class RamcharitmanasActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_ramcharitmanas, menu)
+        menuInflater.inflate(R.menu.menu_ramayan, menu)
         return true
     }
 
@@ -304,7 +304,7 @@ class RamcharitmanasActivity : AppCompatActivity() {
         }
         versesList.clear()
         versesList.addAll(updatedVerses)
-        ramcharitmanasAdapter.updateData(updatedVerses) // Assuming this notifies the adapter
+        ramayanAdapter.updateData(updatedVerses) // Assuming this notifies the adapter
         Log.d(TAG, "Verse visibility updated. Kanda: $showKanda, Text: $showShlokaText, Translation: $showTranslation, Explanation: $showExplanation")
     }
 

@@ -21,14 +21,14 @@ package com.wirelessalien.android.bhagavadgita.utils
 import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.stream.JsonReader
-import com.wirelessalien.android.bhagavadgita.data.RamcharitmanasVerse
+import com.wirelessalien.android.bhagavadgita.data.RamayanVerse
 import java.io.IOException
 import java.io.InputStreamReader
 
 object JsonParserHelper {
 
-    fun parseRamcharitmanasJson(context: Context, fileName: String): List<RamcharitmanasVerse> {
-        val verses = mutableListOf<RamcharitmanasVerse>()
+    fun parseRamcharitmanasJson(context: Context, fileName: String): List<RamayanVerse> {
+        val verses = mutableListOf<RamayanVerse>()
         val gson = Gson()
 
         try {
@@ -37,7 +37,7 @@ object JsonParserHelper {
                     JsonReader(reader).use { jsonReader ->
                         jsonReader.beginArray()
                         while (jsonReader.hasNext()) {
-                            val verse = gson.fromJson<RamcharitmanasVerse>(jsonReader, RamcharitmanasVerse::class.java)
+                            val verse = gson.fromJson<RamayanVerse>(jsonReader, RamayanVerse::class.java)
                             verses.add(verse)
                         }
                         jsonReader.endArray()

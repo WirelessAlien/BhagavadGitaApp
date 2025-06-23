@@ -28,7 +28,6 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
                 val textSizePreference = findPreference<SeekBarPreference>(key)
                 val textSizeValue = textSizePreference?.value ?: 16
                 applyTextSize(textSizeValue)
-                // We might need to recreate the activity to apply text size changes everywhere
                 activity?.recreate()
             }
         }
@@ -40,23 +39,18 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
             "dark" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             "black" -> {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                // For a true black theme, we might need a custom theme style
-                // For now, it will be the same as dark theme
                 activity?.setTheme(R.style.AppTheme_Black)
             }
             else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         }
-        // Save the theme preference
         val sharedPrefs = preferenceScreen.sharedPreferences
         sharedPrefs?.edit()?.putString("theme_preference", themeValue)?.apply()
         activity?.recreate()
     }
 
     private fun applyTextSize(textSize: Int) {
-        // Save the text size preference
         val sharedPrefs = preferenceScreen.sharedPreferences
         sharedPrefs?.edit()?.putInt("text_size_preference", textSize)?.apply()
-        // The actual text size update will be handled by MainActivity reading this preference
     }
 
     override fun onDestroy() {

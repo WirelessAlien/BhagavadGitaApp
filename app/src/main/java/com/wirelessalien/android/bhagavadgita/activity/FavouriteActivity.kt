@@ -26,8 +26,11 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog // For adding/editing notes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.adapter.FavouriteVerseAdapter
 import com.wirelessalien.android.bhagavadgita.data.FavoriteDbHelper
 import com.wirelessalien.android.bhagavadgita.data.FavouriteVerse // This is the UI model
@@ -57,11 +60,9 @@ class FavouriteActivity : AppCompatActivity() {
 
         dbHelper = FavoriteDbHelper(this)
 
-        val sharedPrefTextSize = getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
-        currentTextSize = sharedPrefTextSize.getInt("text_size", 16) // Get the saved text size
+        val sharedPrefTextSize = PreferenceManager.getDefaultSharedPreferences(this)
+        currentTextSize = sharedPrefTextSize.getInt("text_size_preference", 16) // Get the saved text size
 
-        // Initialize and set the adapter
-        // The list will be populated by loadFavoriteList
         adapter = FavouriteVerseAdapter(favoriteList,
             onDeleteClicked = { verse ->
                 deleteFavorite(verse)
@@ -72,29 +73,19 @@ class FavouriteActivity : AppCompatActivity() {
         )
         recyclerView.adapter = adapter
 
-        // Load the list of favorite items
         loadFavoriteList()
 
-
-        // Set up a click listener for the expand/collapse - this can remain similar if FavouriteVerse retains isExpanded
-        adapter.setOnExpandClickListener { position ->
-            toggleItemExpansion(position)
-        }
     }
 
     private fun loadFavoriteList() {
         val dbFavorites = dbHelper.getAllFavorites()
         favoriteList.clear()
-        // Assuming FavouriteVerse now takes verseId, verseTitle (which might be part of verseText or need reconstruction),
-        // verseContent, and userNote.
-        // For simplicity, let's assume verse_text from DB is verseContent and verse_id is enough for title (e.g. "Verse 1.1")
-        // You might need to fetch actual verse titles from another source if they are not in the favorites table.
         dbFavorites.forEach { entity ->
             favoriteList.add(
                 FavouriteVerse(
-                    chapterId = entity.chapterId, // Populate chapterId
+                    chapterId = entity.chapterId,
                     verseId = entity.verseId,
-                    verseTitle = "Verse ${entity.chapterId}.${entity.verseId}", // Updated placeholder for title
+                    verseTitle = entity.verseTitle,
                     verseContent = entity.verseText,
                     userNote = entity.userNote
                 )
@@ -113,10 +104,10 @@ class FavouriteActivity : AppCompatActivity() {
         val verseIdToDelete = verse.verseId
         val result = dbHelper.removeFavorite(verseIdToDelete)
         if (result > 0) {
-            Toast.makeText(this, "Removed from Favorites", Toast.LENGTH_SHORT).show()
-            loadFavoriteList() // Reload the list
+            Toast.makeText(this, getString(R.string.removed_from_favorites), Toast.LENGTH_SHORT).show()
+            loadFavoriteList()
         } else {
-            Toast.makeText(this, "Failed to remove favorite", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.failed_to_remove_from_favorites), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -124,27 +115,18 @@ class FavouriteActivity : AppCompatActivity() {
         val dialogBinding = DialogAddNoteBinding.inflate(layoutInflater)
         dialogBinding.noteEditText.setText(verse.userNote ?: "")
 
-        AlertDialog.Builder(this)
-            .setTitle("Add/Edit Note for ${verse.verseTitle}")
+        MaterialAlertDialogBuilder(this)
+            .setTitle(getString(R.string.add_edit_note_for, verse.verseTitle))
             .setView(dialogBinding.root)
-            .setPositiveButton("Save") { dialog, _ ->
+            .setPositiveButton(getString(R.string.save)) { dialog, _ ->
                 val noteText = dialogBinding.noteEditText.text.toString()
                 dbHelper.addOrUpdateUserNote(verse.verseId, noteText)
-                loadFavoriteList() // Refresh list to show new note
+                loadFavoriteList()
                 dialog.dismiss()
             }
-            .setNegativeButton("Cancel") { dialog, _ ->
+            .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
                 dialog.cancel()
             }
             .show()
-    }
-
-
-    private fun toggleItemExpansion(position: Int) {
-        if (position in 0 until favoriteList.size) {
-            val item = favoriteList[position]
-            item.isExpanded = !item.isExpanded
-            adapter.notifyItemChanged(position)
-        }
     }
 }

@@ -27,12 +27,13 @@ class FavoriteDbHelper(context: Context) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
     companion object {
-        private const val DATABASE_VERSION = 2 // Incremented database version
+        private const val DATABASE_VERSION = 2
         private const val DATABASE_NAME = "Favorites.db"
         private const val TABLE_FAVORITES = "favorites"
         private const val COLUMN_ID = "id"
-        private const val COLUMN_CHAPTER_ID = "chapter_id" // Added chapter_id column
+        private const val COLUMN_CHAPTER_ID = "chapter_id"
         private const val COLUMN_VERSE_ID = "verse_id"
+        private const val COLUMN_VERSE_TITLE = "verse_title"
         private const val COLUMN_VERSE_TEXT = "verse_text"
         private const val COLUMN_USER_NOTE = "user_note"
     }
@@ -40,31 +41,27 @@ class FavoriteDbHelper(context: Context) :
     override fun onCreate(db: SQLiteDatabase) {
         val createTableQuery = "CREATE TABLE $TABLE_FAVORITES (" +
                 "$COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "$COLUMN_CHAPTER_ID INTEGER NOT NULL," + // Added chapter_id
-                "$COLUMN_VERSE_ID INTEGER UNIQUE NOT NULL," + // Made verse_id not null
-                "$COLUMN_VERSE_TEXT TEXT NOT NULL," + // Made verse_text not null
+                "$COLUMN_CHAPTER_ID INTEGER NOT NULL," +
+                "$COLUMN_VERSE_ID INTEGER UNIQUE NOT NULL," +
+                "$COLUMN_VERSE_TITLE TEXT NOT NULL," +
+                "$COLUMN_VERSE_TEXT TEXT NOT NULL," +
                 "$COLUMN_USER_NOTE TEXT)"
         db.execSQL(createTableQuery)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         if (oldVersion < 2) {
-            // Simple upgrade: add column if it doesn't exist.
-            // More robust would be to check columns properly.
             db.execSQL("ALTER TABLE $TABLE_FAVORITES ADD COLUMN $COLUMN_CHAPTER_ID INTEGER NOT NULL DEFAULT 0;")
-            // The DEFAULT 0 is a placeholder; existing rows would need this populated if possible,
-            // or accept that old favorites might not have chapter_id correctly.
-            // For this exercise, we'll assume new installs or that default 0 is acceptable for old data.
+
         }
-        // For other future upgrades:
-        // if (oldVersion < X) { ... }
     }
 
-    fun addFavorite(chapterId: Int, verseId: Int, verseText: String): Long {
+    fun addFavorite(chapterId: Int, verseId: Int, verseTitle: String, verseText: String): Long {
         val db = this.writableDatabase
         val values = ContentValues().apply {
             put(COLUMN_CHAPTER_ID, chapterId)
             put(COLUMN_VERSE_ID, verseId)
+            put(COLUMN_VERSE_TITLE, verseTitle)
             put(COLUMN_VERSE_TEXT, verseText)
         }
         val id = db.insert(TABLE_FAVORITES, null, values)
@@ -90,9 +87,10 @@ class FavoriteDbHelper(context: Context) :
                 val id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID))
                 val chapterId = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_CHAPTER_ID))
                 val verseId = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_VERSE_ID))
+                val verseTitle = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_VERSE_TITLE))
                 val verseText = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_VERSE_TEXT))
                 val userNote = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_NOTE))
-                favoriteList.add(FavoriteVerseEntity(id, chapterId, verseId, verseText, userNote))
+                favoriteList.add(FavoriteVerseEntity(id, chapterId, verseId, verseTitle, verseText, userNote))
             } while (cursor.moveToNext())
         }
         cursor.close()
@@ -104,7 +102,7 @@ class FavoriteDbHelper(context: Context) :
         val db = this.readableDatabase
         val cursor = db.query(
             TABLE_FAVORITES,
-            arrayOf(COLUMN_ID, COLUMN_CHAPTER_ID, COLUMN_VERSE_ID, COLUMN_VERSE_TEXT, COLUMN_USER_NOTE),
+            arrayOf(COLUMN_ID, COLUMN_CHAPTER_ID, COLUMN_VERSE_ID, COLUMN_VERSE_TITLE, COLUMN_VERSE_TEXT, COLUMN_USER_NOTE),
             "$COLUMN_VERSE_ID = ?",
             arrayOf(verseId.toString()),
             null, null, null, null
@@ -114,9 +112,10 @@ class FavoriteDbHelper(context: Context) :
             val id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID))
             val chapterId = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_CHAPTER_ID))
             val fetchedVerseId = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_VERSE_ID))
+            val verseTitle = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_VERSE_TITLE))
             val verseText = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_VERSE_TEXT))
             val userNote = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_NOTE))
-            favoriteVerse = FavoriteVerseEntity(id, chapterId, fetchedVerseId, verseText, userNote)
+            favoriteVerse = FavoriteVerseEntity(id, chapterId, fetchedVerseId, verseTitle, verseText, userNote)
         }
         cursor.close()
         db.close()
