@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Get the source
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
@@ -16,7 +16,7 @@ jobs:
           java-version: '17'
 
       - name: Cache Gradle dependencies
-        uses: actions/cache@v4.1.2
+        uses: actions/cache@v4
         with:
           path: |
             ~/.gradle/caches
