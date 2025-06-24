@@ -19,12 +19,10 @@
 
 package com.wirelessalien.android.bhagavadgita.activity
 
-import android.content.Context
-// SharedPreferences and Gson are no longer needed for favorites
+
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog // For adding/editing notes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -55,6 +53,7 @@ class FavouriteActivity : AppCompatActivity() {
         binding = ActivityFavouriteBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setupToolbar()
         recyclerView = binding.favoritesRecyclerView
         recyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -69,7 +68,7 @@ class FavouriteActivity : AppCompatActivity() {
             },
             onAddNoteClicked = { verse ->
                 showAddNoteDialog(verse)
-            }
+            }, currentTextSize
         )
         recyclerView.adapter = adapter
 
@@ -87,6 +86,7 @@ class FavouriteActivity : AppCompatActivity() {
                     verseId = entity.verseId,
                     verseTitle = entity.verseTitle,
                     verseContent = entity.verseText,
+                    verseTransliteration = entity.verseTransliteration,
                     userNote = entity.userNote
                 )
             )
@@ -98,6 +98,16 @@ class FavouriteActivity : AppCompatActivity() {
         } else {
             binding.emptyTextView.visibility = View.GONE
         }
+    }
+
+    private fun setupToolbar() {
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressedDispatcher.onBackPressed()
+        return true
     }
 
     private fun deleteFavorite(verse: FavouriteVerse) {

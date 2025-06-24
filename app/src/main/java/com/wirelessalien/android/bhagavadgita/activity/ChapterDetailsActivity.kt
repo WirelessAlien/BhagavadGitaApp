@@ -87,6 +87,7 @@ class ChapterDetailsActivity : AppCompatActivity() {
         updateAdapterTextSize(currentTextSize)
         updateTextSize(currentTextSize)
         setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         // Retrieve the chapter details from the intent
         val chapterNumber = intent.getIntExtra("chapter_number", 0)
@@ -115,7 +116,7 @@ class ChapterDetailsActivity : AppCompatActivity() {
                 binding.verseRecyclerView.layoutManager = LinearLayoutManager(this@ChapterDetailsActivity)
                 binding.verseRecyclerView.adapter = VerseAdapter(verseList, currentTextSize)
 
-                supportActionBar?.title = "Chapter $chapterNumber"
+                binding.toolbar.title = "Chapter $chapterNumber"
                 setupVerseSeekBar()
                 binding.progressBar.visibility = View.GONE
             }
@@ -238,6 +239,11 @@ class ChapterDetailsActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressedDispatcher.onBackPressed()
+        return true
     }
 
     private fun checkAndOfferResume(playAction: (shouldPlay: Boolean, fromVerse: Int?) -> Unit) {

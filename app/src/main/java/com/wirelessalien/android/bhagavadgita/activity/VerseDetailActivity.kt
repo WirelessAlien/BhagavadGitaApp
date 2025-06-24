@@ -373,6 +373,8 @@ class VerseDetailActivity : AppCompatActivity() {
         val verseId = currentVerse.verse_id
         val verseTitle = currentVerse.title
         val verseText = currentVerse.text
+        val verseTransliteration = currentVerse.transliteration
+        val verseWordmeaning = currentVerse.word_meanings
 
         val dbHelper = FavoriteDbHelper(this)
 
@@ -380,7 +382,7 @@ class VerseDetailActivity : AppCompatActivity() {
 
         if (existingFavorite == null) {
             val chapterId = currentVerse.chapter_number
-            val result = dbHelper.addFavorite(chapterId, verseId, verseTitle, verseText)
+            val result = dbHelper.addFavorite(chapterId, verseId, verseTitle, verseText, verseTransliteration, verseWordmeaning)
             if (result != -1L) {
                 Toast.makeText(this, getString(R.string.added_to_favorites), Toast.LENGTH_SHORT).show()
                  binding.actionButtonFavorite.setIconResource(R.drawable.ic_star_2)

@@ -179,6 +179,7 @@
                             app:boxCornerRadiusBottomEnd="10dp"
                             android:layout_alignParentStart="true"
                             android:layout_centerVertical="true"
+                            android:paddingBottom="10dp"
                             android:layout_toStartOf="@id/fabPlayPauseChapter"
                             style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu">
 
@@ -199,6 +200,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
                             app:cornerRadius="10dp"
+                            android:paddingBottom="10dp"
                             android:layout_centerVertical="true"
                             android:layout_alignParentEnd="true"
                             style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
@@ -210,6 +212,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_alignParentBottom="true"
+                            android:indeterminate="true"
                             android:visibility="gone"/>
                     </RelativeLayout>
                 </LinearLayout>

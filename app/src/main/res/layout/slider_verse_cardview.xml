@@ -52,6 +52,7 @@
             android:autoSizeMaxTextSize="20sp"
             android:autoSizeMinTextSize="10dp"
             android:autoSizeTextType="uniform"
+            android:fontFamily="@font/tiro_sanskrit"
             android:padding="5dp"
             android:textSize="14sp"
             tools:targetApi="o" />

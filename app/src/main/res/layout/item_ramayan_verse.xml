@@ -41,6 +41,7 @@
         android:layout_marginTop="8dp"
         android:textAlignment="center"
         android:textAppearance="?attr/textAppearanceBody2"
+        android:fontFamily="@font/tiro_sanskrit"
         android:textSize="18sp"
         tools:text="तपस्स्वाध्यायनिरतं तपस्वी वाग्विदां वरम् । नारदं परिपप्रच्छ वाल्मीकिर्मुनिपुङ्गवम् ।।1.1.1।।"/>
 

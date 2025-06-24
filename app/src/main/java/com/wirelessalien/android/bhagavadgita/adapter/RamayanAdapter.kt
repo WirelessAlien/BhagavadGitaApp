@@ -26,7 +26,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.data.RamayanVerse
 
-class RamayanAdapter(private var verses: List<RamayanVerse>) :
+class RamayanAdapter(private var verses: List<RamayanVerse>, private var textSize: Int) :
     RecyclerView.Adapter<RamayanAdapter.VerseViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VerseViewHolder {
@@ -86,6 +86,11 @@ class RamayanAdapter(private var verses: List<RamayanVerse>) :
             } else {
                 textViewExplanation.visibility = View.GONE
             }
+
+            textViewKanda.textSize = textSize.toFloat()
+            textViewShlokaText.textSize = textSize.toFloat()
+            textViewTranslation.textSize = textSize.toFloat()
+            textViewExplanation.textSize = textSize.toFloat()
         }
     }
 }

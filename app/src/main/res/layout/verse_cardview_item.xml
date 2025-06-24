@@ -50,6 +50,7 @@
             android:layout_gravity="center"
             android:textAlignment="center"
             android:layout_marginTop="10dp"
+            android:fontFamily="@font/tiro_sanskrit"
             android:text="Verse 1"/>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

@@ -24,6 +24,7 @@ data class FavouriteVerse(
     val verseId: Int,
     val verseTitle: String,
     val verseContent: String,
+    val verseTransliteration: String? = null,
     var userNote: String? = null,
     var isExpanded: Boolean = false
 )

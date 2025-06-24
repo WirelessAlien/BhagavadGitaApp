@@ -31,7 +31,7 @@ import com.wirelessalien.android.bhagavadgita.databinding.FavVerseItemBinding
 class FavouriteVerseAdapter(
     private val favoriteList: MutableList<FavouriteVerse>,
     private val onDeleteClicked: (FavouriteVerse) -> Unit,
-    private val onAddNoteClicked: (FavouriteVerse) -> Unit
+    private val onAddNoteClicked: (FavouriteVerse) -> Unit, private var textSize: Int
 ) : RecyclerView.Adapter<FavouriteVerseAdapter.ViewHolder>() {
 
     inner class ViewHolder(private val binding: FavVerseItemBinding) :
@@ -49,6 +49,10 @@ class FavouriteVerseAdapter(
                 binding.userNoteTextView.visibility = View.GONE
             }
 
+            binding.combinedTitleTextView.textSize = textSize.toFloat()
+            binding.combinedContentTextView.textSize = textSize.toFloat()
+            binding.userNoteTextView.textSize = textSize.toFloat()
+
             binding.readAllBtn.setOnClickListener {
                 val context = it.context
                 val intent = Intent(context, VerseDetailActivity::class.java).apply {
@@ -56,6 +60,7 @@ class FavouriteVerseAdapter(
                     putExtra("verse_title", favoriteItem.verseTitle)
                     putExtra("verse_text", favoriteItem.verseContent)
                     putExtra("verse_id", favoriteItem.verseId)
+                    putExtra("verse_transliteration", favoriteItem.verseTransliteration)
                 }
                 context.startActivity(intent)
             }

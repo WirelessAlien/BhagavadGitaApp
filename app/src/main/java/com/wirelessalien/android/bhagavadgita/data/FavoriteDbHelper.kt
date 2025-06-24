@@ -22,6 +22,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.wirelessalien.android.bhagavadgita.databinding.ActivityVerseTranslationBinding
 
 class FavoriteDbHelper(context: Context) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
@@ -33,6 +34,8 @@ class FavoriteDbHelper(context: Context) :
         private const val COLUMN_ID = "id"
         private const val COLUMN_CHAPTER_ID = "chapter_id"
         private const val COLUMN_VERSE_ID = "verse_id"
+        private const val COLUMN_VERSE_TRANSLITERATION = "verse_transliteration"
+        private const val COLUMN_VERSE_WORDMEANING = "verse_word_meaning"
         private const val COLUMN_VERSE_TITLE = "verse_title"
         private const val COLUMN_VERSE_TEXT = "verse_text"
         private const val COLUMN_USER_NOTE = "user_note"
@@ -45,6 +48,8 @@ class FavoriteDbHelper(context: Context) :
                 "$COLUMN_VERSE_ID INTEGER UNIQUE NOT NULL," +
                 "$COLUMN_VERSE_TITLE TEXT NOT NULL," +
                 "$COLUMN_VERSE_TEXT TEXT NOT NULL," +
+                "$COLUMN_VERSE_TRANSLITERATION TEXT," +
+                "$COLUMN_VERSE_WORDMEANING TEXT," +
                 "$COLUMN_USER_NOTE TEXT)"
         db.execSQL(createTableQuery)
     }
@@ -56,13 +61,15 @@ class FavoriteDbHelper(context: Context) :
         }
     }
 
-    fun addFavorite(chapterId: Int, verseId: Int, verseTitle: String, verseText: String): Long {
+    fun addFavorite(chapterId: Int, verseId: Int, verseTitle: String, verseText: String, verseTransliteration: String, verseWordmeaning: String ): Long {
         val db = this.writableDatabase
         val values = ContentValues().apply {
             put(COLUMN_CHAPTER_ID, chapterId)
             put(COLUMN_VERSE_ID, verseId)
             put(COLUMN_VERSE_TITLE, verseTitle)
             put(COLUMN_VERSE_TEXT, verseText)
+            put(COLUMN_VERSE_TRANSLITERATION, verseTransliteration)
+            put(COLUMN_VERSE_WORDMEANING, verseWordmeaning)
         }
         val id = db.insert(TABLE_FAVORITES, null, values)
         db.close()
@@ -89,8 +96,9 @@ class FavoriteDbHelper(context: Context) :
                 val verseId = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_VERSE_ID))
                 val verseTitle = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_VERSE_TITLE))
                 val verseText = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_VERSE_TEXT))
+                val verseTransliteration = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_VERSE_TRANSLITERATION))
                 val userNote = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_NOTE))
-                favoriteList.add(FavoriteVerseEntity(id, chapterId, verseId, verseTitle, verseText, userNote))
+                favoriteList.add(FavoriteVerseEntity(id, chapterId, verseId, verseTitle, verseText, verseTransliteration, userNote))
             } while (cursor.moveToNext())
         }
         cursor.close()

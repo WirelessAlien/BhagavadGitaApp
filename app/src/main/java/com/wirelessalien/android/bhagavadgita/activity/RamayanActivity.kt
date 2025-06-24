@@ -61,12 +61,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import android.content.Context
 import android.util.Log
+import androidx.preference.PreferenceManager
 
 class RamayanActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRamayanBinding
     private lateinit var ramayanAdapter: RamayanAdapter
     private val versesList = mutableListOf<RamayanVerse>()
+    private var currentTextSize: Int = 16
 
     companion object {
         private const val PREFS_NAME = "RamcharitmanasPrefs"
@@ -85,7 +87,8 @@ class RamayanActivity : AppCompatActivity() {
         Themes.loadTheme(this) // Apply theme
         binding = ActivityRamayanBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        val sharedPrefTextSize = PreferenceManager.getDefaultSharedPreferences(this)
+        currentTextSize = sharedPrefTextSize.getInt("text_size_preference", 16)
         setupToolbar()
         setupRecyclerView()
         loadRamcharitmanasData()
@@ -192,7 +195,7 @@ class RamayanActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        ramayanAdapter = RamayanAdapter(versesList)
+        ramayanAdapter = RamayanAdapter(versesList, currentTextSize)
         binding.ramcharitmanasRecyclerView.apply {
             layoutManager = LinearLayoutManager(this@RamayanActivity)
             adapter = ramayanAdapter

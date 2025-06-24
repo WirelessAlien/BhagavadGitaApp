@@ -1,5 +1,6 @@
 package com.wirelessalien.android.bhagavadgita.fragment
 
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.TextView
@@ -8,6 +9,7 @@ import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SeekBarPreference
+import com.wirelessalien.android.bhagavadgita.MainActivity
 import com.wirelessalien.android.bhagavadgita.R
 
 class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
@@ -45,7 +47,8 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
         }
         val sharedPrefs = preferenceScreen.sharedPreferences
         sharedPrefs?.edit()?.putString("theme_preference", themeValue)?.apply()
-        activity?.recreate()
+        requireActivity().finish()
+        requireActivity().startActivity(Intent(requireContext(), MainActivity::class.java))
     }
 
     private fun applyTextSize(textSize: Int) {

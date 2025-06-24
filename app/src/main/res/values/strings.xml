@@ -87,6 +87,7 @@
     <string name="please_select_kanda_sarga_and_shloka">Please select Kanda, Sarga, and Shloka.</string>
     <string name="navigate_to">Navigate To</string>
     <string name="go">Go</string>
+    <string name="completed">Completed</string>
     <string-array name="theme_entries">
         <item>System Default</item>
         <item>Light</item>
