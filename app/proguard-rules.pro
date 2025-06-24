@@ -19,4 +19,25 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
--keepnames class ** { *;}
+
+-keepclassmembers class com.wirelessalien.android.bhagavadgita.data.Chapter {
+<init>();
+}
+-keepclassmembers class com.wirelessalien.android.bhagavadgita.data.Commentary {
+<init>();
+}
+-keepclassmembers class com.wirelessalien.android.bhagavadgita.data.FavoriteVerseEntity {
+<init>();
+}
+-keepclassmembers class com.wirelessalien.android.bhagavadgita.data.FavouriteVerse {
+<init>();
+}
+-keepclassmembers class com.wirelessalien.android.bhagavadgita.data.Translation {
+<init>();
+}
+-keepclassmembers class com.wirelessalien.android.bhagavadgita.data.RamayanVerse {
+<init>();
+}
+-keepclassmembers class com.wirelessalien.android.bhagavadgita.data.Verse {
+<init>();
+}
