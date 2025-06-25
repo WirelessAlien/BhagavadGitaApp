@@ -628,21 +628,20 @@ class VerseDetailActivity : AppCompatActivity() {
         val commentaryText = commentaryAdapter.getAllCommentaryText()
 
         val textToShare = """
-        Verse Title: $verseTitle
-        Verse Content: $verseContent
-        Verse Transliteration: $verseTransliteration
+        |Verse Title: $verseTitle
+        
+        |Verse Content: 
+        |$verseContent
+        |Verse Transliteration: 
+        |$verseTransliteration
+        |Translations:
+        |$translationText
+        |Commentary:
+        |$commentaryText
+        |Shared from - Bhagavad Gita App (https://github.com/WirelessAlien/BhagavadGitaApp)
+    """.trimMargin()
 
-        Translations:
-        $translationText
-
-        Commentary:
-        $commentaryText
-    """.trimIndent()
-
-        val additionalText =
-            "Shared from - Bhagavad Gita App(https://github.com/WirelessAlien/BhagavadGitaApp)"
-
-        return "$textToShare\n$additionalText"
+        return "$textToShare"
     }
 
 //    private fun copyText() {
