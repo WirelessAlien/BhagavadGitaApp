@@ -37,6 +37,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.color.DynamicColors
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.wirelessalien.android.bhagavadgita.activity.AboutGitaActivity
 import com.wirelessalien.android.bhagavadgita.activity.ChapterDetailsActivity
 import com.wirelessalien.android.bhagavadgita.activity.FavouriteActivity
@@ -72,6 +73,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        installSplashScreen()
         DynamicColors.applyToActivityIfAvailable(this)
         Themes.loadTheme(this)
 
