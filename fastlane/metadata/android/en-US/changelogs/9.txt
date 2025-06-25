@@ -1,0 +1,8 @@
+Change UI @WirelessAlien
+Fix #36 by @WirelessAlien
+Add #32 by @WirelessAlien
+Add Ramayan
+Add haptic feedback when swiping between verses by @shubhamnanche in #34
+Fixed error in transliteration of verses 5 and 6 by @coderamm in #38
+Improving text formatting when sharing text to other apps by @coderamm in #39
+A few changes
