@@ -30,6 +30,7 @@ Features:
 * Audio support for verses
 * Commentary support for verses (Hindi & English)
 * Hanuman Chalisa
+* The Ramayana
 * Language available - Hindi, English
 * Offline support
 
@@ -63,10 +64,9 @@ Distributed under the GPL v3.0 License. See [LICENSE](https://github.com/Wireles
 
 <noscript><a href="https://liberapay.com/WirelessAlien/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a></noscript>  
 
-<a href="https://www.buymeacoffee.com/wirelessalien" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-blue.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
-
 ## Credit
 
 * All the data (Chapters, Verse, Tranlation) are from [Gita](https://github.com/gita/gita) repository by
-Ved Vyas Foundation 
+Ved Vyas Foundation
+* The Ramayan data are from [Valmiki_Ramayan_Dataset](https://github.com/AshuVj/Valmiki_Ramayan_Dataset)
 * [Icon ](https://www.iconfinder.com/agarwalsonika) with [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)
