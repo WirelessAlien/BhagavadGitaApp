@@ -26,6 +26,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.preference.PreferenceManager
 import com.wirelessalien.android.bhagavadgita.databinding.FragmentHanumanChalisaHBinding
 
 class HanumanChalisaH : Fragment() {
@@ -44,8 +45,8 @@ class HanumanChalisaH : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Load the saved text size from SharedPreferences
-        val sharedPrefTextSize = requireActivity().getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
-        currentTextSize = sharedPrefTextSize.getInt("text_size", 16)
+        val sharedPrefTextSize = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        currentTextSize = sharedPrefTextSize.getInt("text_size_preference", 16)
 
         // Set the initial text size
         updateTextSize(currentTextSize)

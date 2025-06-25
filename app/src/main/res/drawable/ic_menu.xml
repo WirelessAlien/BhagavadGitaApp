@@ -1,0 +1,28 @@
+<!--
+  ~ This file is part of BhagavadGitaApp <https://github.com/WirelessAlien/BhagavadGitaApp>
+  ~ Copyright (C) 2023  WirelessAlien <https://github.com/WirelessAlien>
+  ~
+  ~ BhagavadGitaApp is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ BhagavadGitaApp is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960"
+    android:tint="?attr/colorControlNormal">
+  <path
+      android:fillColor="#FF000000"
+      android:pathData="M160,720q-17,0 -28.5,-11.5T120,680q0,-17 11.5,-28.5T160,640h640q17,0 28.5,11.5T840,680q0,17 -11.5,28.5T800,720L160,720ZM160,520q-17,0 -28.5,-11.5T120,480q0,-17 11.5,-28.5T160,440h640q17,0 28.5,11.5T840,480q0,17 -11.5,28.5T800,520L160,520ZM160,320q-17,0 -28.5,-11.5T120,280q0,-17 11.5,-28.5T160,240h640q17,0 28.5,11.5T840,280q0,17 -11.5,28.5T800,320L160,320Z"/>
+</vector>

@@ -23,40 +23,38 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.GestureDetector
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
-import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.ProgressBar
-import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.adapter.CommentaryAdapter
-import com.wirelessalien.android.bhagavadgita.adapter.CustomSpinnerAdapter
 import com.wirelessalien.android.bhagavadgita.adapter.TranslationAdapter
 import com.wirelessalien.android.bhagavadgita.data.Chapter
 import com.wirelessalien.android.bhagavadgita.data.Commentary
-import com.wirelessalien.android.bhagavadgita.data.FavouriteVerse
+import com.wirelessalien.android.bhagavadgita.data.FavoriteDbHelper
 import com.wirelessalien.android.bhagavadgita.data.Translation
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityVerseDetailBinding
+import com.wirelessalien.android.bhagavadgita.utils.AudioUrlHelper
 import com.wirelessalien.android.bhagavadgita.utils.Frequency
 import com.wirelessalien.android.bhagavadgita.utils.Themes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -78,6 +76,10 @@ class VerseDetailActivity : AppCompatActivity() {
     private lateinit var selectedLanguageC: String
     private var currentTextSize: Int = 16
     private val frequency = Frequency()
+    private lateinit var preference: SharedPreferences
+    private lateinit var audioTypes: List<AudioUrlHelper.AudioType>
+    private lateinit var selectedAudioType: AudioUrlHelper.AudioType
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,10 +89,9 @@ class VerseDetailActivity : AppCompatActivity() {
         binding = ActivityVerseDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val sharedPref = getSharedPreferences("author_prefs", Context.MODE_PRIVATE)
+        preference = PreferenceManager.getDefaultSharedPreferences(this)
 
-        val sharedPrefTextSize = getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
-        currentTextSize = sharedPrefTextSize.getInt("text_size", 16) // Get the saved text size
+        currentTextSize = preference.getInt("text_size_preference", 16) // Get the saved text size
 
         gestureDetector = GestureDetector(this, MyGestureListener())
 
@@ -118,83 +119,33 @@ class VerseDetailActivity : AppCompatActivity() {
                     getTranslationsFromJson("translation.json")
                 }
 
-                // Find all available authors from the translations
                 val allAuthors = translations.map { it.authorName }.distinct()
-                val authorSpinner = binding.authorSpinner
+                val authorAutoComplete = binding.authorAutoCompleteTextView
 
-                // Use CustomSpinnerAdapter with coroutines
-                val adapterA = withContext(Dispatchers.Main) {
-                    CustomSpinnerAdapter(
-                        this@VerseDetailActivity,
-                        android.R.layout.simple_spinner_item,
-                        allAuthors,
-                        textSize
-                    )
+                val adapterA = ArrayAdapter(
+                    this@VerseDetailActivity,
+                    android.R.layout.simple_dropdown_item_1line,
+                    allAuthors
+                )
+                authorAutoComplete.setAdapter(adapterA)
+
+                val savedAuthor = preference.getString("selectedAuthor", "")
+                if (allAuthors.contains(savedAuthor)) {
+                    authorAutoComplete.setText(savedAuthor, false)
+                    selectedAuthor = savedAuthor ?: ""
+                    updateTranslationList()
                 }
 
-                adapterA.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                authorSpinner.adapter = adapterA
-
-                val savedAuthor = sharedPref.getString("selectedAuthor", "")
-                val savedAuthorPosition = allAuthors.indexOf(savedAuthor)
-
-                if (savedAuthorPosition != -1) {
-                    authorSpinner.setSelection(savedAuthorPosition)
+                authorAutoComplete.setOnItemClickListener { parent, _, position, _ ->
+                    selectedAuthor = parent.adapter.getItem(position) as String
+                    preference.edit().putString("selectedAuthor", selectedAuthor).apply()
+                    updateTranslationList()
                 }
 
-                authorSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                    override fun onItemSelected(
-                        parent: AdapterView<*>?,
-                        view: View?,
-                        position: Int,
-                        id: Long
-                    ) {
-                        selectedAuthor = allAuthors[position]
-                        sharedPref.edit().putString("selectedAuthor", selectedAuthor).apply()
-
-                        updateTranslationList()
-                    }
-
-                    override fun onNothingSelected(parent: AdapterView<*>?) {}
-                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
-
-        val progressValue = when (currentTextSize) {
-            16 -> 0
-            20 -> 1
-            24 -> 2
-            28 -> 3
-            32 -> 4
-            else -> 1 // Default text size
-        }
-
-        binding.textSizeSeekBar.progress = progressValue
-
-        val textSizeSeekBar = binding.textSizeSeekBar
-        textSizeSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                // Update the text size when the SeekBar progress changes
-                val newSize = when (progress) {
-                    0 -> 16
-                    1 -> 20
-                    2 -> 24
-                    3 -> 28
-                    4 -> 32
-                    else -> 16 // Default text size
-                }
-
-                updateTextSize(newSize)
-
-                updateAdapterTextSize(newSize)
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-        })
 
         lifecycleScope.launch {
             try {
@@ -203,61 +154,43 @@ class VerseDetailActivity : AppCompatActivity() {
                 }
 
                 val allLanguage = commentary.map { it.lang }.distinct()
-                val languageSpinner = binding.cAuthorSpinner
+                val cAuthorAutoComplete = binding.cAuthorAutoCompleteTextView
 
-                // Use CustomSpinnerAdapter with coroutines
-                val adapterL = withContext(Dispatchers.Main) {
-                    CustomSpinnerAdapter(
-                        this@VerseDetailActivity,
-                        android.R.layout.simple_spinner_item,
-                        allLanguage,
-                        textSize
-                    )
+                val adapterL = ArrayAdapter(
+                    this@VerseDetailActivity,
+                    android.R.layout.simple_dropdown_item_1line,
+                    allLanguage
+                )
+                cAuthorAutoComplete.setAdapter(adapterL)
+
+                val savedLang = preference.getString("selectedLang", "")
+                if (allLanguage.contains(savedLang)) {
+                    cAuthorAutoComplete.setText(savedLang, false)
+                    selectedLanguageC = savedLang ?: ""
+                    updateCommentaryList()
                 }
 
-                adapterL.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                languageSpinner.adapter = adapterL
-
-                val savedLang = sharedPref.getString("selectedLang", "")
-                val savedLangPosition = allLanguage.indexOf(savedLang)
-
-                if (savedLangPosition != -1) {
-                    languageSpinner.setSelection(savedLangPosition)
+                cAuthorAutoComplete.setOnItemClickListener { parent, _, position, _ ->
+                    selectedLanguageC = parent.adapter.getItem(position) as String
+                    preference.edit().putString("selectedLang", selectedLanguageC).apply()
+                    updateCommentaryList()
                 }
-
-                languageSpinner.onItemSelectedListener =
-                    object : AdapterView.OnItemSelectedListener {
-                        override fun onItemSelected(
-                            parent: AdapterView<*>?,
-                            view: View?,
-                            position: Int,
-                            id: Long
-                        ) {
-                            selectedLanguageC = allLanguage[position]
-                            sharedPref.edit().putString("selectedLang", selectedLanguageC).apply()
-                            updateCommentaryList()
-                        }
-
-                        override fun onNothingSelected(parent: AdapterView<*>?) {}
-                    }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
 
-        // Update the layout with the verse details
         binding.verseTitleTextView.text = verseTitle
         binding.verseContentTextView.text = verseText
         binding.verseTransliterationTextView.text = verseTransliteration
-        binding.verseWordMeaningsTextView.text = verseWordMeanings
 
         verses = getVerses(chapterNumber)
 
-        // Find the index of the selected verse in the list of verses
         val selectedVerseIndex = verses.indexOfFirst { it.title == verseTitle }
         if (selectedVerseIndex != -1) {
             currentVerseIndex = selectedVerseIndex
         }
+         updateFavoriteButtonStatus()
 
         binding.nextChapterButton.setOnClickListener {
             val nextChapterNumber = chapterNumber + 1
@@ -269,83 +202,148 @@ class VerseDetailActivity : AppCompatActivity() {
                     putExtra("name_meaning", nextChapterDetails?.name_meaning)
                     putExtra("chapter_summary", nextChapterDetails?.chapter_summary)
                     putExtra("chapter_summary_hindi", nextChapterDetails?.chapter_summary_hindi)
+                    putExtra("verses_count", nextChapterDetails?.verses_count ?: 0)
                 }
                 startActivity(intent)
                 finish()
             } else {
-                Toast.makeText(this, "No more chapters available.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.no_more_chapters_available), Toast.LENGTH_SHORT).show()
                 binding.nextChapterButton.isEnabled = false
             }
         }
 
-        binding.shareButton.setOnClickListener {
-            shareText()
-        }
-        binding.copyButton.setOnClickListener {
-            copyText()
-        }
-        binding.favButton.setOnClickListener {
-            onFavoriteButtonClick()
-        }
-        binding.readMRadioBtn.isChecked = isVerseRead()
+        audioTypes = AudioUrlHelper.audioOptions
 
-        // Set a listener on the switch
-        binding.readMRadioBtn.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                markVerseAsRead()
-                Toast.makeText(this, "Marked as Read", Toast.LENGTH_SHORT).show()
-            } else {
-                markVerseAsUnread()
-            }
-        }
+        val savedAudioType = preference.getString("selectedAudioType", audioTypes.first().displayName)
+        selectedAudioType = audioTypes.find { it.displayName == savedAudioType } ?: audioTypes.first()
 
-        binding.viewTranslationButton.setOnClickListener {
-            val currentVerseNumber = verses[currentVerseIndex].verse_id
-            val intent = Intent(this, VerseTranslationActivity::class.java)
-            intent.putExtra("verse_id", currentVerseNumber)
-            startActivity(intent)
-        }
+        val audioSourceAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_dropdown_item_1line,
+            audioTypes.map { it.displayName }
+        )
+        binding.audioSourceDropdown.setAdapter(audioSourceAdapter)
+        binding.audioSourceDropdown.setText(selectedAudioType.displayName, false)
 
-        binding.playPauseButton.setOnClickListener {
-            val audioUrl =
-                "https://github.com/WirelessAlien/gita/raw/main/data/verse_recitation/${verses[currentVerseIndex].chapter_number}/${verses[currentVerseIndex].verse_number}.mp3"
+        binding.audioSourceDropdown.setOnItemClickListener { _, _, position, _ ->
+            selectedAudioType = audioTypes[position]
+            preference.edit().putString("selectedAudioType", selectedAudioType.displayName).apply()
             if (isPlaying) {
                 pauseAudio()
-            } else {
-                playAudio(audioUrl, binding.progressBar)
             }
         }
 
-        binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(
-                seekBar: SeekBar?,
-                progressValue: Int,
-                fromUser: Boolean
-            ) {
-                if (fromUser) {
-                    mediaPlayer.seekTo(progressValue)
+        binding.fabPlay.setOnClickListener {
+            if (verses.isEmpty() || currentVerseIndex < 0 || currentVerseIndex >= verses.size) {
+                Toast.makeText(this, "Verse data not loaded yet.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val currentVerse = verses[currentVerseIndex]
+            val audioUrl = AudioUrlHelper.getAudioUrl(
+                currentVerse.chapter_number,
+                currentVerse.verse_number,
+                selectedAudioType
+            )
+
+            if (audioUrl != null) {
+                if (isPlaying) {
+                    pauseAudio()
                 } else {
-                    binding.seekBar.progress = mediaPlayer.currentPosition
+                    playAudio(audioUrl, binding.progressBar, selectedAudioType, currentVerse.chapter_number, currentVerse.verse_number)
                 }
+            } else {
+                Toast.makeText(this, "Could not determine audio URL.", Toast.LENGTH_SHORT).show()
             }
+        }
 
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+        setupDockedToolbarActions()
 
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-            }
-        })
+        updateFavoriteButtonStatus()
     }
+
+    private fun setupDockedToolbarActions() {
+        binding.actionButtonPrevious.setOnClickListener {
+            navigateToPreviousVerse()
+        }
+        binding.actionButtonNext.setOnClickListener {
+            navigateToNextVerse()
+        }
+        binding.actionButtonFavorite.setOnClickListener {
+            onFavoriteButtonClick()
+        }
+
+        binding.actionButtonShare.setOnClickListener {
+            shareText()
+        }
+
+        binding.actionMarkAsRead.setOnClickListener {
+            toggleReadStatus()
+        }
+        updateFabReadStatus()
+    }
+
+    private fun navigateToPreviousVerse() {
+        if (currentVerseIndex > 0) {
+            currentVerseIndex--
+            handleVerseChange()
+            hapticFeedback(true)
+        } else {
+            Toast.makeText(this, getString(R.string.you_have_reached_the_first_verse_of_this_chapter), Toast.LENGTH_SHORT).show()
+            hapticFeedback(false)
+        }
+    }
+
+    private fun navigateToNextVerse() {
+        if (currentVerseIndex < verses.size - 1) {
+            currentVerseIndex++
+            if (currentVerseIndex == verses.size - 1) {
+                binding.nextChapterButton.visibility = View.VISIBLE
+            }
+            handleVerseChange()
+            hapticFeedback(true)
+        } else {
+            Toast.makeText(this, getString(R.string.you_have_reached_the_last_verse_of_this_chapter), Toast.LENGTH_SHORT).show()
+            hapticFeedback(false)
+        }
+    }
+
+    private fun toggleReadStatus() {
+        if (isVerseRead()) {
+            markVerseAsUnread()
+            Toast.makeText(this, getString(R.string.marked_as_unread), Toast.LENGTH_SHORT).show()
+            binding.actionMarkAsRead.setIconResource(R.drawable.ic_check_2)
+        } else {
+            markVerseAsRead()
+            Toast.makeText(this, getString(R.string.marked_as_read), Toast.LENGTH_SHORT).show()
+            binding.actionMarkAsRead.setIconResource(R.drawable.ic_check)
+        }
+        updateFabReadStatus()
+    }
+
+    private fun updateFabReadStatus() {
+        if (isVerseRead()) {
+            binding.actionMarkAsRead.setIconResource(R.drawable.ic_check_2)
+        } else {
+            binding.actionMarkAsRead.setIconResource(R.drawable.ic_check)
+        }
+    }
+
 
     private fun isVerseRead(): Boolean {
         val sharedPreferences = getSharedPreferences("read_verses", Context.MODE_PRIVATE)
+        // Ensure verses list is not empty and currentVerseIndex is valid
+        if (verses.isEmpty() || currentVerseIndex < 0 || currentVerseIndex >= verses.size) {
+            return false
+        }
         val verseId = verses[currentVerseIndex].verse_id
         return sharedPreferences.getBoolean("$verseId", false)
     }
 
     private fun markVerseAsRead() {
+        // Ensure verses list is not empty and currentVerseIndex is valid
+        if (verses.isEmpty() || currentVerseIndex < 0 || currentVerseIndex >= verses.size) {
+            return
+        }
         val sharedPreferences = getSharedPreferences("read_verses", Context.MODE_PRIVATE)
         val verseId = verses[currentVerseIndex].verse_id
         val chapterNumber = verses[currentVerseIndex].chapter_number
@@ -357,56 +355,63 @@ class VerseDetailActivity : AppCompatActivity() {
     }
 
     private fun markVerseAsUnread() {
+        // Ensure verses list is not empty and currentVerseIndex is valid
+        if (verses.isEmpty() || currentVerseIndex < 0 || currentVerseIndex >= verses.size) {
+            return
+        }
         val sharedPreferences = getSharedPreferences("read_verses", Context.MODE_PRIVATE)
         val verseId = verses[currentVerseIndex].verse_id
         sharedPreferences.edit().putBoolean("$verseId", false).apply()
     }
 
     private fun onFavoriteButtonClick() {
-        // Get the text elements you want to save
-        val chapterId = verses[currentVerseIndex].chapter_number
-        val verseTitle = binding.verseTitleTextView.text.toString()
-        val verseContent = binding.verseContentTextView.text.toString()
-        val transliteration = binding.verseTransliterationTextView.text.toString()
-        val wordMeanings = binding.verseWordMeaningsTextView.text.toString()
+        if (verses.isEmpty() || currentVerseIndex < 0 || currentVerseIndex >= verses.size) {
+            Toast.makeText(this, getString(R.string.verse_data_not_available), Toast.LENGTH_SHORT).show()
+            return
+        }
+        val currentVerse = verses[currentVerseIndex]
+        val verseId = currentVerse.verse_id
+        val verseTitle = currentVerse.title
+        val verseText = currentVerse.text
+        val verseTransliteration = currentVerse.transliteration
+        val verseWordmeaning = currentVerse.word_meanings
 
-        val translationRecyclerView = binding.translationRecyclerView
-        val translationAdapter = translationRecyclerView.adapter as TranslationAdapter
-        val translationText = translationAdapter.getAllTranslationText()
+        val dbHelper = FavoriteDbHelper(this)
 
-        val commentaryRecyclerView = binding.commentaryRecyclerView
-        val commentaryAdapter = commentaryRecyclerView.adapter as CommentaryAdapter
-        val commentaryText = commentaryAdapter.getAllCommentaryText()
+        val existingFavorite = dbHelper.getFavoriteByVerseId(verseId)
 
-        // Retrieve the existing list of favorites from SharedPreferences
-        val sharedPreferences = getSharedPreferences("favorites", Context.MODE_PRIVATE)
-        val gson = Gson()
-        val favoritesJson = sharedPreferences.getString("favoriteList", "[]")
-        val favoriteListType = object : TypeToken<List<FavouriteVerse>>() {}.type
-        val favoriteList =
-            gson.fromJson<List<FavouriteVerse>>(favoritesJson, favoriteListType).toMutableList()
-
-        // Add the new favorite item to the list
-        val newFavoriteItem = FavouriteVerse(
-            chapterId,
-            verseTitle,
-            verseContent,
-            transliteration,
-            wordMeanings,
-            translationText,
-            commentaryText
-        )
-        favoriteList.add(newFavoriteItem)
-
-        // Save the updated list of favorites back to SharedPreferences
-        val editor = sharedPreferences.edit()
-        val updatedFavoritesJson = gson.toJson(favoriteList)
-        editor.putString("favoriteList", updatedFavoritesJson)
-        editor.apply()
-
-        // Display a message or update UI to indicate that it's saved as a favorite
-        Toast.makeText(this, "Added to Favorites", Toast.LENGTH_SHORT).show()
+        if (existingFavorite == null) {
+            val chapterId = currentVerse.chapter_number
+            val result = dbHelper.addFavorite(chapterId, verseId, verseTitle, verseText, verseTransliteration, verseWordmeaning)
+            if (result != -1L) {
+                Toast.makeText(this, getString(R.string.added_to_favorites), Toast.LENGTH_SHORT).show()
+                 binding.actionButtonFavorite.setIconResource(R.drawable.ic_star_2)
+            } else {
+                Toast.makeText(this, getString(R.string.failed_to_add_to_favorites), Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            val result = dbHelper.removeFavorite(verseId)
+            if (result > 0) {
+                Toast.makeText(this, getString(R.string.removed_from_favorites), Toast.LENGTH_SHORT).show()
+                binding.actionButtonFavorite.setIconResource(R.drawable.ic_star)
+            } else {
+                Toast.makeText(this, getString(R.string.failed_to_remove_from_favorites), Toast.LENGTH_SHORT).show()
+            }
+        }
     }
+
+     private fun updateFavoriteButtonStatus() {
+         if (::verses.isInitialized && verses.isNotEmpty()) {
+             val currentVerse = verses[currentVerseIndex]
+             val dbHelper = FavoriteDbHelper(this)
+             val isFavorite = dbHelper.getFavoriteByVerseId(currentVerse.verse_id) != null
+             if (isFavorite) {
+                 binding.actionButtonFavorite.setIconResource(R.drawable.ic_star_2)
+             } else {
+                 binding.actionButtonFavorite.setIconResource(R.drawable.ic_star)
+             }
+         }
+     }
 
     private fun updateTextSize(newSize: Int) {
 
@@ -415,20 +420,16 @@ class VerseDetailActivity : AppCompatActivity() {
             binding.verseTitleTextView,
             binding.verseContentTextView,
             binding.verseTransliterationTextView,
-            binding.verseWordMeaningsTextView
-            // Add other TextViews in your layout that you want to update
         )
 
         textViewList.forEach { textView ->
             textView.textSize = newSize.toFloat()
         }
 
-        val sharedPrefTextSize = getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
-        sharedPrefTextSize.edit().putInt("text_size", newSize).apply()
+        preference.edit().putInt("text_size_preference", newSize).apply()
     }
 
     private fun updateAdapterTextSize(newSize: Int) {
-        // Notify the RecyclerView adapter to update text size
         val recyclerViewT = binding.translationRecyclerView
         val adapterT = recyclerViewT.adapter as? TranslationAdapter
         adapterT?.updateTextSize(newSize)
@@ -436,16 +437,6 @@ class VerseDetailActivity : AppCompatActivity() {
         val recyclerViewC = binding.commentaryRecyclerView
         val adapterC = recyclerViewC.adapter as? CommentaryAdapter
         adapterC?.updateTextSize(newSize)
-
-        val customAdapterC = binding.authorSpinner.adapter as? CustomSpinnerAdapter
-        customAdapterC?.textSize = newSize // Int value directly
-        customAdapterC?.notifyDataSetChanged()
-
-        val customAdapterT = binding.cAuthorSpinner.adapter as? CustomSpinnerAdapter
-        customAdapterT?.textSize = newSize // Int value directly
-        customAdapterT?.notifyDataSetChanged()
-
-
     }
 
     private fun getTranslationsFromJson(fileName: String): List<Translation> {
@@ -514,7 +505,7 @@ class VerseDetailActivity : AppCompatActivity() {
                     currentVerseIndex--
                     Triple(true, true, null)
                 } else {
-                    Triple(false, false, "You have reached the first verse of this chapter")
+                    Triple(false, false, getString(R.string.you_have_reached_the_first_verse_of_this_chapter))
                 }
             }
             SwipeDirection.LEFT -> {
@@ -525,7 +516,7 @@ class VerseDetailActivity : AppCompatActivity() {
                     }
                     Triple(true, true, null)
                 } else {
-                    Triple(false, false, "You have reached the last verse of this chapter")
+                    Triple(false, false, getString(R.string.you_have_reached_the_last_verse_of_this_chapter))
                 }
             }
         }
@@ -547,7 +538,8 @@ class VerseDetailActivity : AppCompatActivity() {
         updateTranslationList()
         updateCommentaryList()
         updateAdapterTextSize(currentTextSize)
-        binding.readMRadioBtn.isChecked = isVerseRead()
+        updateFabReadStatus()
+         updateFavoriteButtonStatus()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             binding.root.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
@@ -573,7 +565,6 @@ class VerseDetailActivity : AppCompatActivity() {
             it.lang == selectedLanguageC && it.verse_id == verses[currentVerseIndex].verse_id
         }
 
-        // Set up the RecyclerView to display the filtered translations
         val commentaryRecyclerView = binding.commentaryRecyclerView
         val commentaryAdapter = CommentaryAdapter(filteredCommentary, currentTextSize)
         commentaryRecyclerView.adapter = commentaryAdapter
@@ -596,7 +587,6 @@ class VerseDetailActivity : AppCompatActivity() {
         binding.verseTitleTextView.text = verse.title
         binding.verseContentTextView.text = verse.text
         binding.verseTransliterationTextView.text = verse.transliteration
-        binding.verseWordMeaningsTextView.text = verse.word_meanings
     }
 
     private fun getChapterDetails(chapterNumber: Int): Chapter? {
@@ -628,7 +618,6 @@ class VerseDetailActivity : AppCompatActivity() {
         val verseTitle = binding.verseTitleTextView.text.toString()
         val verseContent = binding.verseContentTextView.text.toString()
         val verseTransliteration = binding.verseTransliterationTextView.text.toString()
-        val verseWordMeanings = binding.verseWordMeaningsTextView.text.toString()
 
         val translationRecyclerView = binding.translationRecyclerView
         val translationAdapter = translationRecyclerView.adapter as TranslationAdapter
@@ -638,7 +627,6 @@ class VerseDetailActivity : AppCompatActivity() {
         val commentaryAdapter = commentaryRecyclerView.adapter as CommentaryAdapter
         val commentaryText = commentaryAdapter.getAllCommentaryText()
 
-        // Combine all the text content into one string
         val textToShare = """
         |Verse Title: $verseTitle
         
@@ -646,8 +634,6 @@ class VerseDetailActivity : AppCompatActivity() {
         |$verseContent
         |Verse Transliteration: 
         |$verseTransliteration
-        |Verse Word Meanings: 
-        |$verseWordMeanings
         |Translations:
         |$translationText
         |Commentary:
@@ -658,16 +644,16 @@ class VerseDetailActivity : AppCompatActivity() {
         return "$textToShare"
     }
 
-    private fun copyText() {
-        val textToCopy = getAllTextContent()
-
-        val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-
-        val clipData = ClipData.newPlainText("Text to Copy", textToCopy)
-        clipboardManager.setPrimaryClip(clipData)
-
-        Toast.makeText(this, "Text copied to clipboard", Toast.LENGTH_SHORT).show()
-    }
+//    private fun copyText() {
+//        val textToCopy = getAllTextContent()
+//
+//        val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+//
+//        val clipData = ClipData.newPlainText("Text to Copy", textToCopy)
+//        clipboardManager.setPrimaryClip(clipData)
+//
+//        Toast.makeText(this, "Text copied to clipboard", Toast.LENGTH_SHORT).show()
+//    }
 
 
     private fun shareText() {
@@ -684,13 +670,13 @@ class VerseDetailActivity : AppCompatActivity() {
     }
 
 
-    private fun playAudio(audioUrl: String, progressBar: ProgressBar) {
+    private fun playAudio(audioUrl: String, progressBar: ProgressBar, audioType: AudioUrlHelper.AudioType, chapterNum: Int, verseNum: Int) {
         CoroutineScope(Dispatchers.IO).launch {
-            val fileName = audioUrl.substringAfterLast("/")
+            val fileName = AudioUrlHelper.getFileNameFromUrl(audioUrl, audioType, chapterNum, verseNum)
             val cacheDir = applicationContext.cacheDir
             val subDirName = "audio_cache"
-            val chapterNumber = verses[currentVerseIndex].chapter_number
-            val subDir = File(cacheDir, "$subDirName/chapter_$chapterNumber")
+            // val chapterNumber = verses[currentVerseIndex].chapter_number // Already passed as chapterNum
+            val subDir = File(cacheDir, "$subDirName/chapter_$chapterNum")
 
             if (!subDir.exists()) {
                 subDir.mkdirs()
@@ -734,15 +720,12 @@ class VerseDetailActivity : AppCompatActivity() {
                     isPlaying = true
                     progressBar.visibility = View.GONE
                     updatePlayPauseButton()
-                    startSeekBarUpdate()
                 }
             } catch (e: IOException) {
                 withContext(Dispatchers.Main) {
                     progressBar.visibility = View.GONE
                     Toast.makeText(
-                        applicationContext,
-                        "Unable to play the audio. Please check your internet connection.",
-                        Toast.LENGTH_SHORT
+                        applicationContext, getString(R.string.unable_to_play_the_audio_please_check_your_internet_connection), Toast.LENGTH_SHORT
                     ).show()
                 }
             }
@@ -757,28 +740,10 @@ class VerseDetailActivity : AppCompatActivity() {
 
     private fun updatePlayPauseButton() {
         if (isPlaying) {
-            binding.playPauseButton.setImageResource(R.drawable.ic_pause)
+            binding.fabPlay.setIconResource(R.drawable.ic_pause)
         } else {
-            binding.playPauseButton.setImageResource(R.drawable.ic_play)
+            binding.fabPlay.setIconResource(R.drawable.ic_play)
         }
-    }
-
-    private fun startSeekBarUpdate() {
-        binding.seekBar.max = mediaPlayer.duration
-        val handler = Handler(Looper.getMainLooper())
-
-        val updateInterval = 100
-
-        handler.postDelayed(object : Runnable {
-            override fun run() {
-                try {
-                    binding.seekBar.progress = mediaPlayer.currentPosition
-                    handler.postDelayed(this, updateInterval.toLong())
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
-        }, 0)
     }
 
     override fun onStop() {

@@ -30,6 +30,11 @@ data class Verse(
     val verse_number: Int,
     val verse_id: Int,
     val transliteration: String,
-    val word_meanings: String
+    val word_meanings: String,
+    val meaning: Meaning? = null
+)
 
+data class Meaning(
+    val en: String?,
+    val hi: String?
 )

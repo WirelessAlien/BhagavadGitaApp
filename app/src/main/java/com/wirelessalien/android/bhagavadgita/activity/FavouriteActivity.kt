@@ -19,18 +19,21 @@
 
 package com.wirelessalien.android.bhagavadgita.activity
 
-import android.content.Context
-import android.content.SharedPreferences
+
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.wirelessalien.android.bhagavadgita.R
 import com.wirelessalien.android.bhagavadgita.adapter.FavouriteVerseAdapter
-import com.wirelessalien.android.bhagavadgita.data.FavouriteVerse
+import com.wirelessalien.android.bhagavadgita.data.FavoriteDbHelper
+import com.wirelessalien.android.bhagavadgita.data.FavouriteVerse // This is the UI model
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityFavouriteBinding
+import com.wirelessalien.android.bhagavadgita.databinding.DialogAddNoteBinding // For the note dialog
 import com.wirelessalien.android.bhagavadgita.utils.Themes
 
 class FavouriteActivity : AppCompatActivity() {
@@ -39,8 +42,7 @@ class FavouriteActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: FavouriteVerseAdapter
     private val favoriteList = mutableListOf<FavouriteVerse>()
-    private lateinit var sharedPreferences: SharedPreferences
-    private val gson = Gson()
+    private lateinit var dbHelper: FavoriteDbHelper
     private var currentTextSize: Int = 16 // Default text size
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,65 +53,90 @@ class FavouriteActivity : AppCompatActivity() {
         binding = ActivityFavouriteBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setupToolbar()
         recyclerView = binding.favoritesRecyclerView
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Initialize SharedPreferences
-        sharedPreferences = getSharedPreferences("favorites", Context.MODE_PRIVATE)
+        dbHelper = FavoriteDbHelper(this)
 
-        val sharedPrefTextSize = getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
-        currentTextSize = sharedPrefTextSize.getInt("text_size", 16) // Get the saved text size
+        val sharedPrefTextSize = PreferenceManager.getDefaultSharedPreferences(this)
+        currentTextSize = sharedPrefTextSize.getInt("text_size_preference", 16) // Get the saved text size
 
-        // Load the list of favorite items
-        loadFavoriteList()
-
-        // Initialize and set the adapter
-        adapter = FavouriteVerseAdapter(favoriteList)
+        adapter = FavouriteVerseAdapter(favoriteList,
+            onDeleteClicked = { verse ->
+                deleteFavorite(verse)
+            },
+            onAddNoteClicked = { verse ->
+                showAddNoteDialog(verse)
+            }, currentTextSize
+        )
         recyclerView.adapter = adapter
 
-        // Set up a click listener for the delete button in the adapter
-        adapter.setOnDeleteClickListener { position ->
-            deleteFavorite(position)
-        }
+        loadFavoriteList()
 
-        adapter.setOnExpandClickListener { position ->
-            toggleItemExpansion(position)
-        }
     }
 
     private fun loadFavoriteList() {
-        val favoritesJson = sharedPreferences.getString("favoriteList", "[]")
-        val favoriteListType = object : TypeToken<List<FavouriteVerse>>() {}.type
+        val dbFavorites = dbHelper.getAllFavorites()
         favoriteList.clear()
-        favoriteList.addAll(gson.fromJson(favoritesJson, favoriteListType))
+        dbFavorites.forEach { entity ->
+            favoriteList.add(
+                FavouriteVerse(
+                    chapterId = entity.chapterId,
+                    verseId = entity.verseId,
+                    verseTitle = entity.verseTitle,
+                    verseContent = entity.verseText,
+                    verseTransliteration = entity.verseTransliteration,
+                    userNote = entity.userNote
+                )
+            )
+        }
+        adapter.notifyDataSetChanged()
 
         if (favoriteList.isEmpty()) {
-            // If the list is empty, show the emptyTextView
             binding.emptyTextView.visibility = View.VISIBLE
         } else {
-            // If the list is not empty, hide the emptyTextView
             binding.emptyTextView.visibility = View.GONE
         }
     }
 
-    private fun saveFavoriteList() {
-        val favoritesJson = gson.toJson(favoriteList)
-        sharedPreferences.edit().putString("favoriteList", favoritesJson).apply()
+    private fun setupToolbar() {
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
-    private fun deleteFavorite(position: Int) {
-        if (position in 0 until favoriteList.size) {
-            favoriteList.removeAt(position)
-            adapter.notifyItemRemoved(position)
-            saveFavoriteList()
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressedDispatcher.onBackPressed()
+        return true
+    }
+
+    private fun deleteFavorite(verse: FavouriteVerse) {
+        val verseIdToDelete = verse.verseId
+        val result = dbHelper.removeFavorite(verseIdToDelete)
+        if (result > 0) {
+            Toast.makeText(this, getString(R.string.removed_from_favorites), Toast.LENGTH_SHORT).show()
+            loadFavoriteList()
+        } else {
+            Toast.makeText(this, getString(R.string.failed_to_remove_from_favorites), Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun toggleItemExpansion(position: Int) {
-        if (position in 0 until favoriteList.size) {
-            val item = favoriteList[position]
-            item.isExpanded = !item.isExpanded
-            adapter.notifyItemChanged(position)
-        }
+    private fun showAddNoteDialog(verse: FavouriteVerse) {
+        val dialogBinding = DialogAddNoteBinding.inflate(layoutInflater)
+        dialogBinding.noteEditText.setText(verse.userNote ?: "")
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle(getString(R.string.add_edit_note_for, verse.verseTitle))
+            .setView(dialogBinding.root)
+            .setPositiveButton(getString(R.string.save)) { dialog, _ ->
+                val noteText = dialogBinding.noteEditText.text.toString()
+                dbHelper.addOrUpdateUserNote(verse.verseId, noteText)
+                loadFavoriteList()
+                dialog.dismiss()
+            }
+            .setNegativeButton(getString(R.string.cancel)) { dialog, _ ->
+                dialog.cancel()
+            }
+            .show()
     }
 }

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ This file is part of BhagavadGitaApp <https://github.com/WirelessAlien/BhagavadGitaApp>
+  ~ Copyright (C) 2023  WirelessAlien <https://github.com/WirelessAlien>
+  ~
+  ~ BhagavadGitaApp is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ BhagavadGitaApp is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ListPreference
+        android:key="theme_preference"
+        android:title="Theme"
+        android:summary="Select the app theme"
+        android:entries="@array/theme_entries"
+        android:entryValues="@array/theme_values"
+        android:defaultValue="system" />
+
+    <androidx.preference.SeekBarPreference
+        android:key="text_size_preference"
+        android:title="Text Size"
+        android:summary="Adjust the text size"
+        android:defaultValue="16"
+        app:min="16"
+        app:showSeekBarValue="true"
+        android:max="32" />
+
+    <Preference
+        android:key="sample_text_preference"
+        android:title="Sample Text"
+        android:layout="@layout/sample_text_preference"
+        android:enabled="false" />
+
+</PreferenceScreen>

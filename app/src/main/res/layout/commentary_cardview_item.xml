@@ -18,51 +18,17 @@
   ~
   -->
 
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:cardCornerRadius="5dp"
-    android:clickable="false"
-    android:focusable="false"
-    style="@style/Widget.Material3.CardView.Outlined"
-    android:layout_margin="5dp"
-    app:cardElevation="5dp">
+    android:orientation="vertical"
+    android:padding="10dp">
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/tversedescriptionTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="10dp">
+        android:textSize="16sp"/>
+</LinearLayout>
 
-        <TextView
-            android:id="@+id/authorNameF"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:text="@string/author"
-            android:textStyle="bold"/>
-
-        <TextView
-            android:id="@+id/authorNameTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/tversedescriptionTextViewF"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/commentary"
-            android:textStyle="bold"
-            android:textSize="16sp"/>
-
-        <TextView
-            android:id="@+id/tversedescriptionTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"/>
-
-    </LinearLayout>
-
-</com.google.android.material.card.MaterialCardView>

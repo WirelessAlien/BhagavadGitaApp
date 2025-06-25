@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ This file is part of BhagavadGitaApp <https://github.com/WirelessAlien/BhagavadGitaApp>
+  ~ Copyright (C) 2023  WirelessAlien <https://github.com/WirelessAlien>
+  ~
+  ~ BhagavadGitaApp is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ BhagavadGitaApp is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+
+    <TextView
+        android:id="@+id/textViewKanda"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?attr/textAppearanceBody2"
+        android:textStyle="bold"
+        android:layout_gravity="center"
+        tools:text="Bala Kanda - Sarga 1, Shloka 1" />
+
+    <TextView
+        android:id="@+id/textViewShlokaText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textAlignment="center"
+        android:textAppearance="?attr/textAppearanceBody2"
+        android:fontFamily="@font/tiro_sanskrit"
+        android:textSize="18sp"
+        tools:text="तपस्स्वाध्यायनिरतं तपस्वी वाग्विदां वरम् । नारदं परिपप्रच्छ वाल्मीकिर्मुनिपुङ्गवम् ।।1.1.1।।"/>
+
+    <TextView
+        android:id="@+id/textViewTranslation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textAppearance="?attr/textAppearanceBody2"
+        tools:text="Ascetic Valmiki enquired of Narada, preeminent among the sages ever engaged in the practice of religious austerities or study of the Vedas and best among the eloquent."/>
+
+    <TextView
+        android:id="@+id/textViewExplanation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:visibility="gone"
+        android:textAppearance="?attr/textAppearanceBody2"
+        tools:text="Detailed explanation here."
+        tools:visibility="visible"/>
+</LinearLayout>

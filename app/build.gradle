@@ -11,8 +11,8 @@ android {
         applicationId "com.wirelessalien.android.bhagavadgita"
         minSdk 23
         targetSdk 35
-        versionCode 8
-        versionName "3.3"
+        versionCode 9
+        versionName "3.4"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -20,12 +20,11 @@ android {
     buildTypes {
         debug {
             applicationIdSuffix ".debug"
-            versionNameSuffix 'Debug'
+            versionNameSuffix '-debug'
         }
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.debug //don't forget to comment this line out when generating signed app apk/bundle
         }
     }
     compileOptions {
@@ -57,8 +56,7 @@ dependencies {
     implementation libs.androidx.lifecycle.runtime.ktx
     implementation libs.androidx.lifecycle.viewmodel.ktx
     implementation libs.androidx.lifecycle.livedata.ktx
-
-    implementation libs.kotlin.reflect
+    implementation libs.androidx.preference.ktx
 
     
     testImplementation libs.junit

@@ -17,7 +17,6 @@
   ~
   -->
 
-<!-- layout_nav_drawer.xml -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
@@ -29,19 +28,18 @@
         android:title="@string/hanuman_chalisa"
         android:icon="@drawable/om_icon"/>
     <item
-        android:id="@+id/nav_theme"
-        android:title="Theme"
-        android:icon="@drawable/ic_dark_mode"
-        android:visible="true"
-        app:showAsAction="always"/>
+        android:id="@+id/nav_fav"
+        android:title="@string/favourite"
+        android:icon="@drawable/ic_star_2"
+        app:showAsAction="collapseActionView"/>
     <item
-        android:id="@+id/nav_about"
-        android:title="About"
-        android:icon="@drawable/ic_info"
+        android:id="@+id/nav_theme"
+        android:title="@string/settings"
+        android:icon="@drawable/ic_settings"
         app:showAsAction="ifRoom"/>
     <item
-        android:id="@+id/nav_fav"
-        android:title="Favourite"
-        android:icon="@drawable/ic_favorite_line"
-        app:showAsAction="always"/>
+        android:id="@+id/nav_about"
+        android:title="@string/about"
+        android:icon="@drawable/ic_info"
+        app:showAsAction="collapseActionView"/>
 </menu>

@@ -30,9 +30,9 @@
         android:layout_height="150dp"
         android:layout_margin="10dp"
         app:cardElevation="5dp"
-        app:strokeColor="@color/md_theme_light_primary"
+        app:strokeColor="@color/md_theme_primary"
         app:strokeWidth="2dp"
-        app:cardCornerRadius="5dp">
+        app:cardCornerRadius="10dp">
 
         <ImageView
             android:layout_width="match_parent"
@@ -52,6 +52,7 @@
             android:autoSizeMaxTextSize="20sp"
             android:autoSizeMinTextSize="10dp"
             android:autoSizeTextType="uniform"
+            android:fontFamily="@font/tiro_sanskrit"
             android:padding="5dp"
             android:textSize="14sp"
             tools:targetApi="o" />

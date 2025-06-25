@@ -20,7 +20,6 @@ import com.wirelessalien.android.bhagavadgita.data.Commentary
 import com.wirelessalien.android.bhagavadgita.data.Translation
 import com.wirelessalien.android.bhagavadgita.data.Verse
 import com.wirelessalien.android.bhagavadgita.databinding.AllVerseActivityBinding
-import com.wirelessalien.android.bhagavadgita.utils.NullableTypAdapterFactory
 import com.wirelessalien.android.bhagavadgita.utils.Themes
 import kotlinx.coroutines.*
 import java.io.IOException

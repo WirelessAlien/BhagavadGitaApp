@@ -19,15 +19,13 @@
 
 package com.wirelessalien.android.bhagavadgita.data
 
-// FavoriteVerse.kt
 data class FavouriteVerse(
     val chapterId: Int,
+    val verseId: Int,
     val verseTitle: String,
     val verseContent: String,
-    val transliteration: String,
-    val wordMeanings: String,
-    val translationData: String,
-    val commentaryData: String,
+    val verseTransliteration: String? = null,
+    var userNote: String? = null,
     var isExpanded: Boolean = false
 )
 

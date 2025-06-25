@@ -96,8 +96,6 @@ class ChapterAdapter(private val chapters: List<Chapter>, private var textSize: 
         return ChapterViewHolder(binding)
     }
 
-
-
     override fun onBindViewHolder(holder: ChapterViewHolder, position: Int) {
         holder.bind(chapters[position], position)
     }

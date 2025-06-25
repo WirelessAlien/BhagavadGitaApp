@@ -28,6 +28,7 @@
         android:layout_height="wrap_content"
         android:textAlignment="center"
         android:textSize="20sp"
+        android:lineSpacingExtra="5dp"
+        android:fontFamily="@font/tiro_sanskrit"
         android:text="@string/hanuman_chalisa_h" />
-
 </ScrollView>

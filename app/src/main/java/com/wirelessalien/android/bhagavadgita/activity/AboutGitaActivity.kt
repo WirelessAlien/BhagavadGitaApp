@@ -20,9 +20,9 @@
 
 package com.wirelessalien.android.bhagavadgita.activity
 
-import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.PreferenceManager
 import com.wirelessalien.android.bhagavadgita.databinding.ActivityAboutGitaBinding
 import com.wirelessalien.android.bhagavadgita.utils.Themes
 
@@ -39,8 +39,8 @@ class AboutGitaActivity: AppCompatActivity() {
         binding = ActivityAboutGitaBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val sharedPrefTextSize = getSharedPreferences("text_size_prefs", Context.MODE_PRIVATE)
-        currentTextSize = sharedPrefTextSize.getInt("text_size", 16) // Get the saved text size
+        val sharedPrefTextSize = PreferenceManager.getDefaultSharedPreferences(this)
+        currentTextSize = sharedPrefTextSize.getInt("text_size_preference", 16) // Get the saved text size
 
         updateTextSize(currentTextSize)
 

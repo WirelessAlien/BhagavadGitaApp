@@ -21,14 +21,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     xmlns:tools="http://schemas.android.com/tools">
 
 
-    <androidx.appcompat.widget.Toolbar
+    <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:elevation="4dp"/>
+        android:layout_height="?attr/actionBarSize"/>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
@@ -110,13 +110,6 @@
                         android:text="See More"
                         android:textSize="14sp" />
 
-                    <ProgressBar
-                        android:id="@+id/progressBar"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:visibility="gone" />
-
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -152,6 +145,76 @@
                             android:layout_marginStart="5dp"/>
                     </RelativeLayout>
 
+                    <com.google.android.material.progressindicator.CircularProgressIndicator
+                        android:id="@+id/progressBar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:visibility="gone"/>
+
+
+                    <androidx.appcompat.widget.AppCompatSeekBar
+                        android:id="@+id/verseSeekBar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"/>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center_vertical">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/audioSourceLayout"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:boxCornerRadiusTopStart="10dp"
+                            app:boxCornerRadiusTopEnd="10dp"
+                            app:boxCornerRadiusBottomStart="10dp"
+                            app:boxCornerRadiusBottomEnd="10dp"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:paddingBottom="10dp"
+                            android:layout_toStartOf="@id/fabPlayPauseChapter"
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense.ExposedDropdownMenu">
+
+                            <AutoCompleteTextView
+                                android:id="@+id/audioSourceAutoCompleteTextViewChapter"
+                                android:layout_width="match_parent"
+                                android:layout_height="48dp"
+                                android:hint="@string/select_audio_source"
+                                android:inputType="none"
+                                android:padding="8dp"
+                                style="@style/Widget.Material3.AutoCompleteTextView.OutlinedBox.Dense"
+                                tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/fabPlayPauseChapter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            app:cornerRadius="10dp"
+                            android:paddingBottom="10dp"
+                            android:layout_centerVertical="true"
+                            android:layout_alignParentEnd="true"
+                            style="@style/Widget.Material3.Button.IconButton.Filled.Tonal"
+                            android:contentDescription="@string/play_chapter_audio"
+                            app:icon="@drawable/ic_play"/>
+
+                        <com.google.android.material.progressindicator.LinearProgressIndicator
+                            android:id="@+id/audioLoadingProgressBarChapter"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentBottom="true"
+                            android:indeterminate="true"
+                            android:visibility="gone"/>
+                    </RelativeLayout>
                 </LinearLayout>
             </com.google.android.material.appbar.CollapsingToolbarLayout>
         </com.google.android.material.appbar.AppBarLayout>
@@ -160,8 +223,8 @@
             android:id="@+id/verseRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_margin="11dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             tools:listitem="@layout/verse_cardview_item"/>
-
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </RelativeLayout>

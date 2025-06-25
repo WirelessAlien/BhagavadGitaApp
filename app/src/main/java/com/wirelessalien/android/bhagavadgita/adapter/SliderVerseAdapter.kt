@@ -59,7 +59,6 @@ class SliderVerseAdapter(private val verses: List<Verse>) :
                     putExtra("verse_text", verse.text)
                     putExtra("verse_transliteration", verse.transliteration)
                     putExtra("verse_word_meanings", verse.word_meanings)
-                    // Add other verse details here if needed
                 }
                 itemView.context.startActivity(intent)
             }
