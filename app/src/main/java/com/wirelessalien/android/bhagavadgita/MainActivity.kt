@@ -140,28 +140,27 @@ class MainActivity : AppCompatActivity() {
         binding.searchBar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.nav_about_gita -> {
-                    intent.setClass(this, AboutGitaActivity::class.java)
+                    val intent = Intent(this, AboutGitaActivity::class.java)
                     startActivity(intent)
                 }
                 R.id.nav_hanuman_chalisa -> {
-                    intent.setClass(this, HanumanChalisaActivity::class.java)
+                    val intent = Intent(this, HanumanChalisaActivity::class.java)
                     startActivity(intent)
                 }
                 R.id.nav_theme -> {
-                    intent.setClass(this, SettingsActivity::class.java)
+                    val intent = Intent(this, SettingsActivity::class.java)
                     startActivity(intent)
                 }
                 R.id.nav_about -> {
                     val aboutDialog = AboutAppFragment()
                     aboutDialog.show(supportFragmentManager, "AboutAppFragment")
-
                 }
                 R.id.nav_fav -> {
-                    intent.setClass(this, FavouriteActivity::class.java)
+                    val intent = Intent(this, FavouriteActivity::class.java)
                     startActivity(intent)
                 }
             }
-            false
+            true
         }
 
 
